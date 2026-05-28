@@ -1,0 +1,45 @@
+name: lakbay_game
+description: "A new Flutter project."
+publish_to: "none"
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.5
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  http: ^1.2.1
+
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/background.png
+    - assets/startup.png
+    - assets/profile.png
+    - assets/ship.png
+    - assets/citizen.png
+    - assets/government.png
+    - assets/rocks.png
+    - assets/star.png
+    - assets/lesson1.png
+    - assets/stone-1.png
+    - assets/stone-2.png
+    - assets/stone-3.png
+    - assets/stone-4.png
+    - assets/lesson2.png
+    - assets/lesson3.png
+    - assets/lesson3-day1.png
+    - assets/lesson3-day2.png
+    - assets/lesson-three-game1.png
+    - assets/lesson-three-game2.png
