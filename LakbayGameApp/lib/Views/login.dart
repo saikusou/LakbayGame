@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Components/button.dart';
-import 'package:lakbay_game/Components/colors.dart';
 import 'package:lakbay_game/Components/textfield.dart';
 import 'package:lakbay_game/Views/profile.dart';
 import 'package:lakbay_game/Views/signup.dart';
+import 'package:lakbay_game/services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,8 +16,42 @@ class _LoginScreenState extends State<LoginScreen> {
   final userName = TextEditingController();
   final password = TextEditingController();
 
+  final AuthService authService = AuthService();
+
+
   bool isChecked = false;
   bool isLoginTrue = false;
+
+  Future<void> handleLogin() async {
+  bool success = await authService.login(
+    userName: userName.text.trim(),
+    password: password.text.trim(),
+  );
+
+  if (!mounted) return;
+
+  setState(() {
+    isLoginTrue = !success;
+  });
+
+  if (success) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const ProfileScreen(),
+      ),
+    );
+  }
+}
+
+@override
+void dispose() {
+  userName.dispose();
+  password.dispose();
+  super.dispose();
+}
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,14 +114,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     Button1(
                       label: 'LOG IN',
-                      press: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ProfileScreen(),
-                          ),
-                        );
-                      },
+                    press: () async {
+  await handleLogin();
+},
                     ),
 
                     Row(
