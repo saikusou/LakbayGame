@@ -24,4 +24,30 @@ class AuthService {
       return false;
     }
   }
+
+   Future<bool> createAccount({
+    required String name,
+    required String email,
+    required String gender,
+    required String password,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${ApiConfig.baseUrl}/users/signUp'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'userName': name,
+          'email': email,
+          'gender': gender,
+          'password': password,
+        }),
+      );
+
+      return response.statusCode == 201 || response.statusCode == 200;
+    } catch (e) {
+      return false;
+    }
+  }
 }

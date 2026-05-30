@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lakbay_game/Components/button.dart';
 import 'package:lakbay_game/Components/textfield.dart';
 import 'package:lakbay_game/Views/login.dart';
+import 'package:lakbay_game/services/auth_service.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -16,6 +17,51 @@ class _SignupScreenState extends State<SignupScreen> {
   final password = TextEditingController();
   final confirmPassword = TextEditingController();
   final gender = TextEditingController();
+
+
+final AuthService _authService = AuthService();
+
+Future<void> createAccount() async {
+  // Validate passwords
+  if (password.text != confirmPassword.text) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Passwords do not match'),
+      ),
+    );
+    return;
+  }
+
+  final success = await _authService.createAccount(
+    name: fullName.text.trim(),
+    email: email.text.trim(),
+    gender: gender.text.trim(),
+    password: password.text.trim(),
+  );
+
+  if (!mounted) return;
+
+  if (success) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Account created successfully'),
+      ),
+    );
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const LoginScreen(),
+      ),
+    );
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Failed to create account'),
+      ),
+    );
+  }
+}
 
   @override
   void dispose() {
@@ -94,7 +140,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           border: Border.all(color: Colors.black),
                         ),
                         child: DropdownButtonFormField<String>(
-                          value: gender.text.isEmpty ? null : gender.text,
+                          initialValue: gender.text.isEmpty ? null : gender.text,
                           decoration: const InputDecoration(
                             border: InputBorder.none,
                             icon: Icon(Icons.person),
@@ -138,14 +184,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
                       Button(
                         label: 'CREATE AN ACCOUNT',
-                        press: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const SignupScreen(),
-                            ),
-                          );
-                        },
+                        press: createAccount,
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
