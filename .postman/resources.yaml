@@ -1,0 +1,8 @@
+# Use this workspace to collaborate
+workspace:
+  id: 6dabb2c3-7907-46ef-877f-3a21e1429910
+
+localResources:
+  specs:
+    - ..\LakbayGameApi\obj\Debug\net10.0\EndpointInfo\LakbayGameApi.json
+    - ..\LakbayGameApi\obj\Debug\net10.0\EndpointInfo\WebApplication1.json
