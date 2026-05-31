@@ -1,2 +1,0 @@
-C:/Users/Kusanali/Documents/GitHub/LakbayGame/LakbayGameApp/build/.cxx/debug/43e3r1v6/armeabi-v7a/CMakeFiles/edit_cache.dir
-C:/Users/Kusanali/Documents/GitHub/LakbayGame/LakbayGameApp/build/.cxx/debug/43e3r1v6/armeabi-v7a/CMakeFiles/rebuild_cache.dir
