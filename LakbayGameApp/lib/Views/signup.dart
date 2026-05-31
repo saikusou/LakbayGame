@@ -18,50 +18,50 @@ class _SignupScreenState extends State<SignupScreen> {
   final confirmPassword = TextEditingController();
   final gender = TextEditingController();
 
+  final AuthService _authService = AuthService();
 
-final AuthService _authService = AuthService();
+  bool _isLoading = false;
 
-Future<void> createAccount() async {
-  // Validate passwords
-  if (password.text != confirmPassword.text) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Passwords do not match'),
-      ),
+  Future<void> createAccount() async {
+    if (password.text != confirmPassword.text) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Passwords do not match')));
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    final success = await _authService.createAccount(
+      name: fullName.text.trim(),
+      email: email.text.trim(),
+      gender: gender.text.trim(),
+      password: password.text.trim(),
     );
-    return;
+
+    if (!mounted) return;
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Account created successfully')),
+      );
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Failed to create account')));
+    }
   }
-
-  final success = await _authService.createAccount(
-    name: fullName.text.trim(),
-    email: email.text.trim(),
-    gender: gender.text.trim(),
-    password: password.text.trim(),
-  );
-
-  if (!mounted) return;
-
-  if (success) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Account created successfully'),
-      ),
-    );
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const LoginScreen(),
-      ),
-    );
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Failed to create account'),
-      ),
-    );
-  }
-}
 
   @override
   void dispose() {
@@ -140,7 +140,9 @@ Future<void> createAccount() async {
                           border: Border.all(color: Colors.black),
                         ),
                         child: DropdownButtonFormField<String>(
-                          initialValue: gender.text.isEmpty ? null : gender.text,
+                          initialValue: gender.text.isEmpty
+                              ? null
+                              : gender.text,
                           decoration: const InputDecoration(
                             border: InputBorder.none,
                             icon: Icon(Icons.person),
@@ -182,10 +184,17 @@ Future<void> createAccount() async {
 
                       const SizedBox(height: 20),
 
-                      Button(
-                        label: 'CREATE AN ACCOUNT',
-                        press: createAccount,
-                      ),
+                      _isLoading
+                          ? const Padding(
+                              padding: EdgeInsets.all(16.0),
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                              ),
+                            )
+                          : Button(
+                              label: 'CREATE AN ACCOUNT',
+                              press: createAccount,
+                            ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
