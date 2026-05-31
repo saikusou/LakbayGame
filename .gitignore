@@ -1,6 +1,22 @@
-/LakbayGameApp/build/
-/LakbayGameApp/obj/
+# Visual Studio
+.vs/
 
-/LakbayGameApi/.vs/
-/LakbayGameApi/bin/
-/LakbayGameApi/obj/
+# Build outputs
+bin/
+obj/
+
+# Published outputs
+publish/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Debug files
+*.pdb
+
+# Generated binaries
+*.dll
+*.exe

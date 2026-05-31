@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lakbay_game/Components/button.dart';
-import 'package:lakbay_game/Components/textfield.dart';
 import 'package:lakbay_game/Views/lesson3.dart';
 
 class LessonThreeGameTwo extends StatefulWidget {
