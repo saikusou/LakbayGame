@@ -1,31 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Kusanali\\Documents\\GitHub\\LakbayGame\\LakbayGameApi\\LakbayGameApi.csproj": {}
+    "C:\\Users\\malri\\.config\\herd\\config\\valet\\Sites\\LakbayGame\\LakbayGameApi\\LakbayGameApi.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Kusanali\\Documents\\GitHub\\LakbayGame\\LakbayGameApi\\LakbayGameApi.csproj": {
+    "C:\\Users\\malri\\.config\\herd\\config\\valet\\Sites\\LakbayGame\\LakbayGameApi\\LakbayGameApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Kusanali\\Documents\\GitHub\\LakbayGame\\LakbayGameApi\\LakbayGameApi.csproj",
+        "projectUniqueName": "C:\\Users\\malri\\.config\\herd\\config\\valet\\Sites\\LakbayGame\\LakbayGameApi\\LakbayGameApi.csproj",
         "projectName": "LakbayGameApi",
-        "projectPath": "C:\\Users\\Kusanali\\Documents\\GitHub\\LakbayGame\\LakbayGameApi\\LakbayGameApi.csproj",
-        "packagesPath": "C:\\Users\\Kusanali\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Kusanali\\Documents\\GitHub\\LakbayGame\\LakbayGameApi\\obj\\",
+        "projectPath": "C:\\Users\\malri\\.config\\herd\\config\\valet\\Sites\\LakbayGame\\LakbayGameApi\\LakbayGameApi.csproj",
+        "packagesPath": "C:\\Users\\malri\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\malri\\.config\\herd\\config\\valet\\Sites\\LakbayGame\\LakbayGameApi\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\Kusanali\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\malri\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
