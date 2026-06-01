@@ -170,7 +170,7 @@ class _LessonThreeGameTwoState extends State<LessonThreeGameTwo> {
                 scale: scale,
                 offsetX: offsetX,
                 offsetY: offsetY,
-                popupImage: "assets/stone-2.png",
+                popupImage: "assets/lesson-three-game2d.png",
               ),
 
               /// HIDDEN 3
@@ -181,7 +181,7 @@ class _LessonThreeGameTwoState extends State<LessonThreeGameTwo> {
                 scale: scale,
                 offsetX: offsetX,
                 offsetY: offsetY,
-                popupImage: "assets/stone-3.png",
+                popupImage: "assets/lesson-three-game2c.png",
               ),
 
               /// HIDDEN 4
@@ -192,7 +192,7 @@ class _LessonThreeGameTwoState extends State<LessonThreeGameTwo> {
                 scale: scale,
                 offsetX: offsetX,
                 offsetY: offsetY,
-                popupImage: "assets/stone-4.png",
+                popupImage: "assets/lesson-three-game2a.png",
               ),
 
               /// HOME BUTTON
