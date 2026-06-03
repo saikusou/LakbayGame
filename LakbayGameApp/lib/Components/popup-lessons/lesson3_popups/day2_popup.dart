@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-one/act4.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-two/act1.dart';
-import 'package:lakbay_game/Views/game/lesson-three/game_one.dart';
-import 'package:lakbay_game/Views/game/lesson-three/game_two.dart';
 
 class Day2Popup extends StatelessWidget {
   final String title;
@@ -34,7 +32,7 @@ class Day2Popup extends StatelessWidget {
     }
 
     /// 4. TAMA O MALI
-    if (title.contains('Tama o Mali')) {
+    if (title.contains('Katanungan')) {
       return const _TamaOMaliPopup();
     }
 
@@ -195,7 +193,7 @@ class _TamaOMaliPopup extends StatelessWidget {
 
           /// IMAGE FILLS ENTIRE POPUP
           image: const DecorationImage(
-            image: AssetImage('assets/lesson-three-day1-act4.png'),
+            image: AssetImage('assets/lesson-three-day1-act5.png'),
             fit: BoxFit.fill,
           ),
         ),
