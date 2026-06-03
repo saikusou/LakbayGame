@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lakbay_game/Views/game/lesson-three/day-one/act4.dart';
 import 'package:lakbay_game/Views/game/lesson-three/game_one.dart';
 import 'package:lakbay_game/Views/game/lesson-three/game_two.dart';
 
@@ -210,7 +211,7 @@ class _GawainPopup extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const LessonThreeGameOne(),
+                      builder: (context) => const LessonThreeActFour(),
                     ),
                   );
                 },
@@ -267,46 +268,100 @@ class _KonseptoPopup extends StatelessWidget {
 /// =========================================================
 /// 4. TAMA O MALI
 /// =========================================================
+
 class _TamaOMaliPopup extends StatelessWidget {
   const _TamaOMaliPopup();
 
+  double clampDouble(double value, double min, double max) {
+    return value.clamp(min, max).toDouble();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return _CustomPopupContainer(
-      borderColor: Colors.red,
-      child: Column(
-        children: [
-          const Text(
-            "Ang Pilipinas ay isang bansa.",
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 18),
+    final size = MediaQuery.of(context).size;
+
+    final popupHeight = clampDouble(size.height * 0.75, 450, 530);
+    final popupWidth = clampDouble(size.width * 0.90, 350, 550);
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.all(18),
+      child: Container(
+        width: popupWidth,
+        height: popupHeight,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: Colors.blue, width: 5),
+
+          /// IMAGE FILLS ENTIRE POPUP
+          image: const DecorationImage(
+            image: AssetImage('assets/lesson-three-day1-act4.png'),
+            fit: BoxFit.fill,
           ),
+        ),
 
-          const SizedBox(height: 20),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                child: const Text(
-                  "TAMA",
-                  style: TextStyle(color: Colors.white),
+        child: Column(
+          children: [
+            /// CLOSE BUTTON
+            Align(
+              alignment: Alignment.topRight,
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 3),
+                    ),
+                    child: const Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 26,
+                    ),
+                  ),
                 ),
               ),
+            ),
 
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                child: const Text(
-                  "MALI",
-                  style: TextStyle(color: Colors.white),
+            const Spacer(),
+
+            /// SUBMIT BUTTON
+            Padding(
+              padding: const EdgeInsets.only(bottom: 5),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const LessonThreeActFour(),
+                    ),
+                  );
+                },
+                child: Container(
+                  width: 55,
+                  height: 55,
+                  decoration: BoxDecoration(
+                    color: Colors.green,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 4),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 8,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(Icons.send, color: Colors.white, size: 30),
                 ),
               ),
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }

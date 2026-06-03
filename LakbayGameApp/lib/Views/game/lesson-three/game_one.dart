@@ -33,7 +33,7 @@ class _LessonThreeGameOneState extends State<LessonThreeGameOne> {
 
     final String backgroundImage = currentScenario == 1
         ? 'assets/lesson-three-game1.png'
-        : 'assets/lesson-three-game2.png'; // CHANGE THIS
+        : 'assets/lesson-three-game1a.png';
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -48,7 +48,7 @@ class _LessonThreeGameOneState extends State<LessonThreeGameOne> {
               ),
             ),
 
-            /// BACK BUTTON (ONLY SHOW IN SCENARIO 2)
+            /// BACK BUTTON
             if (currentScenario == 2)
               Positioned(
                 top: clampDouble(size.height * 0.025, 14, 22),
@@ -125,15 +125,23 @@ class _LessonThreeGameOneState extends State<LessonThreeGameOne> {
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Column(
                     children: [
-                      const SizedBox(height: 390),
+                      /// SPACE FROM TOP
+                      SizedBox(
+                        height: clampDouble(size.height * 0.58, 390, 500),
+                      ),
 
                       /// SCENARIO 1
                       if (currentScenario == 1) ...[
-                        InputField(
-                          hint: 'Answer for Picture 1',
-                          icon: Icons.edit,
-                          controller: answer1,
-                          passwordInvisible: false,
+                        Padding(
+                          padding: EdgeInsets.only(
+                            top: clampDouble(size.height * 0.04, 20, 45),
+                          ),
+                          child: InputField(
+                            hint: 'Answer for Picture 1',
+                            icon: Icons.edit,
+                            controller: answer1,
+                            passwordInvisible: false,
+                          ),
                         ),
 
                         const SizedBox(height: 16),
@@ -150,11 +158,16 @@ class _LessonThreeGameOneState extends State<LessonThreeGameOne> {
 
                       /// SCENARIO 2
                       if (currentScenario == 2) ...[
-                        InputField(
-                          hint: 'Answer for Picture 2',
-                          icon: Icons.edit,
-                          controller: answer2,
-                          passwordInvisible: false,
+                        Padding(
+                          padding: EdgeInsets.only(
+                            top: clampDouble(size.height * 0.10, 40, 55),
+                          ),
+                          child: InputField(
+                            hint: 'Answer for Picture 2',
+                            icon: Icons.edit,
+                            controller: answer2,
+                            passwordInvisible: false,
+                          ),
                         ),
 
                         const SizedBox(height: 16),
@@ -163,7 +176,6 @@ class _LessonThreeGameOneState extends State<LessonThreeGameOne> {
                           label: 'SUBMIT',
                           press: () {
                             debugPrint('Picture 1 Answer: ${answer1.text}');
-
                             debugPrint('Picture 2 Answer: ${answer2.text}');
 
                             // ADD RESULT PAGE HERE
