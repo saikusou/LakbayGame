@@ -109,9 +109,11 @@ class _Lesson3ScreenState extends State<Lesson3Screen> {
         headerImage = 'assets/stone-2.png';
 
         contents = [
-          {"icon": Icons.menu_book, "title": "1. Pagbasa"},
-          {"icon": Icons.quiz, "title": "2. Pagsusulit"},
-          {"icon": Icons.groups, "title": "3. Talakayan"},
+          {"icon": Icons.menu_book, "title": "1. Learning Objectives"},
+          {"icon": Icons.quiz, "title": "2. GAWAIN 2: Ilaya o Ilawud"},
+          {"icon": Icons.groups, "title": "3. Presentasyon"},
+          {"icon": Icons.assignment, "title": "4. Katanungan"},
+          {"icon": Icons.assignment, "title": "5. Takdang Aralin"},
         ];
         break;
 
