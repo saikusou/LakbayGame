@@ -228,36 +228,6 @@ class _TamaOMaliPopup extends StatelessWidget {
             const Spacer(),
 
             /// SUBMIT BUTTON
-            Padding(
-              padding: const EdgeInsets.only(bottom: 5),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const LessonThreeActFour(),
-                    ),
-                  );
-                },
-                child: Container(
-                  width: 55,
-                  height: 55,
-                  decoration: BoxDecoration(
-                    color: Colors.green,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 4),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 8,
-                        offset: Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(Icons.send, color: Colors.white, size: 30),
-                ),
-              ),
-            ),
           ],
         ),
       ),
@@ -298,7 +268,7 @@ class _TakdangAralinPopup extends StatelessWidget {
 
           /// BACKGROUND IMAGE
           image: const DecorationImage(
-            image: AssetImage('assets/lesson-three-act5.png'),
+            image: AssetImage('assets/lesson-three-day2-act5.png'),
             fit: BoxFit.cover,
           ),
         ),
