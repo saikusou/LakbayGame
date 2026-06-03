@@ -49,9 +49,6 @@ class Day1Popup extends StatelessWidget {
 /// =========================================================
 /// 1. LEARNING OBJECTIVES
 /// =========================================================
-/// =========================================================
-/// 1. LEARNING OBJECTIVES
-/// =========================================================
 class _LearningObjectivesPopup extends StatelessWidget {
   const _LearningObjectivesPopup();
 
@@ -370,17 +367,78 @@ class _TamaOMaliPopup extends StatelessWidget {
 /// =========================================================
 /// 5. TAKDANG ARALIN
 /// =========================================================
+
 class _TakdangAralinPopup extends StatelessWidget {
   const _TakdangAralinPopup();
 
+  double clampDouble(double value, double min, double max) {
+    return value.clamp(min, max).toDouble();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return _CustomPopupContainer(
-      borderColor: Colors.purple,
-      child: const Text(
-        "Gumawa ng maikling sanaysay tungkol sa aralin.",
-        textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 18),
+    final size = MediaQuery.of(context).size;
+
+    final popupHeight = clampDouble(size.height * 0.75, 450, 500);
+    final popupWidth = clampDouble(size.width * 0.90, 350, 550);
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.all(18),
+
+      child: Container(
+        width: popupWidth,
+        height: popupHeight,
+
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(28),
+
+          border: Border.all(color: Colors.blue, width: 5),
+
+          /// BACKGROUND IMAGE
+          image: const DecorationImage(
+            image: AssetImage('assets/lesson-three-act5.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+
+        child: Column(
+          children: [
+            /// CLOSE BUTTON
+            Align(
+              alignment: Alignment.topRight,
+
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(context),
+
+                  child: Container(
+                    width: 44,
+                    height: 44,
+
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+
+                      border: Border.all(color: Colors.white, width: 3),
+                    ),
+
+                    child: const Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 26,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            /// OPTIONAL SPACE
+            const Spacer(),
+          ],
+        ),
       ),
     );
   }
