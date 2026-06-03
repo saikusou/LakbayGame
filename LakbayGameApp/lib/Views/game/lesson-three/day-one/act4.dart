@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Components/button.dart';
-import 'package:lakbay_game/Components/textfield.dart';
 import 'package:lakbay_game/Views/lesson3.dart';
 
 class LessonThreeActFour extends StatefulWidget {
@@ -11,20 +10,65 @@ class LessonThreeActFour extends StatefulWidget {
 }
 
 class _LessonThreeActFourState extends State<LessonThreeActFour> {
-  final TextEditingController answer1 = TextEditingController();
-  final TextEditingController answer2 = TextEditingController();
-
   int currentScenario = 1;
+
+  String? answer1;
+  String? answer2;
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
   }
 
-  @override
-  void dispose() {
-    answer1.dispose();
-    answer2.dispose();
-    super.dispose();
+  void selectAnswer(String answer) {
+    setState(() {
+      if (currentScenario == 1) {
+        answer1 = answer;
+      } else {
+        answer2 = answer;
+      }
+    });
+  }
+
+  Widget choiceButton({
+    required String label,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 130,
+        height: 80,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(color: Colors.white, width: 4),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 8,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: Colors.white, size: 35),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -32,8 +76,8 @@ class _LessonThreeActFourState extends State<LessonThreeActFour> {
     final size = MediaQuery.of(context).size;
 
     final String backgroundImage = currentScenario == 1
-        ? 'assets/lesson-three-game1.png'
-        : 'assets/lesson-three-game1a.png';
+        ? 'assets/lesson-three-act4-one.png'
+        : 'assets/lesson-three-act4-two.png';
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -118,34 +162,42 @@ class _LessonThreeActFourState extends State<LessonThreeActFour> {
               ),
             ),
 
-            /// CONTENT
+            /// CONTENT BUTTONS
             SafeArea(
               child: Center(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Column(
                     children: [
-                      /// SPACE FROM TOP
                       SizedBox(
-                        height: clampDouble(size.height * 0.58, 390, 500),
+                        height: clampDouble(size.height * 0.70, 470, 610),
                       ),
 
-                      /// SCENARIO 1
-                      if (currentScenario == 1) ...[
-                        Padding(
-                          padding: EdgeInsets.only(
-                            top: clampDouble(size.height * 0.04, 20, 45),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          choiceButton(
+                            label: 'TAMA',
+                            icon: Icons.check,
+                            color: Colors.green,
+                            onTap: () {
+                              selectAnswer('TAMA');
+                            },
                           ),
-                          child: InputField(
-                            hint: 'Answer for Picture 1',
-                            icon: Icons.edit,
-                            controller: answer1,
-                            passwordInvisible: false,
+                          choiceButton(
+                            label: 'MALI',
+                            icon: Icons.close,
+                            color: Colors.red,
+                            onTap: () {
+                              selectAnswer('MALI');
+                            },
                           ),
-                        ),
+                        ],
+                      ),
 
-                        const SizedBox(height: 16),
+                      const SizedBox(height: 20),
 
+                      if (currentScenario == 1)
                         Button(
                           label: 'NEXT',
                           press: () {
@@ -154,34 +206,17 @@ class _LessonThreeActFourState extends State<LessonThreeActFour> {
                             });
                           },
                         ),
-                      ],
 
-                      /// SCENARIO 2
-                      if (currentScenario == 2) ...[
-                        Padding(
-                          padding: EdgeInsets.only(
-                            top: clampDouble(size.height * 0.10, 40, 55),
-                          ),
-                          child: InputField(
-                            hint: 'Answer for Picture 2',
-                            icon: Icons.edit,
-                            controller: answer2,
-                            passwordInvisible: false,
-                          ),
-                        ),
-
-                        const SizedBox(height: 16),
-
+                      if (currentScenario == 2)
                         Button(
                           label: 'SUBMIT',
                           press: () {
-                            debugPrint('Picture 1 Answer: ${answer1.text}');
-                            debugPrint('Picture 2 Answer: ${answer2.text}');
+                            debugPrint('Picture 1 Answer: $answer1');
+                            debugPrint('Picture 2 Answer: $answer2');
 
                             // ADD RESULT PAGE HERE
                           },
                         ),
-                      ],
                     ],
                   ),
                 ),
