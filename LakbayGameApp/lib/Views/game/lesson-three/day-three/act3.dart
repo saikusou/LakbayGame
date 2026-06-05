@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lakbay_game/Views/lesson3.dart';
 
 void main() {
   runApp(const MyApp());
@@ -9,9 +10,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const LessonThreeDayOneActThree(),
+      home: LessonThreeDayOneActThree(),
     );
   }
 }
@@ -25,11 +26,14 @@ class LessonThreeDayOneActThree extends StatefulWidget {
 }
 
 class _LessonThreeDayOneActThreeState extends State<LessonThreeDayOneActThree> {
-  // Controllers to capture user inputs for rows 2 to 5
   final TextEditingController _row2Controller = TextEditingController();
   final TextEditingController _row3Controller = TextEditingController();
   final TextEditingController _row4Controller = TextEditingController();
   final TextEditingController _row5Controller = TextEditingController();
+
+  double clampDouble(double value, double min, double max) {
+    return value.clamp(min, max).toDouble();
+  }
 
   @override
   void dispose() {
@@ -42,70 +46,119 @@ class _LessonThreeDayOneActThreeState extends State<LessonThreeDayOneActThree> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
+    final double topSpace = clampDouble(size.height * 0.28, 160, 230);
+
     return Scaffold(
-      // The background color is removed from Scaffold to let the Container image show through
-      body: SafeArea(
-        child: Container(
-          width: double.infinity,
-          height: double.infinity,
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              // ⚠️ REPLACE THIS PATH WITH YOUR ACTUAL ASSET IMAGE PATH
-              image: AssetImage('assets/lesson-three-day2-act5.png'),
-              fit: BoxFit
-                  .cover, // Ensures the image stretches beautifully to fill the screen
+      resizeToAvoidBottomInset: true,
+      body: SizedBox.expand(
+        child: Stack(
+          children: [
+            /// FULL RESPONSIVE BACKGROUND
+            Positioned.fill(
+              child: Image.asset(
+                scale: 1,
+                'assets/lesson-three-day3-act3.png',
+                fit: BoxFit.fill,
+              ),
             ),
-          ),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Header Section Space
-                const SizedBox(height: 200),
 
-                // Table Section
-                Table(
-                  // Adds a semi-transparent background to the table for text readability
-                  backgroundColor: Colors.white70,
-                  columnWidths: const {
-                    0: FlexColumnWidth(4),
-                    1: FlexColumnWidth(6),
-                  },
-                  border: TableBorder.all(color: Colors.black54, width: 1.5),
+            /// CONTENT
+            SafeArea(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(
+                  horizontal: clampDouble(size.width * 0.04, 12, 24),
+                  vertical: 16,
+                ),
+                child: Column(
                   children: [
-                    // Table Header Row
-                    _buildTableHeaderRow(),
+                    SizedBox(height: topSpace),
 
-                    // Row 1: Static Example Text (Excluded from input)
-                    _buildStaticRow(
-                      '1. Lolo/Lola',
-                      'Hal. Ang aking lolo ay isang magsasaka, nakatutulong ang aking lolo sa mga tao para magkaroon ng pagkain.',
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.75),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Table(
+                        columnWidths: const {
+                          0: FlexColumnWidth(4),
+                          1: FlexColumnWidth(6),
+                        },
+                        border: TableBorder.all(
+                          color: Colors.black54,
+                          width: 1.5,
+                        ),
+                        children: [
+                          _buildTableHeaderRow(),
+                          _buildStaticRow(
+                            '1. Lolo/Lola',
+                            'Hal. Ang aking lolo ay isang magsasaka, nakatutulong ang aking lolo sa mga tao para magkaroon ng pagkain.',
+                          ),
+                          _buildFillableRow('2. Nanay/Tatay', _row2Controller),
+                          _buildFillableRow('3. Ako', _row3Controller),
+                          _buildFillableRow('4. Mga Kapatid', _row4Controller),
+                          _buildFillableRow(
+                            '5. Bunsong Kapatid',
+                            _row5Controller,
+                          ),
+                        ],
+                      ),
                     ),
 
-                    // Rows 2 to 5: Fillable input rows
-                    _buildFillableRow('2. Nanay/Tatay', _row2Controller),
-                    _buildFillableRow('3. Ako', _row3Controller),
-                    _buildFillableRow('4. Mga Kapatid', _row4Controller),
-                    _buildFillableRow('5. Bunsong Kapatid', _row5Controller),
+                    const SizedBox(height: 30),
                   ],
                 ),
-              ],
+              ),
             ),
-          ),
+
+            Positioned(
+              top: clampDouble(size.height * 0.025, 14, 22),
+              right: clampDouble(size.width * 0.04, 12, 20),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const Lesson3Screen()),
+                  );
+                },
+                child: Container(
+                  width: clampDouble(size.width * 0.14, 50, 70),
+                  height: clampDouble(size.width * 0.14, 50, 70),
+                  decoration: BoxDecoration(
+                    color: Colors.orange,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 4),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 8,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    Icons.home,
+                    color: Colors.white,
+                    size: clampDouble(size.width * 0.08, 28, 40),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  // Header Builder
   TableRow _buildTableHeaderRow() {
     return const TableRow(
       children: [
         TableCell(
           verticalAlignment: TableCellVerticalAlignment.middle,
           child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
             child: Text(
               'ANG AKING PAMILYA',
               textAlign: TextAlign.center,
@@ -116,7 +169,7 @@ class _LessonThreeDayOneActThreeState extends State<LessonThreeDayOneActThree> {
         TableCell(
           verticalAlignment: TableCellVerticalAlignment.middle,
           child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
             child: Text(
               'AMBAG SA PAMAYANAN',
               textAlign: TextAlign.center,
@@ -128,14 +181,13 @@ class _LessonThreeDayOneActThreeState extends State<LessonThreeDayOneActThree> {
     );
   }
 
-  // Row 1: Read-only Example Row
   TableRow _buildStaticRow(String familyMember, String contribution) {
     return TableRow(
       children: [
         TableCell(
           verticalAlignment: TableCellVerticalAlignment.top,
           child: Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding: const EdgeInsets.all(12),
             child: Text(
               familyMember,
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
@@ -145,7 +197,7 @@ class _LessonThreeDayOneActThreeState extends State<LessonThreeDayOneActThree> {
         TableCell(
           verticalAlignment: TableCellVerticalAlignment.top,
           child: Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding: const EdgeInsets.all(12),
             child: Text(
               contribution,
               style: const TextStyle(fontSize: 15, height: 1.3),
@@ -156,7 +208,6 @@ class _LessonThreeDayOneActThreeState extends State<LessonThreeDayOneActThree> {
     );
   }
 
-  // Rows 2-5: Dynamic Input Rows
   TableRow _buildFillableRow(
     String familyMember,
     TextEditingController controller,
@@ -166,7 +217,7 @@ class _LessonThreeDayOneActThreeState extends State<LessonThreeDayOneActThree> {
         TableCell(
           verticalAlignment: TableCellVerticalAlignment.middle,
           child: Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding: const EdgeInsets.all(12),
             child: Text(
               familyMember,
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
@@ -174,21 +225,19 @@ class _LessonThreeDayOneActThreeState extends State<LessonThreeDayOneActThree> {
           ),
         ),
         TableCell(
-          verticalAlignment: TableCellVerticalAlignment.fill,
+          verticalAlignment: TableCellVerticalAlignment.middle,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-            child: Center(
-              child: TextField(
-                controller: controller,
-                maxLines: null, // Allows dynamic downward expansion
-                keyboardType: TextInputType.multiline,
-                style: const TextStyle(fontSize: 15),
-                decoration: const InputDecoration(
-                  hintText: 'Isulat dito...',
-                  hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
-                  border: InputBorder.none, // Keeps grid lines clean
-                  contentPadding: EdgeInsets.symmetric(vertical: 8.0),
-                ),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: TextField(
+              controller: controller,
+              maxLines: null,
+              keyboardType: TextInputType.multiline,
+              style: const TextStyle(fontSize: 15),
+              decoration: const InputDecoration(
+                hintText: 'Isulat dito...',
+                hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.symmetric(vertical: 8),
               ),
             ),
           ),
