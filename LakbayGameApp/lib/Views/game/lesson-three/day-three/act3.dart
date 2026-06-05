@@ -71,10 +71,11 @@ class _LessonThreeDayOneActThreeState extends State<LessonThreeDayOneActThree> {
                   horizontal: clampDouble(size.width * 0.04, 12, 24),
                   vertical: 16,
                 ),
+
                 child: Column(
                   children: [
                     SizedBox(height: topSpace),
-
+                    const SizedBox(height: 100),
                     Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
