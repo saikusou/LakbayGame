@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-one/act4.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-three/act2.dart';
+import 'package:lakbay_game/Views/game/lesson-three/day-three/act3.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-two/act1.dart';
 
 class Day3Popup extends StatelessWidget {
@@ -29,7 +30,14 @@ class Day3Popup extends StatelessWidget {
 
     /// 3. KONSEPTO
     if (title.contains('Ang Aking Pamilya sa Pamayanan')) {
-      return const _GawainPopup();
+      Future.microtask(() {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const LessonThreeDayOneActThree()),
+        );
+      });
+
+      return const SizedBox.shrink();
     }
 
     /// 4. TAMA O MALI
