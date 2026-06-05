@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lakbay_game/Views/lesson3.dart';
 
 class LessonThreeDayFourActTwo extends StatefulWidget {
   const LessonThreeDayFourActTwo({super.key});
@@ -121,6 +122,40 @@ class _LessonThreeDayFourActTwoState extends State<LessonThreeDayFourActTwo> {
                 children: List.generate(
                   questions.length,
                   (index) => questionItem(index, fontSize),
+                ),
+              ),
+            ),
+          ),
+
+          Positioned(
+            top: clampDouble(size.height * 0.025, 14, 22),
+            right: clampDouble(size.width * 0.04, 12, 20),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const Lesson3Screen()),
+                );
+              },
+              child: Container(
+                width: clampDouble(size.width * 0.14, 50, 70),
+                height: clampDouble(size.width * 0.14, 50, 70),
+                decoration: BoxDecoration(
+                  color: Colors.orange,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 4),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 8,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  Icons.home,
+                  color: Colors.white,
+                  size: clampDouble(size.width * 0.08, 28, 40),
                 ),
               ),
             ),
