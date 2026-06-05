@@ -21,11 +21,11 @@ class _LessonThreeDayFourActTwoState extends State<LessonThreeDayFourActTwo> {
       'Ang mga tao sa Ilaya ay nagsasaka at nangangaso.',
     ],
     [
-      'Ang Ilawud ay matatagpuan sa kapatagan o baybayin.',
-      'Ang mga tao sa Ilaya ay umaasa lamang sa pangingisda.',
-      'Ang kalakalan ay mahalaga sa Ilawud.',
-      'Ang Ilaya at Ilawud ay may magkaibang uri ng pamumuhay.',
-      'Ang kapaligiran ay nakaapekto sa hanapbuhay ng pamayanan.',
+      'Pamayanang malapit sa ilog o dagat.',
+      'Ang mga tao ay nagtatanim at nangangaso.',
+      'May mga bangka at mangingisda, Nasa Kabundukan o looban.',
+      'Nakikipagkalakalan gamit ang mga producto, tulad ng bigas at Kayo.',
+      'Nakikipagkalakalan gamit ang mga produkto, tulad ng isda at iba pang yamang-dagat.',
     ],
   ];
 
