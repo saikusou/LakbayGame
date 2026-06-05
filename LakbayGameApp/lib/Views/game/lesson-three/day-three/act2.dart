@@ -96,17 +96,73 @@ class _LessonThreeDayOneActTwoState extends State<LessonThreeDayOneActTwo> {
       body: SizedBox.expand(
         child: Stack(
           children: [
-            /// BACKGROUND
+            /// 1. BACKGROUND (Bottom layer)
             Positioned.fill(
-              child: Image.asset(
-                backgroundImage,
-                width: double.infinity,
-                height: double.infinity,
-                fit: BoxFit.fill,
+              child: Transform.scale(
+                scale: 1,
+                child: Image.asset(backgroundImage, fit: BoxFit.fill),
               ),
             ),
 
-            /// BACK BUTTON
+            /// 2. CONTENT BUTTONS (Middle layer)
+            SafeArea(
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: clampDouble(size.height * 0.70, 470, 610),
+                      ),
+                      const SizedBox(height: 55),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          choiceButton(
+                            label: 'ILAYA',
+                            icon: Icons.star,
+                            color: Colors.blue,
+                            onTap: () {
+                              selectAnswer('ILAYA');
+                            },
+                          ),
+                          choiceButton(
+                            label: 'ILAWUD',
+                            icon: Icons.favorite,
+                            color: Colors.red,
+                            onTap: () {
+                              selectAnswer('ILAWUD');
+                            },
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      if (currentScenario == 1)
+                        Button(
+                          label: 'NEXT',
+                          press: () {
+                            setState(() {
+                              currentScenario = 2;
+                            });
+                          },
+                        ),
+                      if (currentScenario == 2)
+                        Button(
+                          label: 'SUBMIT',
+                          press: () {
+                            debugPrint('Picture 1 Answer: $answer1');
+                            debugPrint('Picture 2 Answer: $answer2');
+                            // ADD RESULT PAGE HERE
+                          },
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            /// 3. INTERACTIVE NAVIGATION BUTTONS (Top Layer)
+            /// Placed at the end of the Stack so they sit on top of everything else and register clicks correctly.
             if (currentScenario == 2)
               Positioned(
                 top: clampDouble(size.height * 0.025, 14, 22),
@@ -141,7 +197,6 @@ class _LessonThreeDayOneActTwoState extends State<LessonThreeDayOneActTwo> {
                 ),
               ),
 
-            /// HOME BUTTON
             Positioned(
               top: clampDouble(size.height * 0.025, 14, 22),
               right: clampDouble(size.width * 0.04, 12, 20),
@@ -171,67 +226,6 @@ class _LessonThreeDayOneActTwoState extends State<LessonThreeDayOneActTwo> {
                     Icons.home,
                     color: Colors.white,
                     size: clampDouble(size.width * 0.08, 28, 40),
-                  ),
-                ),
-              ),
-            ),
-
-            /// CONTENT BUTTONS
-            SafeArea(
-              child: Center(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: clampDouble(size.height * 0.70, 470, 610),
-                      ),
-
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          choiceButton(
-                            label: 'ILAYA',
-                            icon: Icons.star,
-                            color: Colors.blue,
-                            onTap: () {
-                              selectAnswer('ILAYA');
-                            },
-                          ),
-                          choiceButton(
-                            label: 'ILAWUD',
-                            icon: Icons.favorite,
-                            color: Colors.red,
-                            onTap: () {
-                              selectAnswer('ILAWUD');
-                            },
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      if (currentScenario == 1)
-                        Button(
-                          label: 'NEXT',
-                          press: () {
-                            setState(() {
-                              currentScenario = 2;
-                            });
-                          },
-                        ),
-
-                      if (currentScenario == 2)
-                        Button(
-                          label: 'SUBMIT',
-                          press: () {
-                            debugPrint('Picture 1 Answer: $answer1');
-                            debugPrint('Picture 2 Answer: $answer2');
-
-                            // ADD RESULT PAGE HERE
-                          },
-                        ),
-                    ],
                   ),
                 ),
               ),
