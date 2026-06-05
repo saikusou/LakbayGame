@@ -31,7 +31,7 @@ class _LessonThreeDayFourActTwoState extends State<LessonThreeDayFourActTwo> {
 
   final List<String> backgrounds = [
     'assets/lesson-three-day4-act2.png',
-    'assets/lesson-three-day4-act2.png',
+    'assets/lesson-three-day4-act2b.png',
   ];
 
   late final List<List<TextEditingController>> answers;
