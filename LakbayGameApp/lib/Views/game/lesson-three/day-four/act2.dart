@@ -10,18 +10,41 @@ class LessonThreeDayFourActTwo extends StatefulWidget {
 }
 
 class _LessonThreeDayFourActTwoState extends State<LessonThreeDayFourActTwo> {
-  final List<TextEditingController> answers = List.generate(
-    5,
-    (_) => TextEditingController(),
-  );
+  int currentPage = 0;
 
-  final List<String> questions = [
-    'Ang Ilaya ay matatagpuan malapit sa dagat.',
-    'Ang pangunahing hanapbuhay sa Ilawud ay pangingisda.',
-    'Ang Ilaya ay pamayanang nasa bundok o looban.',
-    'Ang Ilawud ay walang kaugnayan sa kalakalan.',
-    'Ang mga tao sa Ilaya ay nagsasaka at nangangaso.',
+  final List<List<String>> questions = [
+    [
+      'Ang Ilaya ay matatagpuan malapit sa dagat.',
+      'Ang pangunahing hanapbuhay sa Ilawud ay pangingisda.',
+      'Ang Ilaya ay pamayanang nasa bundok o looban.',
+      'Ang Ilawud ay walang kaugnayan sa kalakalan.',
+      'Ang mga tao sa Ilaya ay nagsasaka at nangangaso.',
+    ],
+    [
+      'Ang Ilawud ay matatagpuan sa kapatagan o baybayin.',
+      'Ang mga tao sa Ilaya ay umaasa lamang sa pangingisda.',
+      'Ang kalakalan ay mahalaga sa Ilawud.',
+      'Ang Ilaya at Ilawud ay may magkaibang uri ng pamumuhay.',
+      'Ang kapaligiran ay nakaapekto sa hanapbuhay ng pamayanan.',
+    ],
   ];
+
+  final List<String> backgrounds = [
+    'assets/lesson-three-day4-act2.png',
+    'assets/lesson-three-day4-act2.png',
+  ];
+
+  late final List<List<TextEditingController>> answers;
+
+  @override
+  void initState() {
+    super.initState();
+    answers = List.generate(
+      questions.length,
+      (page) =>
+          List.generate(questions[page].length, (_) => TextEditingController()),
+    );
+  }
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
@@ -29,8 +52,10 @@ class _LessonThreeDayFourActTwoState extends State<LessonThreeDayFourActTwo> {
 
   @override
   void dispose() {
-    for (final controller in answers) {
-      controller.dispose();
+    for (final page in answers) {
+      for (final controller in page) {
+        controller.dispose();
+      }
     }
     super.dispose();
   }
@@ -41,11 +66,12 @@ class _LessonThreeDayFourActTwoState extends State<LessonThreeDayFourActTwo> {
       height: 38,
       margin: const EdgeInsets.only(left: 8),
       child: TextField(
-        controller: answers[index],
+        controller: answers[currentPage][index],
         textAlign: TextAlign.center,
+        textCapitalization: TextCapitalization.characters,
         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         decoration: InputDecoration(
-          hintText: 'T/M',
+          hintText: '',
           filled: true,
           fillColor: Colors.white,
           contentPadding: EdgeInsets.zero,
@@ -79,7 +105,7 @@ class _LessonThreeDayFourActTwoState extends State<LessonThreeDayFourActTwo> {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              questions[index],
+              questions[currentPage][index],
               style: TextStyle(
                 fontSize: fontSize,
                 fontWeight: FontWeight.w600,
@@ -89,6 +115,39 @@ class _LessonThreeDayFourActTwoState extends State<LessonThreeDayFourActTwo> {
           ),
           answerBox(index),
         ],
+      ),
+    );
+  }
+
+  Widget circleButton({
+    required IconData icon,
+    required VoidCallback onTap,
+    required Color color,
+  }) {
+    final size = MediaQuery.of(context).size;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: clampDouble(size.width * 0.14, 50, 70),
+        height: clampDouble(size.width * 0.14, 50, 70),
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white, width: 4),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 8,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Icon(
+          icon,
+          color: Colors.white,
+          size: clampDouble(size.width * 0.08, 28, 40),
+        ),
       ),
     );
   }
@@ -106,60 +165,71 @@ class _LessonThreeDayFourActTwoState extends State<LessonThreeDayFourActTwo> {
       body: Stack(
         children: [
           Positioned.fill(
-            child: Image.asset(
-              'assets/lesson-three-day4-act2.png',
-              fit: BoxFit.fill,
-            ),
+            child: Image.asset(backgrounds[currentPage], fit: BoxFit.fill),
           ),
 
           Positioned(
             top: questionTop,
             left: horizontalPadding,
             right: horizontalPadding,
-            bottom: 80,
+            bottom: 100,
             child: SingleChildScrollView(
               child: Column(
                 children: List.generate(
-                  questions.length,
+                  questions[currentPage].length,
                   (index) => questionItem(index, fontSize),
                 ),
               ),
             ),
           ),
 
+          /// HOME BUTTON
           Positioned(
             top: clampDouble(size.height * 0.025, 14, 22),
             right: clampDouble(size.width * 0.04, 12, 20),
-            child: GestureDetector(
+            child: circleButton(
+              icon: Icons.home,
+              color: Colors.orange,
               onTap: () {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (_) => const Lesson3Screen()),
                 );
               },
-              child: Container(
-                width: clampDouble(size.width * 0.14, 50, 70),
-                height: clampDouble(size.width * 0.14, 50, 70),
-                decoration: BoxDecoration(
-                  color: Colors.orange,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 4),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 8,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Icon(
-                  Icons.home,
-                  color: Colors.white,
-                  size: clampDouble(size.width * 0.08, 28, 40),
-                ),
-              ),
             ),
           ),
+
+          /// BACK BUTTON
+          if (currentPage == 1)
+            Positioned(
+              bottom: 25,
+              left: 30,
+              child: circleButton(
+                icon: Icons.arrow_back,
+                color: Colors.blue,
+                onTap: () {
+                  setState(() {
+                    currentPage = 0;
+                  });
+                },
+              ),
+            ),
+
+          /// NEXT BUTTON
+          if (currentPage == 0)
+            Positioned(
+              bottom: 25,
+              right: 30,
+              child: circleButton(
+                icon: Icons.arrow_forward,
+                color: Colors.green,
+                onTap: () {
+                  setState(() {
+                    currentPage = 1;
+                  });
+                },
+              ),
+            ),
         ],
       ),
     );
