@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-one/act4.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-three/act2.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-three/act3.dart';
+import 'package:lakbay_game/Views/game/lesson-three/day-three/act4.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-two/act1.dart';
 
 class Day3Popup extends StatelessWidget {
@@ -42,7 +43,14 @@ class Day3Popup extends StatelessWidget {
 
     /// 4. TAMA O MALI
     if (title.contains('Katanungan')) {
-      return const _TamaOMaliPopup();
+      Future.microtask(() {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const LessonThreeDayOneActFour()),
+        );
+      });
+
+      return const SizedBox.shrink();
     }
 
     /// 5. TAKDANG ARALIN
