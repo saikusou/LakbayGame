@@ -24,43 +24,4 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/background.png
-    - assets/startup.png
-    - assets/profile.png
-    - assets/ship.png
-    - assets/citizen.png
-    - assets/government.png
-    - assets/rocks.png
-    - assets/star.png
-    - assets/lesson1.png
-    - assets/stone-1.png
-    - assets/stone-2.png
-    - assets/stone-3.png
-    - assets/stone-4.png
-    - assets/lesson2.png
-    - assets/lesson3.png
-    - assets/lesson3-day1.png
-    - assets/lesson3-day2.png
-    - assets/lesson-three-game1.png
-    - assets/lesson-three-game2.png
-    - assets/lesson-three-game2a.png
-    - assets/lesson-three-game2b.png
-    - assets/lesson-three-game2c.png
-    - assets/lesson-three-game2d.png
-    - assets/lesson-three-game1a.png
-    - assets/lesson-three-day1-act4.png
-    - assets/lesson-three-act4-one.png
-    - assets/lesson-three-act4-two.png
-    - assets/lesson-three-day2-act1.png
-    - assets/lesson-three-day1-act2.png
-    - assets/lesson-three-day1-act5.png
-    - assets/lesson-three-day2-act5.png
-    - assets/lesson-three-day3-act1.png
-    - assets/lesson-three-day3-act2-c1.png
-    - assets/lesson-three-day3-act2-c2.png
-    - assets/lesson-three-day3-act3.png
-    - assets/lesson-three-day3-act4.png
-    - assets/lesson-three-day3-act5.png
-    - assets/lesson-three-day4-act1.png
-    - assets/lesson-three-day4-act2.png
-    - assets/lesson-three-day4-act2b.png
+    - assets/
