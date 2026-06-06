@@ -35,108 +35,34 @@ class _LessonOneDayTwoActThreeState extends State<LessonOneDayTwoActThree> {
     setState(() {});
   }
 
-  /// SUBMIT MODAL POPUP WITH BACKGROUND IMAGE OVERLAY
+  /// SUBMIT MODAL POPUP WITH BACKGROUND IMAGE ONLY (NO BUTTONS)
   void submitAnswers() {
-    final answer = controllers.map((controller) => controller.text).join();
-
     showDialog(
       context: context,
-      barrierDismissible: false, // Player must click button to dismiss
+      barrierDismissible:
+          true, // Allowed tapping outside to dismiss since the button is removed
       builder: (BuildContext context) {
+        final size = MediaQuery.of(context).size;
+
         return Dialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(28),
           ),
-          elevation: 10,
+          elevation: 12,
           clipBehavior:
-              Clip.antiAlias, // Clips background image to border radius
+              Clip.antiAlias, // Clips background image exactly to border radius
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 24,
+          ),
           child: Container(
-            width: MediaQuery.of(context).size.width * 0.85,
+            width: size.width * 0.92,
+            height: size.height * 0.50,
             decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('assets/lesson-two-day2-act3-c2.png'),
-                fit: BoxFit.cover,
-              ),
-            ),
-            child: Container(
-              color: Colors.black.withOpacity(
-                0.45,
-              ), // Transparent overlay for readability
-              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Success Icon Header
-                  const CircleAvatar(
-                    backgroundColor: Colors.green,
-                    radius: 30,
-                    child: Icon(Icons.check, color: Colors.white, size: 40),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Modal Title Text
-                  const Text(
-                    'Activity Submitted!',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black,
-                          blurRadius: 4,
-                          offset: Offset(1, 1),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Summary Content Text
-                  Text(
-                    'Your Answer: $answer',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white.withOpacity(
-                        0.9,
-                      ), // Fixed: Formatted opacity safely
-                      fontWeight: FontWeight.w500,
-                      shadows: const [
-                        Shadow(
-                          color: Colors.black,
-                          blurRadius: 4,
-                          offset: Offset(1, 1),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Action Confirmation Button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        side: const BorderSide(color: Colors.white, width: 2),
-                      ),
-                      child: const Text(
-                        'Awesome!',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                fit: BoxFit
+                    .fill, // Forces image to completely stretch and fill entire box dimensions
               ),
             ),
           ),
@@ -238,8 +164,6 @@ class _LessonOneDayTwoActThreeState extends State<LessonOneDayTwoActThree> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 /// INPUT BOXES ROW
-                /// Note: If you want to show all 14 fields instead of just 5,
-                /// consider wrapping this in a Wrap widget or a scrollable layout.
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(
