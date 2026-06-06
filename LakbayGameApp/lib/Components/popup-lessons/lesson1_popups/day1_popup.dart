@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lakbay_game/Views/game/lesson-one/day-one/act1.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-one/act4.dart';
 import 'package:lakbay_game/Views/game/lesson-three/game_one.dart';
 import 'package:lakbay_game/Views/game/lesson-three/game_two.dart';
@@ -16,8 +17,15 @@ class Day1Popup extends StatelessWidget {
     }
 
     /// 2. GAWAIN
-    if (title.contains('GAWAIN 1:Hularawan')) {
-      return const _GawainPopup();
+    if (title.contains('I-Konek Mo!')) {
+      Future.microtask(() {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const LessonOneDayOneActOne()),
+        );
+      });
+
+      return const SizedBox.shrink();
     }
 
     /// 3. KONSEPTO
@@ -79,7 +87,7 @@ class _LearningObjectivesPopup extends StatelessWidget {
           /// BACKGROUND IMAGE
           image: const DecorationImage(
             image: AssetImage('assets/lesson-one-day1-act1.png'),
-            fit: BoxFit.cover,
+            fit: BoxFit.fill,
           ),
         ),
 
