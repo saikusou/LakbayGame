@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/game/lesson-one/day-one/act1.dart';
 import 'package:lakbay_game/Views/game/lesson-one/day-one/act3.dart';
+import 'package:lakbay_game/Views/game/lesson-one/day-one/act4.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-one/act4.dart';
 import 'package:lakbay_game/Views/game/lesson-three/game_one.dart';
 import 'package:lakbay_game/Views/game/lesson-three/game_two.dart';
@@ -343,7 +344,7 @@ class _TamaOMaliPopup extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const LessonThreeActFour(),
+                      builder: (context) => const LessonOneActFour(),
                     ),
                   );
                 },
