@@ -34,14 +34,79 @@ class _LessonOneDayTwoActThreeState extends State<LessonOneDayTwoActThree> {
     setState(() {});
   }
 
+  /// MODAL POPUP ON SUBMIT
   void submitAnswers() {
     final answer = controllers.map((controller) => controller.text).join();
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Answer: $answer'),
-        duration: const Duration(seconds: 2),
-      ),
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevents closing by tapping outside
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          elevation: 8,
+          backgroundColor: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Icon Header
+                const CircleAvatar(
+                  backgroundColor: Colors.green,
+                  radius: 30,
+                  child: Icon(Icons.check, color: Colors.white, size: 40),
+                ),
+                const SizedBox(height: 16),
+
+                // Title
+                const Text(
+                  'Activity Submitted!',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Content / Answer Summary
+                Text(
+                  'Your Answer: $answer',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 16, color: Colors.black54),
+                ),
+                const SizedBox(height: 24),
+
+                // Close / Action Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 45,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'Awesome!',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -113,7 +178,7 @@ class _LessonOneDayTwoActThreeState extends State<LessonOneDayTwoActThree> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
-    final double boxSize = clampDouble(size.width * 0.055, 24, 38);
+    final double boxSize = clampDouble(size.width * 0.155, 24, 38);
     final double spacing = clampDouble(size.width * 0.006, 2, 5);
     final double buttonWidth = clampDouble(size.width * 0.32, 115, 155);
 
@@ -137,11 +202,11 @@ class _LessonOneDayTwoActThreeState extends State<LessonOneDayTwoActThree> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                /// 14 INPUT BOXES
+                /// 14 INPUT BOXES (Note: Currently set to 5 items in the row generator)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(
-                    14,
+                    5,
                     (index) => Padding(
                       padding: EdgeInsets.symmetric(horizontal: spacing),
                       child: inputBox(index, boxSize),
@@ -162,9 +227,7 @@ class _LessonOneDayTwoActThreeState extends State<LessonOneDayTwoActThree> {
                       onPressed: retryAnswers,
                       width: buttonWidth,
                     ),
-
                     SizedBox(width: size.width * 0.04),
-
                     actionButton(
                       label: 'Submit',
                       icon: Icons.check,
