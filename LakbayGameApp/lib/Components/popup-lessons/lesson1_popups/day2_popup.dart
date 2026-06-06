@@ -22,15 +22,8 @@ class Day2Popup extends StatelessWidget {
     }
 
     /// 3. KONSEPTO
-    if (title.contains('Konsepto')) {
-      Future.microtask(() {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const LessonThreeGameTwo()),
-        );
-      });
-
-      return const SizedBox.shrink();
+    if (title.contains('Crack the Code')) {
+      return const _KonseptoPopup();
     }
 
     /// 4. TAMA O MALI
@@ -250,14 +243,112 @@ class _GawainPopup extends StatelessWidget {
 class _KonseptoPopup extends StatelessWidget {
   const _KonseptoPopup();
 
+  double clampDouble(double value, double min, double max) {
+    return value.clamp(min, max).toDouble();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return _CustomPopupContainer(
-      borderColor: Colors.green,
-      child: const Text(
-        "Dito ilalagay ang konsepto ng aralin.",
-        textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 18),
+    final size = MediaQuery.of(context).size;
+
+    final popupHeight = clampDouble(size.height * 0.75, 450, 530);
+    final popupWidth = clampDouble(size.width * 0.90, 350, 550);
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.all(18),
+
+      child: Container(
+        width: popupWidth,
+        height: popupHeight,
+
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(28),
+
+          border: Border.all(color: Colors.blue, width: 5),
+
+          /// BACKGROUND IMAGE
+          image: const DecorationImage(
+            image: AssetImage('lesson-two-day2-act3.png'),
+            fit: BoxFit.fill,
+          ),
+        ),
+
+        child: Column(
+          children: [
+            /// CLOSE BUTTON
+            Align(
+              alignment: Alignment.topRight,
+
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(context),
+
+                  child: Container(
+                    width: 44,
+                    height: 44,
+
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+
+                      border: Border.all(color: Colors.white, width: 3),
+                    ),
+
+                    child: const Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 26,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            /// PUSH BUTTON TO BOTTOM
+            const Spacer(),
+
+            /// SUBMIT BUTTON
+            Padding(
+              padding: const EdgeInsets.only(bottom: 20),
+
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const LessonOneDayTwoActTwo(),
+                    ),
+                  );
+                },
+
+                child: Container(
+                  width: 70,
+                  height: 70,
+
+                  decoration: BoxDecoration(
+                    color: Colors.green,
+                    shape: BoxShape.circle,
+
+                    border: Border.all(color: Colors.white, width: 4),
+
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 8,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+
+                  child: const Icon(Icons.send, color: Colors.white, size: 30),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

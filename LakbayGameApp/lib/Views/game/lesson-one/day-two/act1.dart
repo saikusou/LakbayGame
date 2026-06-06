@@ -143,7 +143,7 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
             // Background Image
             Positioned.fill(
               child: Transform.scale(
-                scale: 1.08,
+                scale: 1,
                 child: Image.asset(backgroundImage, fit: BoxFit.fill),
               ),
             ),
@@ -188,7 +188,7 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
                   padding: const EdgeInsets.only(
                     left: 24,
                     right: 24,
-                    bottom: 20,
+                    bottom: 80,
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
