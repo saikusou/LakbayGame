@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/game/lesson-one/day-one/act1.dart';
+import 'package:lakbay_game/Views/game/lesson-one/day-one/act3.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-one/act4.dart';
 import 'package:lakbay_game/Views/game/lesson-three/game_one.dart';
 import 'package:lakbay_game/Views/game/lesson-three/game_two.dart';
@@ -33,7 +34,7 @@ class Day1Popup extends StatelessWidget {
       Future.microtask(() {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const LessonThreeGameTwo()),
+          MaterialPageRoute(builder: (_) => const LessonOneDayOneActThree()),
         );
       });
 
