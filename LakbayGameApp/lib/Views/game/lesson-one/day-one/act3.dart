@@ -27,6 +27,24 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
     return value.clamp(min, max).toDouble();
   }
 
+  void retryAnswers() {
+    for (final controller in controllers) {
+      controller.clear();
+    }
+    setState(() {});
+  }
+
+  void submitAnswers() {
+    final answer = controllers.map((controller) => controller.text).join();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Answer: $answer'),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   Widget inputBox(int index, double boxSize) {
     return SizedBox(
       width: boxSize,
@@ -59,12 +77,45 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
     );
   }
 
+  Widget actionButton({
+    required String label,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onPressed,
+    required double width,
+  }) {
+    return SizedBox(
+      width: width,
+      height: 45,
+      child: ElevatedButton.icon(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          side: const BorderSide(color: Colors.white, width: 3),
+        ),
+        icon: Icon(icon, color: Colors.white, size: 22),
+        label: Text(
+          label,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 15,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
     final double boxSize = clampDouble(size.width * 0.055, 24, 38);
     final double spacing = clampDouble(size.width * 0.006, 2, 5);
+    final double buttonWidth = clampDouble(size.width * 0.32, 115, 155);
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -78,20 +129,52 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
             ),
           ),
 
-          /// 14 INPUT BOXES HORIZONTAL
+          /// INPUT BOXES AND BUTTONS
           Positioned(
             left: size.width * 0.03,
             right: size.width * 0.03,
-            bottom: size.height * 0.085,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                14,
-                (index) => Padding(
-                  padding: EdgeInsets.symmetric(horizontal: spacing),
-                  child: inputBox(index, boxSize),
+            bottom: size.height * 0.03,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                /// 14 INPUT BOXES
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    14,
+                    (index) => Padding(
+                      padding: EdgeInsets.symmetric(horizontal: spacing),
+                      child: inputBox(index, boxSize),
+                    ),
+                  ),
                 ),
-              ),
+
+                SizedBox(height: size.height * 0.018),
+
+                /// RETRY AND SUBMIT BUTTONS
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    actionButton(
+                      label: 'Retry',
+                      icon: Icons.refresh,
+                      color: Colors.red,
+                      onPressed: retryAnswers,
+                      width: buttonWidth,
+                    ),
+
+                    SizedBox(width: size.width * 0.04),
+
+                    actionButton(
+                      label: 'Submit',
+                      icon: Icons.check,
+                      color: Colors.green,
+                      onPressed: submitAnswers,
+                      width: buttonWidth,
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
 

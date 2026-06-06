@@ -301,7 +301,7 @@ class _TamaOMaliPopup extends StatelessWidget {
 
           /// IMAGE FILLS ENTIRE POPUP
           image: const DecorationImage(
-            image: AssetImage('assets/lesson-three-day1-act4.png'),
+            image: AssetImage('assets/lesson-one-day1-act4.png'),
             fit: BoxFit.fill,
           ),
         ),
