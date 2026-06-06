@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lakbay_game/Views/game/lesson-three/day-four/act2.dart';
-import 'package:lakbay_game/Views/game/lesson-three/day-four/act3.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-one/act4.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-three/act2.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-three/act3.dart';
@@ -20,11 +18,11 @@ class Day4Popup extends StatelessWidget {
     }
 
     /// 2. GAWAIN
-    if (title.contains('2. Pagsusulit')) {
+    if (title.contains('GAWAIN 3: Kilalanin Mo Ako!')) {
       Future.microtask(() {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const LessonThreeDayFourActTwo()),
+          MaterialPageRoute(builder: (_) => const LessonThreeDayOneActTwo()),
         );
       });
 
@@ -32,11 +30,11 @@ class Day4Popup extends StatelessWidget {
     }
 
     /// 3. KONSEPTO
-    if (title.contains('3. Katanungan')) {
+    if (title.contains('Ang Aking Pamilya sa Pamayanan')) {
       Future.microtask(() {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const LessonThreeDayFourActThree()),
+          MaterialPageRoute(builder: (_) => const LessonThreeDayOneActThree()),
         );
       });
 
@@ -48,7 +46,7 @@ class Day4Popup extends StatelessWidget {
       Future.microtask(() {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const LessonThreeDayFourActThree()),
+          MaterialPageRoute(builder: (_) => const LessonThreeDayOneActFour()),
         );
       });
 
@@ -96,7 +94,7 @@ class _LearningObjectivesPopup extends StatelessWidget {
 
           /// BACKGROUND IMAGE
           image: const DecorationImage(
-            image: AssetImage('assets/lesson-three-day4-act1.png'),
+            image: AssetImage('assets/lesson-three-day3-act1.png'),
             fit: BoxFit.cover,
           ),
         ),
@@ -287,7 +285,7 @@ class _TakdangAralinPopup extends StatelessWidget {
 
           /// BACKGROUND IMAGE
           image: const DecorationImage(
-            image: AssetImage('assets/lesson-three-day4-act4.png'),
+            image: AssetImage('assets/lesson-three-day3-act5.png'),
             fit: BoxFit.cover,
           ),
         ),
