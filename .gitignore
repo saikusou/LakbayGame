@@ -2,8 +2,11 @@
 .vs/
 
 # Build outputs
-bin/
-obj/
+**/bin/
+**/obj/
+
+# App build output only
+/LakbayGameApp/build/
 
 # Published outputs
 publish/
