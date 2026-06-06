@@ -10,6 +10,7 @@ class LessonOneDayTwoActThree extends StatefulWidget {
 }
 
 class _LessonOneDayTwoActThreeState extends State<LessonOneDayTwoActThree> {
+  // Array of text controllers to handle player input strings
   final List<TextEditingController> controllers = List.generate(
     14,
     (_) => TextEditingController(),
@@ -34,75 +35,109 @@ class _LessonOneDayTwoActThreeState extends State<LessonOneDayTwoActThree> {
     setState(() {});
   }
 
-  /// MODAL POPUP ON SUBMIT
+  /// SUBMIT MODAL POPUP WITH BACKGROUND IMAGE OVERLAY
   void submitAnswers() {
     final answer = controllers.map((controller) => controller.text).join();
 
     showDialog(
       context: context,
-      barrierDismissible: false, // Prevents closing by tapping outside
+      barrierDismissible: false, // Player must click button to dismiss
       builder: (BuildContext context) {
         return Dialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(24),
           ),
-          elevation: 8,
-          backgroundColor: Colors.white,
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Icon Header
-                const CircleAvatar(
-                  backgroundColor: Colors.green,
-                  radius: 30,
-                  child: Icon(Icons.check, color: Colors.white, size: 40),
-                ),
-                const SizedBox(height: 16),
-
-                // Title
-                const Text(
-                  'Activity Submitted!',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+          elevation: 10,
+          clipBehavior:
+              Clip.antiAlias, // Clips background image to border radius
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.85,
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/lesson-two-day2-act3-c2.png'),
+                fit: BoxFit.cover,
+              ),
+            ),
+            child: Container(
+              color: Colors.black.withOpacity(
+                0.45,
+              ), // Transparent overlay for readability
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Success Icon Header
+                  const CircleAvatar(
+                    backgroundColor: Colors.green,
+                    radius: 30,
+                    child: Icon(Icons.check, color: Colors.white, size: 40),
                   ),
-                ),
-                const SizedBox(height: 12),
+                  const SizedBox(height: 16),
 
-                // Content / Answer Summary
-                Text(
-                  'Your Answer: $answer',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 16, color: Colors.black54),
-                ),
-                const SizedBox(height: 24),
-
-                // Close / Action Button
-                SizedBox(
-                  width: double.infinity,
-                  height: 45,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      'Awesome!',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
+                  // Modal Title Text
+                  const Text(
+                    'Activity Submitted!',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black,
+                          blurRadius: 4,
+                          offset: Offset(1, 1),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 12),
+
+                  // Summary Content Text
+                  Text(
+                    'Your Answer: $answer',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white.withOpacity(
+                        0.9,
+                      ), // Fixed: Formatted opacity safely
+                      fontWeight: FontWeight.w500,
+                      shadows: const [
+                        Shadow(
+                          color: Colors.black,
+                          blurRadius: 4,
+                          offset: Offset(1, 1),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Action Confirmation Button
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        side: const BorderSide(color: Colors.white, width: 2),
+                      ),
+                      child: const Text(
+                        'Awesome!',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -202,7 +237,9 @@ class _LessonOneDayTwoActThreeState extends State<LessonOneDayTwoActThree> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                /// 14 INPUT BOXES (Note: Currently set to 5 items in the row generator)
+                /// INPUT BOXES ROW
+                /// Note: If you want to show all 14 fields instead of just 5,
+                /// consider wrapping this in a Wrap widget or a scrollable layout.
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(
