@@ -100,6 +100,7 @@ class _Lesson1ScreenState extends State<Lesson1Screen> {
           {"icon": Icons.extension, "title": "2. I-Konek Mo!"},
           {"icon": Icons.lightbulb, "title": "3. Konsepto"},
           {"icon": Icons.check_circle, "title": "4. Tama o Mali"},
+          {"icon": Icons.assignment, "title": "5. Takdang Aralin"},
         ];
         break;
 

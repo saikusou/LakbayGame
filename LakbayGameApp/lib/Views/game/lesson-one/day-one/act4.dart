@@ -19,6 +19,10 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
     return value.clamp(min, max).toDouble();
   }
 
+  String? get currentAnswer {
+    return currentScenario == 1 ? answer1 : answer2;
+  }
+
   void selectAnswer(String answer) {
     setState(() {
       if (currentScenario == 1) {
@@ -33,16 +37,67 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
     required String label,
     required IconData icon,
     required Color color,
+    required bool isSelected,
     required VoidCallback onTap,
   }) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        width: 130,
-        height: 80,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: isSelected ? 145 : 130,
+        height: isSelected ? 90 : 80,
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(15),
+          border: Border.all(
+            color: isSelected ? Colors.yellow : Colors.white,
+            width: isSelected ? 6 : 4,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: isSelected
+                  ? Colors.yellow.withOpacity(0.8)
+                  : Colors.black26,
+              blurRadius: isSelected ? 20 : 8,
+              spreadRadius: isSelected ? 4 : 0,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: Colors.white, size: isSelected ? 40 : 35),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: isSelected ? 22 : 20,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget circleButton({
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    final size = MediaQuery.of(context).size;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: clampDouble(size.width * 0.14, 50, 70),
+        height: clampDouble(size.width * 0.14, 50, 70),
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
           border: Border.all(color: Colors.white, width: 4),
           boxShadow: const [
             BoxShadow(
@@ -52,20 +107,10 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
             ),
           ],
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: Colors.white, size: 35),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
-            ),
-          ],
+        child: Icon(
+          icon,
+          color: Colors.white,
+          size: clampDouble(size.width * 0.08, 28, 40),
         ),
       ),
     );
@@ -84,7 +129,6 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
       body: SizedBox.expand(
         child: Stack(
           children: [
-            /// BACKGROUND
             Positioned.fill(
               child: Transform.scale(
                 scale: 1.08,
@@ -92,77 +136,36 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
               ),
             ),
 
-            /// BACK BUTTON
             if (currentScenario == 2)
               Positioned(
                 top: clampDouble(size.height * 0.025, 14, 22),
                 left: clampDouble(size.width * 0.04, 12, 20),
-                child: GestureDetector(
+                child: circleButton(
+                  icon: Icons.arrow_back,
+                  color: Colors.blue,
                   onTap: () {
                     setState(() {
                       currentScenario = 1;
                     });
                   },
-                  child: Container(
-                    width: clampDouble(size.width * 0.14, 50, 70),
-                    height: clampDouble(size.width * 0.14, 50, 70),
-                    decoration: BoxDecoration(
-                      color: Colors.blue,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 4),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 8,
-                          offset: Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Icon(
-                      Icons.arrow_back,
-                      color: Colors.white,
-                      size: clampDouble(size.width * 0.08, 28, 40),
-                    ),
-                  ),
                 ),
               ),
 
-            /// HOME BUTTON
             Positioned(
               top: clampDouble(size.height * 0.025, 14, 22),
               right: clampDouble(size.width * 0.04, 12, 20),
-              child: GestureDetector(
+              child: circleButton(
+                icon: Icons.home,
+                color: Colors.orange,
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (_) => const Lesson1Screen()),
                   );
                 },
-                child: Container(
-                  width: clampDouble(size.width * 0.14, 50, 70),
-                  height: clampDouble(size.width * 0.14, 50, 70),
-                  decoration: BoxDecoration(
-                    color: Colors.orange,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 4),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 8,
-                        offset: Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Icon(
-                    Icons.home,
-                    color: Colors.white,
-                    size: clampDouble(size.width * 0.08, 28, 40),
-                  ),
-                ),
               ),
             ),
 
-            /// CONTENT BUTTONS
             SafeArea(
               child: Center(
                 child: SingleChildScrollView(
@@ -180,6 +183,7 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
                             label: 'TAMA',
                             icon: Icons.check,
                             color: Colors.green,
+                            isSelected: currentAnswer == 'TAMA',
                             onTap: () {
                               selectAnswer('TAMA');
                             },
@@ -188,6 +192,7 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
                             label: 'MALI',
                             icon: Icons.close,
                             color: Colors.red,
+                            isSelected: currentAnswer == 'MALI',
                             onTap: () {
                               selectAnswer('MALI');
                             },
@@ -213,8 +218,6 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
                           press: () {
                             debugPrint('Picture 1 Answer: $answer1');
                             debugPrint('Picture 2 Answer: $answer2');
-
-                            // ADD RESULT PAGE HERE
                           },
                         ),
                     ],
