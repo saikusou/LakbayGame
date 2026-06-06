@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LakbayGameApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+81391ac54f89d502955f29df3511da744c828e20")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0299cb029592d9af84104601d724fed6917b3e77")]
 [assembly: System.Reflection.AssemblyProductAttribute("LakbayGameApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LakbayGameApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
