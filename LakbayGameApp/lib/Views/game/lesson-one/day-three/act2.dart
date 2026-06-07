@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Components/button.dart';
+import 'package:lakbay_game/Views/lesson1.dart';
 import 'package:lakbay_game/Views/lesson3.dart';
 
 class LessonOneDayThreeActTwo extends StatefulWidget {
@@ -13,60 +14,55 @@ class LessonOneDayThreeActTwo extends StatefulWidget {
 class _LessonOneDayThreeActTwoState extends State<LessonOneDayThreeActTwo> {
   int currentScenario = 1;
 
-  String? answer1;
-  String? answer2;
+  final TextEditingController answer1Controller = TextEditingController();
+  final TextEditingController answer2Controller = TextEditingController();
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
   }
 
-  void selectAnswer(String answer) {
-    setState(() {
-      if (currentScenario == 1) {
-        answer1 = answer;
-      } else {
-        answer2 = answer;
-      }
-    });
+  @override
+  void dispose() {
+    answer1Controller.dispose();
+    answer2Controller.dispose();
+    super.dispose();
   }
 
-  Widget choiceButton({
-    required String label,
-    required IconData icon,
-    required Color color,
-    required VoidCallback onTap,
+  Widget answerInput({
+    required TextEditingController controller,
+    required String hintText,
+    required Size size,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 130,
-        height: 80,
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(15),
-          border: Border.all(color: Colors.white, width: 4),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black26,
-              blurRadius: 8,
-              offset: Offset(0, 4),
-            ),
-          ],
+    return Container(
+      width: clampDouble(size.width * 0.78, 260, 360),
+      height: 60,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.black, width: 2),
+        boxShadow: const [
+          BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 4)),
+        ],
+      ),
+      child: TextField(
+        controller: controller,
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+          color: Colors.black,
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: Colors.white, size: 35),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
-            ),
-          ],
+        decoration: InputDecoration(
+          border: InputBorder.none,
+          hintText: hintText,
+          hintStyle: const TextStyle(
+            color: Colors.grey,
+            fontWeight: FontWeight.bold,
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 15,
+          ),
         ),
       ),
     );
@@ -85,21 +81,17 @@ class _LessonOneDayThreeActTwoState extends State<LessonOneDayThreeActTwo> {
       body: SizedBox.expand(
         child: Stack(
           children: [
-            /// BACKGROUND
             Positioned.fill(
-              child: Transform.scale(
-                scale: 1.08,
-                child: Image.asset(backgroundImage, fit: BoxFit.fill),
-              ),
+              child: Image.asset(backgroundImage, fit: BoxFit.fill),
             ),
 
-            /// BACK BUTTON
             if (currentScenario == 2)
               Positioned(
                 top: clampDouble(size.height * 0.025, 14, 22),
                 left: clampDouble(size.width * 0.04, 12, 20),
                 child: GestureDetector(
                   onTap: () {
+                    FocusScope.of(context).unfocus();
                     setState(() {
                       currentScenario = 1;
                     });
@@ -128,7 +120,6 @@ class _LessonOneDayThreeActTwoState extends State<LessonOneDayThreeActTwo> {
                 ),
               ),
 
-            /// HOME BUTTON
             Positioned(
               top: clampDouble(size.height * 0.025, 14, 22),
               right: clampDouble(size.width * 0.04, 12, 20),
@@ -136,7 +127,7 @@ class _LessonOneDayThreeActTwoState extends State<LessonOneDayThreeActTwo> {
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (_) => const Lesson3Screen()),
+                    MaterialPageRoute(builder: (_) => const Lesson1Screen()),
                   );
                 },
                 child: Container(
@@ -163,35 +154,32 @@ class _LessonOneDayThreeActTwoState extends State<LessonOneDayThreeActTwo> {
               ),
             ),
 
-            /// CONTENT BUTTONS
             SafeArea(
               child: Center(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  padding: EdgeInsets.only(
+                    left: 24,
+                    right: 24,
+                    bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+                  ),
                   child: Column(
                     children: [
                       SizedBox(
                         height: clampDouble(size.height * 0.70, 470, 610),
                       ),
 
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      IndexedStack(
+                        index: currentScenario - 1,
                         children: [
-                          choiceButton(
-                            label: 'TAMA',
-                            icon: Icons.check,
-                            color: Colors.green,
-                            onTap: () {
-                              selectAnswer('TAMA');
-                            },
+                          answerInput(
+                            controller: answer1Controller,
+                            hintText: 'Sagot sa larawan 1',
+                            size: size,
                           ),
-                          choiceButton(
-                            label: 'MALI',
-                            icon: Icons.close,
-                            color: Colors.red,
-                            onTap: () {
-                              selectAnswer('MALI');
-                            },
+                          answerInput(
+                            controller: answer2Controller,
+                            hintText: 'Sagot sa larawan 2',
+                            size: size,
                           ),
                         ],
                       ),
@@ -202,6 +190,7 @@ class _LessonOneDayThreeActTwoState extends State<LessonOneDayThreeActTwo> {
                         Button(
                           label: 'NEXT',
                           press: () {
+                            FocusScope.of(context).unfocus();
                             setState(() {
                               currentScenario = 2;
                             });
@@ -212,10 +201,14 @@ class _LessonOneDayThreeActTwoState extends State<LessonOneDayThreeActTwo> {
                         Button(
                           label: 'SUBMIT',
                           press: () {
-                            debugPrint('Picture 1 Answer: $answer1');
-                            debugPrint('Picture 2 Answer: $answer2');
+                            FocusScope.of(context).unfocus();
 
-                            // ADD RESULT PAGE HERE
+                            debugPrint(
+                              'Picture 1 Answer: ${answer1Controller.text}',
+                            );
+                            debugPrint(
+                              'Picture 2 Answer: ${answer2Controller.text}',
+                            );
                           },
                         ),
                     ],
