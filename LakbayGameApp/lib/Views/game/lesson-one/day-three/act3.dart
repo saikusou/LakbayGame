@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:lakbay_game/Views/lesson1.dart';
 
 class LessonOneDayThreeActThree extends StatelessWidget {
   const LessonOneDayThreeActThree({super.key});
 
+  double clampDouble(double value, double min, double max) {
+    return value.clamp(min, max).toDouble();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
     return Scaffold(
       body: Stack(
         children: [
-          // Background
           Positioned.fill(
             child: Image.asset(
               'assets/lesson-two-day3-act3.png',
@@ -16,10 +22,43 @@ class LessonOneDayThreeActThree extends StatelessWidget {
             ),
           ),
 
-          // Mission Buttons
           Positioned(
-            top: MediaQuery.of(context).size.height * 0.49,
-            right: 25,
+            top: clampDouble(size.height * 0.025, 14, 22),
+            right: clampDouble(size.width * 0.04, 12, 20),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const Lesson1Screen()),
+                );
+              },
+              child: Container(
+                width: clampDouble(size.width * 0.14, 50, 70),
+                height: clampDouble(size.width * 0.14, 50, 70),
+                decoration: BoxDecoration(
+                  color: Colors.orange,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 4),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 8,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  Icons.home,
+                  color: Colors.white,
+                  size: clampDouble(size.width * 0.08, 28, 40),
+                ),
+              ),
+            ),
+          ),
+
+          Positioned(
+            top: size.height * 0.50,
+            right: 45,
             child: missionButton(
               context,
               onTap: () {
@@ -29,8 +68,8 @@ class LessonOneDayThreeActThree extends StatelessWidget {
           ),
 
           Positioned(
-            top: MediaQuery.of(context).size.height * 0.60,
-            right: 25,
+            top: size.height * 0.61,
+            right: 45,
             child: missionButton(
               context,
               onTap: () {
@@ -40,8 +79,8 @@ class LessonOneDayThreeActThree extends StatelessWidget {
           ),
 
           Positioned(
-            top: MediaQuery.of(context).size.height * 0.71,
-            right: 25,
+            top: size.height * 0.72,
+            right: 45,
             child: missionButton(
               context,
               onTap: () {
@@ -51,8 +90,8 @@ class LessonOneDayThreeActThree extends StatelessWidget {
           ),
 
           Positioned(
-            top: MediaQuery.of(context).size.height * 0.82,
-            right: 25,
+            top: size.height * 0.82,
+            right: 45,
             child: missionButton(
               context,
               onTap: () {
@@ -78,10 +117,10 @@ class LessonOneDayThreeActThree extends StatelessWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
-          border: Border.all(color: const Color(0xFF3D7500), width: 3),
+          border: Border.all(color: Color(0xFF3D7500), width: 3),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(.25),
+              color: Colors.black.withOpacity(0.25),
               blurRadius: 4,
               offset: const Offset(0, 3),
             ),
