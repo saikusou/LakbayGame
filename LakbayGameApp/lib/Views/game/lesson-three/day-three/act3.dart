@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/lesson3.dart';
+import 'package:lakbay_game/models/user_model.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,15 +11,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LessonThreeDayOneActThree(),
+      home: LessonThreeDayOneActThree(
+        user: UserModel(id: null, userName: '', email: '', gender: ''),
+      ),
     );
   }
 }
 
 class LessonThreeDayOneActThree extends StatefulWidget {
-  const LessonThreeDayOneActThree({super.key});
+  final UserModel user;
+  const LessonThreeDayOneActThree({super.key, required this.user});
 
   @override
   State<LessonThreeDayOneActThree> createState() =>
@@ -121,7 +125,9 @@ class _LessonThreeDayOneActThreeState extends State<LessonThreeDayOneActThree> {
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (_) => const Lesson3Screen()),
+                    MaterialPageRoute(
+                      builder: (_) => Lesson3Screen(user: widget.user),
+                    ),
                   );
                 },
                 child: Container(

@@ -7,9 +7,12 @@ import 'package:lakbay_game/Components/popup-lessons/lesson3_popups/day1_popup.d
 import 'package:lakbay_game/Components/popup-lessons/lesson3_popups/day2_popup.dart';
 import 'package:lakbay_game/Components/popup-lessons/lesson3_popups/day3_popup.dart';
 import 'package:lakbay_game/Components/popup-lessons/lesson3_popups/day4_popup.dart';
+import 'package:lakbay_game/models/user_model.dart';
 
 class Lesson3Screen extends StatefulWidget {
-  const Lesson3Screen({super.key});
+  final UserModel user;
+
+  const Lesson3Screen({super.key, required this.user});
 
   @override
   State<Lesson3Screen> createState() => _Lesson3ScreenState();
@@ -43,23 +46,23 @@ class _Lesson3ScreenState extends State<Lesson3Screen> {
 
     switch (dayNumber) {
       case 1:
-        popup = Day1Popup(title: title);
+        popup = Day1Popup(title: title, user: widget.user);
         break;
 
       case 2:
-        popup = Day2Popup(title: title);
+        popup = Day2Popup(title: title, user: widget.user);
         break;
 
       case 3:
-        popup = Day3Popup(title: title);
+        popup = Day3Popup(title: title, user: widget.user);
         break;
 
       case 4:
-        popup = Day4Popup(title: title);
+        popup = Day4Popup(title: title, user: widget.user);
         break;
 
       default:
-        popup = Day1Popup(title: title);
+        popup = Day1Popup(title: title, user: widget.user);
     }
 
     /// CLOSE DAY MENU POPUP
@@ -321,7 +324,7 @@ class _Lesson3ScreenState extends State<Lesson3Screen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Guest_668013",
+                      widget.user.userName,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: clampDouble(width * 0.032, 11, 14),
@@ -350,7 +353,9 @@ class _Lesson3ScreenState extends State<Lesson3Screen> {
             onTap: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                MaterialPageRoute(
+                  builder: (_) => ProfileScreen(user: widget.user),
+                ),
               );
             },
             child: Container(
@@ -487,6 +492,7 @@ class _Lesson3ScreenState extends State<Lesson3Screen> {
                       height: height,
                       showMenu: showMenu,
                       onBack: toggleMenu,
+                      user: widget.user,
                     ),
                   ],
                 );

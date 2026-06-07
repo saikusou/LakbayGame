@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/lesson3.dart';
+import 'package:lakbay_game/models/user_model.dart';
 
 class HiddenPopup extends StatelessWidget {
+  final UserModel users;
   final String image;
 
-  const HiddenPopup({super.key, required this.image});
+  const HiddenPopup({super.key, required this.image, required this.users});
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +71,9 @@ class HiddenPopup extends StatelessWidget {
 }
 
 class LessonThreeGameTwo extends StatefulWidget {
-  const LessonThreeGameTwo({super.key});
+  final UserModel user;
+
+  const LessonThreeGameTwo({super.key, required this.user});
 
   @override
   State<LessonThreeGameTwo> createState() => _LessonThreeGameTwoState();
@@ -83,7 +87,7 @@ class _LessonThreeGameTwoState extends State<LessonThreeGameTwo> {
   void showHiddenPopup(String image) {
     showDialog(
       context: context,
-      builder: (_) => HiddenPopup(image: image),
+      builder: (_) => HiddenPopup(image: image, users: widget.user),
     );
   }
 
@@ -205,7 +209,9 @@ class _LessonThreeGameTwoState extends State<LessonThreeGameTwo> {
                   onTap: () {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (_) => const Lesson3Screen()),
+                      MaterialPageRoute(
+                        builder: (_) => Lesson3Screen(user: widget.user),
+                      ),
                     );
                   },
 

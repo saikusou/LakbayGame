@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lakbay_game/Views/auth.dart';
+import 'package:lakbay_game/Views/auths/auth_check.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
       title: 'Lakbay Game',
       // theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
       // home: const MyHomePage(title: 'Flutter Demo Home Page'),
-      home: const AuthScreen(),
+      home: const AuthCheck(),
     );
   }
 }

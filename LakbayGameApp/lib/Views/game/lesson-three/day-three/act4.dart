@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/lesson3.dart';
+import 'package:lakbay_game/models/user_model.dart';
 
 class LessonThreeDayOneActFour extends StatefulWidget {
-  const LessonThreeDayOneActFour({super.key});
+  final UserModel user;
+
+  const LessonThreeDayOneActFour({super.key, required this.user});
 
   @override
   State<LessonThreeDayOneActFour> createState() =>
@@ -33,7 +36,7 @@ class _LessonThreeDayOneActFourState extends State<LessonThreeDayOneActFour> {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.15),
+        color: Colors.white.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(12),
       ),
       child: TextField(
@@ -104,7 +107,9 @@ class _LessonThreeDayOneActFourState extends State<LessonThreeDayOneActFour> {
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (_) => const Lesson3Screen()),
+                    MaterialPageRoute(
+                      builder: (_) => Lesson3Screen(user: widget.user),
+                    ),
                   );
                 },
                 child: Container(

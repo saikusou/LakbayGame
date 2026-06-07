@@ -3,9 +3,12 @@ import 'package:lakbay_game/Views/lesson1.dart';
 import 'package:lakbay_game/Components/side_navigation.dart';
 import 'package:lakbay_game/Views/lesson2.dart';
 import 'package:lakbay_game/Views/lesson3.dart';
+import 'package:lakbay_game/models/user_model.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final UserModel user;
+
+  const ProfileScreen({super.key, required this.user});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -79,7 +82,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "Guest_668013",
+                                  widget.user.userName,
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: clampDouble(
@@ -146,7 +149,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const Lesson1Screen(),
+                              builder: (context) =>
+                                  Lesson1Screen(user: widget.user),
                             ),
                           );
                         },
@@ -166,7 +170,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const Lesson2Screen(),
+                              builder: (context) =>
+                                  Lesson2Screen(user: widget.user),
                             ),
                           );
                         },
@@ -186,7 +191,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const Lesson3Screen(),
+                              builder: (context) =>
+                                  Lesson3Screen(user: widget.user),
                             ),
                           );
                         },
@@ -212,6 +218,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       height: height,
                       showMenu: showMenu,
                       onBack: toggleMenu,
+                      user: widget.user,
                     ),
                   ],
                 );
@@ -302,7 +309,7 @@ class _LevelCardState extends State<LevelCard> {
               borderRadius: BorderRadius.circular(24),
 
               color: isHighlighted
-                  ? Colors.yellow.withOpacity(0.18)
+                  ? Colors.yellow.withValues(alpha: 0.18)
                   : Colors.transparent,
 
               border: Border.all(
@@ -313,7 +320,7 @@ class _LevelCardState extends State<LevelCard> {
               boxShadow: isHighlighted
                   ? [
                       BoxShadow(
-                        color: Colors.yellow.withOpacity(0.9),
+                        color: Colors.yellow.withValues(alpha: 0.9),
                         blurRadius: 26,
                         spreadRadius: 4,
                       ),
