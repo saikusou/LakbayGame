@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/auths/auth.dart';
 import 'package:lakbay_game/Views/profile.dart';
+import 'package:lakbay_game/services/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthCheck extends StatefulWidget {
@@ -19,15 +20,39 @@ class _AuthCheckState extends State<AuthCheck> {
 
   Future<void> checkLogin() async {
     final prefs = await SharedPreferences.getInstance();
-    final loggedIn = prefs.getBool('isLoggedIn') ?? false;
+
+    final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+    final userId = prefs.getInt('userId');
 
     if (!mounted) return;
 
-    if (loggedIn) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const ProfileScreen()),
-      );
+    if (isLoggedIn && userId != null) {
+      try {
+        final user = await AuthService().getUserById(userId);
+
+        if (!mounted) return;
+
+        if (user != null) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => ProfileScreen(user: user)),
+          );
+        } else {
+          await prefs.clear();
+
+          if (!mounted) return;
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const AuthScreen()),
+          );
+        }
+      } catch (_) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const AuthScreen()),
+        );
+      }
     } else {
       Navigator.pushReplacement(
         context,
