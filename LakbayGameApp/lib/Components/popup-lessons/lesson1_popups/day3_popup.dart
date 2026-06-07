@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:lakbay_game/Views/game/lesson-one/day-three/act2.dart';
+import 'package:lakbay_game/Views/game/lesson-one/day-three/act3.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-one/act4.dart';
 import 'package:lakbay_game/Views/game/lesson-three/game_one.dart';
 import 'package:lakbay_game/Views/game/lesson-three/game_two.dart';
@@ -22,8 +24,8 @@ class Day3Popup extends StatelessWidget {
       return _GawainPopup(user: user);
     }
 
-    /// 3. KONSEPTO
-    if (title.contains('Konsepto')) {
+    /// 4. Group Mission
+    if (title.contains('Group Mission')) {
       Future.microtask(() {
         Navigator.push(
           context,
@@ -82,8 +84,8 @@ class _LearningObjectivesPopup extends StatelessWidget {
 
           /// BACKGROUND IMAGE
           image: const DecorationImage(
-            image: AssetImage('assets/lesson3-day1.png'),
-            fit: BoxFit.cover,
+            image: AssetImage('assets/lesson-two-day3-act1.png'),
+            fit: BoxFit.fill,
           ),
         ),
 
@@ -164,8 +166,8 @@ class _GawainPopup extends StatelessWidget {
 
           /// BACKGROUND IMAGE
           image: const DecorationImage(
-            image: AssetImage('assets/lesson3-day2.png'),
-            fit: BoxFit.cover,
+            image: AssetImage('assets/lesson-two-day3-act2.png'),
+            fit: BoxFit.fill,
           ),
         ),
 
