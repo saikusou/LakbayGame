@@ -16,24 +16,12 @@ class Day3Popup extends StatelessWidget {
     }
 
     /// 2. GAWAIN
-    if (title.contains('GAWAIN 1:Hularawan')) {
+    if (title.contains('Tukuyin ang Ebidensya')) {
       return const _GawainPopup();
     }
 
-    /// 3. KONSEPTO
-    if (title.contains('Konsepto')) {
-      Future.microtask(() {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const LessonThreeGameTwo()),
-        );
-      });
-
-      return const SizedBox.shrink();
-    }
-
-    /// 4. TAMA O MALI
-    if (title.contains('Tama o Mali')) {
+    /// 4. Group Mission
+    if (title.contains('Group Mission')) {
       return const _TamaOMaliPopup();
     }
 
@@ -78,8 +66,8 @@ class _LearningObjectivesPopup extends StatelessWidget {
 
           /// BACKGROUND IMAGE
           image: const DecorationImage(
-            image: AssetImage('assets/lesson3-day1.png'),
-            fit: BoxFit.cover,
+            image: AssetImage('assets/lesson-two-day3-act1.png'),
+            fit: BoxFit.fill,
           ),
         ),
 
@@ -158,7 +146,7 @@ class _GawainPopup extends StatelessWidget {
 
           /// BACKGROUND IMAGE
           image: const DecorationImage(
-            image: AssetImage('assets/lesson3-day2.png'),
+            image: AssetImage('assets/lesson-two-day3-act2.png'),
             fit: BoxFit.cover,
           ),
         ),
