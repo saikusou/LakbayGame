@@ -147,7 +147,7 @@ class _GawainPopup extends StatelessWidget {
           /// BACKGROUND IMAGE
           image: const DecorationImage(
             image: AssetImage('assets/lesson-two-day3-act2.png'),
-            fit: BoxFit.cover,
+            fit: BoxFit.fill,
           ),
         ),
 
