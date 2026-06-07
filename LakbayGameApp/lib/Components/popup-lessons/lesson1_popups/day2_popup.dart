@@ -396,8 +396,8 @@ class _TakdangAralinPopup extends StatelessWidget {
 
           /// BACKGROUND IMAGE
           image: const DecorationImage(
-            image: AssetImage('assets/lesson-three-act5.png'),
-            fit: BoxFit.cover,
+            image: AssetImage('assets/lesson-two-day2-act5.png'),
+            fit: BoxFit.fill,
           ),
         ),
 
