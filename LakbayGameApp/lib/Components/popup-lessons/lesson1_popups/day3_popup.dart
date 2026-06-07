@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/game/lesson-one/day-three/act2.dart';
+import 'package:lakbay_game/Views/game/lesson-one/day-three/act3.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-one/act4.dart';
 import 'package:lakbay_game/Views/game/lesson-three/game_one.dart';
 import 'package:lakbay_game/Views/game/lesson-three/game_two.dart';
@@ -23,7 +24,14 @@ class Day3Popup extends StatelessWidget {
 
     /// 4. Group Mission
     if (title.contains('Group Mission')) {
-      return const _TamaOMaliPopup();
+      Future.microtask(() {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const LessonOneDayThreeActThree()),
+        );
+      });
+
+      return const SizedBox.shrink();
     }
 
     /// 5. TAKDANG ARALIN
