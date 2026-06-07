@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/lesson1.dart';
+import 'package:lakbay_game/models/user_model.dart';
 
 class LessonOneDayThreeActThree extends StatelessWidget {
-  const LessonOneDayThreeActThree({super.key});
+  final UserModel user;
+  const LessonOneDayThreeActThree({super.key, required this.user});
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
@@ -29,7 +31,7 @@ class LessonOneDayThreeActThree extends StatelessWidget {
               onTap: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (_) => const Lesson1Screen()),
+                  MaterialPageRoute(builder: (_) => Lesson1Screen(user: user)),
                 );
               },
               child: Container(
@@ -120,7 +122,7 @@ class LessonOneDayThreeActThree extends StatelessWidget {
           border: Border.all(color: Color(0xFF3D7500), width: 3),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.25),
+              color: Colors.black.withValues(alpha: 0.25),
               blurRadius: 4,
               offset: const Offset(0, 3),
             ),
