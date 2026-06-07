@@ -8,6 +8,7 @@
       "version": "1.0.0+1",
       "dependencies": [
         "cupertino_icons",
+        "dotted_border",
         "flutter",
         "http"
       ],
@@ -39,6 +40,13 @@
         "stream_channel",
         "test_api",
         "vector_math"
+      ]
+    },
+    {
+      "name": "dotted_border",
+      "version": "3.1.0",
+      "dependencies": [
+        "flutter"
       ]
     },
     {
@@ -82,7 +90,7 @@
     },
     {
       "name": "meta",
-      "version": "1.18.0",
+      "version": "1.17.0",
       "dependencies": []
     },
     {
@@ -144,7 +152,7 @@
     },
     {
       "name": "test_api",
-      "version": "0.7.11",
+      "version": "0.7.10",
       "dependencies": [
         "async",
         "boolean_selector",
