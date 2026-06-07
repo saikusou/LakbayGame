@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Components/button.dart';
 import 'package:lakbay_game/Views/lesson1.dart';
+import 'package:lakbay_game/models/user_model.dart';
 
 class LessonOneActFour extends StatefulWidget {
-  const LessonOneActFour({super.key});
+  final UserModel user;
+
+  const LessonOneActFour({super.key, required this.user});
 
   @override
   State<LessonOneActFour> createState() => _LessonOneActFourState();
@@ -56,7 +59,7 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
           boxShadow: [
             BoxShadow(
               color: isSelected
-                  ? Colors.yellow.withOpacity(0.8)
+                  ? Colors.yellow.withValues(alpha: 0.8)
                   : Colors.black26,
               blurRadius: isSelected ? 20 : 8,
               spreadRadius: isSelected ? 4 : 0,
@@ -160,7 +163,9 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (_) => const Lesson1Screen()),
+                    MaterialPageRoute(
+                      builder: (_) => Lesson1Screen(user: widget.user),
+                    ),
                   );
                 },
               ),

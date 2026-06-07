@@ -5,22 +5,24 @@ import 'package:lakbay_game/Views/game/lesson-one/day-two/act4.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-one/act4.dart';
 import 'package:lakbay_game/Views/game/lesson-three/game_one.dart';
 import 'package:lakbay_game/Views/game/lesson-three/game_two.dart';
+import 'package:lakbay_game/models/user_model.dart';
 
 class Day2Popup extends StatelessWidget {
   final String title;
+  final UserModel user;
 
-  const Day2Popup({super.key, required this.title});
+  const Day2Popup({super.key, required this.title, required this.user});
 
   @override
   Widget build(BuildContext context) {
     /// 1. LEARNING OBJECTIVES
     if (title.contains('Learning Objectives')) {
-      return const _LearningObjectivesPopup();
+      return _LearningObjectivesPopup(user: user);
     }
 
     /// 2. GAWAIN
-    if (title.contains('2. Fact O Kuwento')) {
-      return const _GawainPopup();
+    if (title.contains('GAWAIN 1:Hularawan')) {
+      return _GawainPopup(user: user);
     }
 
     /// 3. KONSEPTO
@@ -33,16 +35,21 @@ class Day2Popup extends StatelessWidget {
       Future.microtask(() {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const LessonOneDayTwoActFour()),
+          MaterialPageRoute(builder: (_) => LessonThreeGameTwo(user: user)),
         );
       });
 
       return const SizedBox.shrink();
     }
 
+    /// 4. TAMA O MALI
+    if (title.contains('Tama o Mali')) {
+      return _TamaOMaliPopup(user: user);
+    }
+
     /// 5. TAKDANG ARALIN
     if (title.contains('Takdang Aralin')) {
-      return const _TakdangAralinPopup();
+      return _TakdangAralinPopup(user: user);
     }
 
     return const SizedBox();
@@ -53,7 +60,8 @@ class Day2Popup extends StatelessWidget {
 /// 1. LEARNING OBJECTIVES
 /// =========================================================
 class _LearningObjectivesPopup extends StatelessWidget {
-  const _LearningObjectivesPopup();
+  final UserModel user;
+  const _LearningObjectivesPopup({required this.user});
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
@@ -133,7 +141,9 @@ class _LearningObjectivesPopup extends StatelessWidget {
 /// =========================================================
 
 class _GawainPopup extends StatelessWidget {
-  const _GawainPopup();
+  final UserModel user;
+
+  const _GawainPopup({required this.user});
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
@@ -211,7 +221,7 @@ class _GawainPopup extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const LessonOneDayTwoActTwo(),
+                      builder: (context) => LessonThreeActFour(user: user),
                     ),
                   );
                 },
@@ -250,7 +260,31 @@ class _GawainPopup extends StatelessWidget {
 /// 3. KONSEPTO
 /// =========================================================
 class _KonseptoPopup extends StatelessWidget {
-  const _KonseptoPopup();
+  final UserModel user;
+
+  const _KonseptoPopup({required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    return _CustomPopupContainer(
+      borderColor: Colors.green,
+      child: const Text(
+        "Dito ilalagay ang konsepto ng aralin.",
+        textAlign: TextAlign.center,
+        style: TextStyle(fontSize: 18),
+      ),
+    );
+  }
+}
+
+/// =========================================================
+/// 4. TAMA O MALI
+/// =========================================================
+
+class _TamaOMaliPopup extends StatelessWidget {
+  final UserModel user;
+
+  const _TamaOMaliPopup({required this.user});
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
@@ -328,7 +362,7 @@ class _KonseptoPopup extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const LessonOneDayTwoActThree(),
+                      builder: (context) => LessonThreeActFour(user: user),
                     ),
                   );
                 },
@@ -368,7 +402,9 @@ class _KonseptoPopup extends StatelessWidget {
 /// =========================================================
 
 class _TakdangAralinPopup extends StatelessWidget {
-  const _TakdangAralinPopup();
+  final UserModel user;
+
+  const _TakdangAralinPopup({required this.user});
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
