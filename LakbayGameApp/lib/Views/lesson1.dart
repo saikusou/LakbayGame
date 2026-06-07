@@ -123,10 +123,9 @@ class _Lesson1ScreenState extends State<Lesson1Screen> {
 
         contents = [
           {"icon": Icons.history_edu, "title": "1. Learning Objectives"},
-          {"icon": Icons.public, "title": "2. GAWAIN 3: Kilalanin Mo Ako!"},
-          {"icon": Icons.school, "title": "3. Ang Aking Pamilya sa Pamayanan"},
-          {"icon": Icons.edit, "title": "4. Katanungan"},
-          {"icon": Icons.assignment, "title": "5. Takdang Aralin"},
+          {"icon": Icons.public, "title": "2. Tukuyin ang Ebidensya"},
+          {"icon": Icons.school, "title": "3. Group Mission"},
+          {"icon": Icons.edit, "title": "4. Takdang Aralin"},
         ];
         break;
 
