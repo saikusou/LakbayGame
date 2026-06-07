@@ -28,7 +28,7 @@ class _LoginScreenState extends State<LoginScreen> {
       isLogin = false;
     });
 
-    final success = await authService.login(
+    final user = await authService.login(
       userName: userName.text.trim(),
       password: password.text.trim(),
     );
@@ -37,16 +37,20 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() {
       isLoading = false;
-      isLogin = !success;
+      isLogin = user == null;
     });
 
-    if (success) {
+    if (user != null) {
       final prefs = await SharedPreferences.getInstance();
+
       await prefs.setBool('isLoggedIn', true);
+      await prefs.setInt('userId', user.id!);
+
+      if (!mounted) return;
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const ProfileScreen()),
+        MaterialPageRoute(builder: (context) => ProfileScreen(user: user)),
       );
     }
   }

@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:lakbay_game/Views/login.dart';
+import 'package:lakbay_game/models/user_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SideNavigation extends StatelessWidget {
   final double width;
   final double height;
   final bool showMenu;
   final VoidCallback onBack;
+  final UserModel user;
 
   const SideNavigation({
     super.key,
@@ -12,10 +16,45 @@ class SideNavigation extends StatelessWidget {
     required this.height,
     required this.showMenu,
     required this.onBack,
+    required this.user,
   });
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
+  }
+
+  Future<void> handleLogout(BuildContext context) async {
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Logout"),
+          content: const Text("Are you sure you want to logout?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text("Logout"),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldLogout == true) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+
+      if (!context.mounted) return;
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
+    }
   }
 
   @override
@@ -46,67 +85,80 @@ class SideNavigation extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            GestureDetector(
-              onTap: onBack,
-              child: Container(
-                width: backSize,
-                height: backSize,
-                decoration: BoxDecoration(
-                  color: Colors.green,
-                  borderRadius: BorderRadius.circular(50),
-                  border: Border.all(color: Colors.white, width: 3),
-                ),
-                child: Icon(
-                  Icons.arrow_back_ios_new,
-                  color: Colors.white,
-                  size: clampDouble(width * 0.06, 22, 26),
-                ),
+            SizedBox(
+              width: navWidth,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: onBack,
+                    child: Container(
+                      width: backSize,
+                      height: backSize,
+                      decoration: BoxDecoration(
+                        color: Colors.green,
+                        borderRadius: BorderRadius.circular(50),
+                        border: Border.all(color: Colors.white, width: 3),
+                      ),
+                      child: Icon(
+                        Icons.arrow_back_ios_new,
+                        color: Colors.white,
+                        size: clampDouble(width * 0.06, 22, 26),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-
             SizedBox(height: clampDouble(height * 0.018, 8, 14)),
 
-            Expanded(
+            Flexible(
               child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    MenuProfile(screenWidth: width),
+                child: SafeArea(
+                  child: Column(
+                    children: [
+                      // MenuProfile(screenWidth: width, user: user),
 
-                    SizedBox(height: clampDouble(height * 0.025, 12, 18)),
-
-                    MenuItem(
-                      icon: Icons.stars,
-                      text: 'Points',
-                      screenWidth: width,
-                    ),
-                    MenuItem(
-                      icon: Icons.calendar_month,
-                      text: 'Daily Rewards',
-                      screenWidth: width,
-                    ),
-                    MenuItem(
-                      icon: Icons.beach_access,
-                      text: 'Islands',
-                      screenWidth: width,
-                    ),
-                    MenuItem(
-                      icon: Icons.emoji_events,
-                      text: 'Leaderboard',
-                      screenWidth: width,
-                    ),
-                    MenuItem(
-                      icon: Icons.info,
-                      text: 'About Us',
-                      screenWidth: width,
-                    ),
-                    MenuItem(
-                      icon: Icons.settings,
-                      text: 'Settings',
-                      screenWidth: width,
-                    ),
-
-                    const SizedBox(height: 20),
-                  ],
+                      // SizedBox(height: clampDouble(height * 0.025, 12, 18)),
+                      MenuItem(
+                        icon: Icons.stars,
+                        text: 'Points',
+                        screenWidth: width,
+                      ),
+                      MenuItem(
+                        icon: Icons.calendar_month,
+                        text: 'Daily Rewards',
+                        screenWidth: width,
+                      ),
+                      MenuItem(
+                        icon: Icons.beach_access,
+                        text: 'Islands',
+                        screenWidth: width,
+                      ),
+                      MenuItem(
+                        icon: Icons.emoji_events,
+                        text: 'Leaderboard',
+                        screenWidth: width,
+                      ),
+                      MenuItem(
+                        icon: Icons.info,
+                        text: 'About Us',
+                        screenWidth: width,
+                      ),
+                      MenuItem(
+                        icon: Icons.settings,
+                        text: 'Settings',
+                        screenWidth: width,
+                      ),
+                      MenuItem(
+                        icon: Icons.logout,
+                        text: 'Logout',
+                        screenWidth: width,
+                        onTap: () => handleLogout(context),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -119,8 +171,9 @@ class SideNavigation extends StatelessWidget {
 
 class MenuProfile extends StatelessWidget {
   final double screenWidth;
+  final UserModel user;
 
-  const MenuProfile({super.key, required this.screenWidth});
+  const MenuProfile({super.key, required this.screenWidth, required this.user});
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
@@ -144,7 +197,7 @@ class MenuProfile extends StatelessWidget {
         const SizedBox(width: 10),
         Expanded(
           child: Text(
-            'Guest_668013',
+            user.userName,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontSize: clampDouble(screenWidth * 0.04, 14, 18),
