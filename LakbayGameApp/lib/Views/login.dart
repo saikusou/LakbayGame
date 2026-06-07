@@ -13,44 +13,45 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final userName = TextEditingController();
-  final password = TextEditingController();
+  final userName = TextEditingController(
+    text: 'John Doe',
+  ); // Default value for testing, remove in production
+  final password = TextEditingController(
+    text: '12345',
+  ); // Default value for testing, remove in production
 
   final AuthService authService = AuthService();
 
-
   bool isChecked = false;
   bool isLoginTrue = false;
+  bool obscurePassword = true;
 
   Future<void> handleLogin() async {
-  bool success = await authService.login(
-    userName: userName.text.trim(),
-    password: password.text.trim(),
-  );
-
-  if (!mounted) return;
-
-  setState(() {
-    isLoginTrue = !success;
-  });
-
-  if (success) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const ProfileScreen(),
-      ),
+    bool success = await authService.login(
+      userName: userName.text.trim(),
+      password: password.text.trim(),
     );
+
+    if (!mounted) return;
+
+    setState(() {
+      isLoginTrue = !success;
+    });
+
+    if (success) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const ProfileScreen()),
+      );
+    }
   }
-}
 
-@override
-void dispose() {
-  userName.dispose();
-  password.dispose();
-  super.dispose();
-}
-
+  @override
+  void dispose() {
+    userName.dispose();
+    password.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,19 +84,33 @@ void dispose() {
                     ),
 
                     const SizedBox(height: 30),
-                    InputField(
-                      hint: 'Username',
-                      icon: Icons.account_circle,
+                    TextField(
                       controller: userName,
-                      passwordInvisible: false,
+                      decoration: InputDecoration(
+                        hintText: 'Username',
+                        prefixIcon: const Icon(Icons.account_circle),
+                      ),
                     ),
-                    InputField(
-                      hint: 'Password',
-                      icon: Icons.lock,
+                    TextField(
                       controller: password,
-                      passwordInvisible: true,
+                      obscureText: obscurePassword,
+                      decoration: InputDecoration(
+                        hintText: 'Password',
+                        prefixIcon: const Icon(Icons.lock),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              obscurePassword = !obscurePassword;
+                            });
+                          },
+                        ),
+                      ),
                     ),
-
                     ListTile(
                       contentPadding: EdgeInsets.zero,
                       leading: Checkbox(
@@ -114,9 +129,9 @@ void dispose() {
 
                     Button1(
                       label: 'LOG IN',
-                    press: () async {
-  await handleLogin();
-},
+                      press: () async {
+                        await handleLogin();
+                      },
                     ),
 
                     Row(
