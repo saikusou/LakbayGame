@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:lakbay_game/Components/button.dart';
-import 'package:lakbay_game/Components/textfield.dart';
 import 'package:lakbay_game/Views/profile.dart';
 import 'package:lakbay_game/Views/signup.dart';
 import 'package:lakbay_game/services/auth_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,21 +12,23 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final userName = TextEditingController(
-    text: 'John Doe',
-  ); // Default value for testing, remove in production
-  final password = TextEditingController(
-    text: '12345',
-  ); // Default value for testing, remove in production
+  final userName = TextEditingController(text: 'John Doe');
+  final password = TextEditingController(text: '12345');
 
   final AuthService authService = AuthService();
 
   bool isChecked = false;
-  bool isLoginTrue = false;
+  bool isLogin = false;
   bool obscurePassword = true;
+  bool isLoading = false;
 
   Future<void> handleLogin() async {
-    bool success = await authService.login(
+    setState(() {
+      isLoading = true;
+      isLogin = false;
+    });
+
+    final success = await authService.login(
       userName: userName.text.trim(),
       password: password.text.trim(),
     );
@@ -35,10 +36,14 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     setState(() {
-      isLoginTrue = !success;
+      isLoading = false;
+      isLogin = !success;
     });
 
     if (success) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isLoggedIn', true);
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const ProfileScreen()),
@@ -53,121 +58,179 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  InputDecoration modernInput(String hint, IconData icon) {
+    return InputDecoration(
+      hintText: hint,
+      prefixIcon: Icon(icon),
+      filled: true,
+      fillColor: Colors.white.withValues(alpha: 0.9),
+      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide.none,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
           SizedBox.expand(
-            child: Image.asset(
-              'assets/background.png', // change to your image
-              fit: BoxFit.cover,
-            ),
+            child: Image.asset('assets/background.png', fit: BoxFit.cover),
           ),
+
+          Container(color: Colors.black.withValues(alpha: 0.4)),
 
           SafeArea(
             child: Center(
-              child: Padding(
+              child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // 👇 Responsive Logo (NOT Expanded)
-                    Flexible(
-                      child: FractionallySizedBox(
-                        widthFactor: 0.8, // 60% of screen width
-                        child: Image.asset(
-                          'assets/startup.png',
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                    ),
+                    const SizedBox(height: 20),
+
+                    Image.asset('assets/startup.png', width: 180),
 
                     const SizedBox(height: 30),
-                    TextField(
-                      controller: userName,
-                      decoration: InputDecoration(
-                        hintText: 'Username',
-                        prefixIcon: const Icon(Icons.account_circle),
+
+                    // LOGIN CARD
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.white24),
                       ),
-                    ),
-                    TextField(
-                      controller: password,
-                      obscureText: obscurePassword,
-                      decoration: InputDecoration(
-                        hintText: 'Password',
-                        prefixIcon: const Icon(Icons.lock),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            obscurePassword
-                                ? Icons.visibility_off
-                                : Icons.visibility,
+                      child: Column(
+                        children: [
+                          TextField(
+                            controller: userName,
+                            enabled: !isLoading,
+                            decoration: modernInput(
+                              'Username',
+                              Icons.account_circle,
+                            ),
                           ),
-                          onPressed: () {
-                            setState(() {
-                              obscurePassword = !obscurePassword;
-                            });
-                          },
-                        ),
-                      ),
-                    ),
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: Checkbox(
-                        value: isChecked,
-                        onChanged: (value) {
-                          setState(() {
-                            isChecked = value!;
-                          });
-                        },
-                      ),
-                      title: const Text(
-                        'Remember Me',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
 
-                    Button1(
-                      label: 'LOG IN',
-                      press: () async {
-                        await handleLogin();
-                      },
-                    ),
+                          const SizedBox(height: 12),
 
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          'Don\'t have an account? ',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const SignupScreen(),
+                          TextField(
+                            controller: password,
+                            enabled: !isLoading,
+                            obscureText: obscurePassword,
+                            decoration: modernInput('Password', Icons.lock)
+                                .copyWith(
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      obscurePassword
+                                          ? Icons.visibility_off
+                                          : Icons.visibility,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        obscurePassword = !obscurePassword;
+                                      });
+                                    },
+                                  ),
+                                ),
+                          ),
+
+                          const SizedBox(height: 10),
+
+                          Row(
+                            children: [
+                              Checkbox(
+                                value: isChecked,
+                                onChanged: isLoading
+                                    ? null
+                                    : (value) {
+                                        setState(() {
+                                          isChecked = value!;
+                                        });
+                                      },
                               ),
-                            );
-                          },
-                          child: Text(
-                            'Sign Up',
-                            style: TextStyle(
-                              color: const Color.fromARGB(255, 0, 10, 27),
+                              const Text(
+                                'Remember Me',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 10),
+
+                          // LOGIN BUTTON WITH SPINNER
+                          SizedBox(
+                            width: double.infinity,
+                            height: 50,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                backgroundColor: const Color.fromARGB(
+                                  255,
+                                  0,
+                                  10,
+                                  27,
+                                ),
+                              ),
+                              onPressed: isLoading ? null : handleLogin,
+                              child: isLoading
+                                  ? const SizedBox(
+                                      height: 22,
+                                      width: 22,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Text(
+                                      "LOG IN",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
 
-                    isLoginTrue
-                        ? Text(
-                            'Username or password is incorect',
-                            style: TextStyle(
-                              color: const Color.fromARGB(255, 172, 4, 4),
+                          const SizedBox(height: 10),
+
+                          if (isLogin)
+                            const Text(
+                              'Incorrect username or password',
+                              style: TextStyle(color: Colors.redAccent),
                             ),
-                          )
-                        : const SizedBox(),
+
+                          const SizedBox(height: 10),
+
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text(
+                                "Don't have an account? ",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              TextButton(
+                                onPressed: isLoading
+                                    ? null
+                                    : () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const SignupScreen(),
+                                          ),
+                                        );
+                                      },
+                                child: const Text('Sign Up'),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
