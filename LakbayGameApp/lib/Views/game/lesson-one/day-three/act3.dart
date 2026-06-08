@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/lesson1.dart';
+import 'package:lakbay_game/models/user_model.dart';
 
 class LessonOneDayThreeActThree extends StatelessWidget {
-  const LessonOneDayThreeActThree({super.key});
+  final UserModel user;
+  const LessonOneDayThreeActThree({super.key, required this.user});
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
@@ -30,25 +32,28 @@ class LessonOneDayThreeActThree extends StatelessWidget {
               ),
             ),
 
-            Positioned(
-              top: clampDouble(h * 0.025, 14, 24),
-              right: clampDouble(w * 0.04, 12, 22),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (_) => const Lesson1Screen()),
-                  );
-                },
-                child: Container(
-                  width: homeSize,
-                  height: homeSize,
-                  decoration: BoxDecoration(
-                    color: Colors.orange,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.white,
-                      width: clampDouble(w * 0.01, 3, 5),
+          Positioned(
+            top: clampDouble(size.height * 0.025, 14, 22),
+            right: clampDouble(size.width * 0.04, 12, 20),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => Lesson1Screen(user: user)),
+                );
+              },
+              child: Container(
+                width: clampDouble(size.width * 0.14, 50, 70),
+                height: clampDouble(size.width * 0.14, 50, 70),
+                decoration: BoxDecoration(
+                  color: Colors.orange,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 4),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 8,
+                      offset: Offset(0, 4),
                     ),
                     boxShadow: const [
                       BoxShadow(
@@ -152,7 +157,7 @@ class LessonOneDayThreeActThree extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.25),
+              color: Colors.black.withValues(alpha: 0.25),
               blurRadius: 4,
               offset: const Offset(0, 3),
             ),

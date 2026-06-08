@@ -2,22 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-one/act4.dart';
 import 'package:lakbay_game/Views/game/lesson-three/game_one.dart';
 import 'package:lakbay_game/Views/game/lesson-three/game_two.dart';
+import 'package:lakbay_game/models/user_model.dart';
 
 class Day1Popup extends StatelessWidget {
   final String title;
+  final UserModel user;
 
-  const Day1Popup({super.key, required this.title});
+  const Day1Popup({super.key, required this.title, required this.user});
 
   @override
   Widget build(BuildContext context) {
     /// 1. LEARNING OBJECTIVES
     if (title.contains('Learning Objectives')) {
-      return const _LearningObjectivesPopup();
+      return _LearningObjectivesPopup(user: user);
     }
 
     /// 2. GAWAIN
     if (title.contains('GAWAIN 1:Hularawan')) {
-      return const _GawainPopup();
+      return _GawainPopup(user: user);
     }
 
     /// 3. KONSEPTO
@@ -25,7 +27,7 @@ class Day1Popup extends StatelessWidget {
       Future.microtask(() {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const LessonThreeGameTwo()),
+          MaterialPageRoute(builder: (_) => LessonThreeGameTwo(user: user)),
         );
       });
 
@@ -34,12 +36,12 @@ class Day1Popup extends StatelessWidget {
 
     /// 4. TAMA O MALI
     if (title.contains('Tama o Mali')) {
-      return const _TamaOMaliPopup();
+      return _TamaOMaliPopup(user: user);
     }
 
     /// 5. TAKDANG ARALIN
     if (title.contains('Takdang Aralin')) {
-      return const _TakdangAralinPopup();
+      return _TakdangAralinPopup(user: user);
     }
 
     return const SizedBox();
@@ -50,7 +52,9 @@ class Day1Popup extends StatelessWidget {
 /// 1. LEARNING OBJECTIVES
 /// =========================================================
 class _LearningObjectivesPopup extends StatelessWidget {
-  const _LearningObjectivesPopup();
+  final UserModel user;
+
+  const _LearningObjectivesPopup({required this.user});
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
@@ -130,7 +134,9 @@ class _LearningObjectivesPopup extends StatelessWidget {
 /// =========================================================
 
 class _GawainPopup extends StatelessWidget {
-  const _GawainPopup();
+  final UserModel user;
+
+  const _GawainPopup({required this.user});
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
@@ -208,7 +214,7 @@ class _GawainPopup extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const LessonThreeActFour(),
+                      builder: (context) => LessonThreeActFour(user: user),
                     ),
                   );
                 },
@@ -247,7 +253,9 @@ class _GawainPopup extends StatelessWidget {
 /// 3. KONSEPTO
 /// =========================================================
 class _KonseptoPopup extends StatelessWidget {
-  const _KonseptoPopup();
+  final UserModel user;
+
+  const _KonseptoPopup({required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -267,7 +275,9 @@ class _KonseptoPopup extends StatelessWidget {
 /// =========================================================
 
 class _TamaOMaliPopup extends StatelessWidget {
-  const _TamaOMaliPopup();
+  final UserModel user;
+
+  const _TamaOMaliPopup({required this.user});
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
@@ -334,7 +344,7 @@ class _TamaOMaliPopup extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const LessonThreeActFour(),
+                      builder: (context) => LessonThreeActFour(user: user),
                     ),
                   );
                 },
@@ -369,7 +379,9 @@ class _TamaOMaliPopup extends StatelessWidget {
 /// =========================================================
 
 class _TakdangAralinPopup extends StatelessWidget {
-  const _TakdangAralinPopup();
+  final UserModel user;
+
+  const _TakdangAralinPopup({required this.user});
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
