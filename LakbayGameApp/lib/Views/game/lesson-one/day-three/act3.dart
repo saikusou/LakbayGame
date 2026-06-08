@@ -11,113 +11,145 @@ class LessonOneDayThreeActThree extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final w = size.width;
+    final h = size.height;
+
+    final double homeSize = clampDouble(w * 0.14, 48, 72);
+    final double buttonWidth = clampDouble(w * 0.34, 115, 155);
+    final double buttonHeight = clampDouble(h * 0.065, 45, 58);
+    final double rightPosition = clampDouble(w * 0.11, 25, 50);
 
     return Scaffold(
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: Image.asset(
-              'assets/lesson-two-day3-act3.png',
-              fit: BoxFit.fill,
+      body: SizedBox.expand(
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: Image.asset(
+                'assets/lesson-two-day3-act3.png',
+                fit: BoxFit.fill,
+              ),
             ),
-          ),
 
-          Positioned(
-            top: clampDouble(size.height * 0.025, 14, 22),
-            right: clampDouble(size.width * 0.04, 12, 20),
-            child: GestureDetector(
-              onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => const Lesson1Screen()),
-                );
-              },
-              child: Container(
-                width: clampDouble(size.width * 0.14, 50, 70),
-                height: clampDouble(size.width * 0.14, 50, 70),
-                decoration: BoxDecoration(
-                  color: Colors.orange,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 4),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 8,
-                      offset: Offset(0, 4),
+            Positioned(
+              top: clampDouble(h * 0.025, 14, 24),
+              right: clampDouble(w * 0.04, 12, 22),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const Lesson1Screen()),
+                  );
+                },
+                child: Container(
+                  width: homeSize,
+                  height: homeSize,
+                  decoration: BoxDecoration(
+                    color: Colors.orange,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white,
+                      width: clampDouble(w * 0.01, 3, 5),
                     ),
-                  ],
-                ),
-                child: Icon(
-                  Icons.home,
-                  color: Colors.white,
-                  size: clampDouble(size.width * 0.08, 28, 40),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 8,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    Icons.home,
+                    color: Colors.white,
+                    size: clampDouble(homeSize * 0.55, 26, 40),
+                  ),
                 ),
               ),
             ),
-          ),
 
-          Positioned(
-            top: size.height * 0.50,
-            right: 45,
-            child: missionButton(
-              context,
-              onTap: () {
-                print('Mission 1');
-              },
+            Positioned(
+              top: h * 0.50,
+              right: rightPosition,
+              child: missionButton(
+                width: buttonWidth,
+                height: buttonHeight,
+                onTap: () {
+                  debugPrint('Mission 1');
+                },
+              ),
             ),
-          ),
 
-          Positioned(
-            top: size.height * 0.61,
-            right: 45,
-            child: missionButton(
-              context,
-              onTap: () {
-                print('Mission 2');
-              },
+            Positioned(
+              top: h * 0.61,
+              right: rightPosition,
+              child: missionButton(
+                width: buttonWidth,
+                height: buttonHeight,
+                onTap: () {
+                  debugPrint('Mission 2');
+                },
+              ),
             ),
-          ),
 
-          Positioned(
-            top: size.height * 0.72,
-            right: 45,
-            child: missionButton(
-              context,
-              onTap: () {
-                print('Mission 3');
-              },
+            Positioned(
+              top: h * 0.72,
+              right: rightPosition,
+              child: missionButton(
+                width: buttonWidth,
+                height: buttonHeight,
+                onTap: () {
+                  debugPrint('Mission 3');
+                },
+              ),
             ),
-          ),
 
-          Positioned(
-            top: size.height * 0.82,
-            right: 45,
-            child: missionButton(
-              context,
-              onTap: () {
-                print('Mission 4');
-              },
+            Positioned(
+              top: h * 0.82,
+              right: rightPosition,
+              child: missionButton(
+                width: buttonWidth,
+                height: buttonHeight,
+                onTap: () {
+                  debugPrint('Mission 4');
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget missionButton(BuildContext context, {required VoidCallback onTap}) {
+  Widget missionButton({
+    required double width,
+    required double height,
+    required VoidCallback onTap,
+  }) {
+    final double iconSize = clampDouble(height * 0.58, 24, 34);
+    final double playSize = clampDouble(height * 0.40, 18, 24);
+    final double fontSize = clampDouble(height * 0.25, 11, 14);
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 140,
-        height: 55,
+        width: width,
+        height: height,
+        padding: EdgeInsets.symmetric(
+          horizontal: clampDouble(width * 0.07, 6, 10),
+        ),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(
+            clampDouble(width * 0.09, 10, 15),
+          ),
           gradient: const LinearGradient(
             colors: [Color(0xFFB7F300), Color(0xFF5EAE00)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
-          border: Border.all(color: Color(0xFF3D7500), width: 3),
+          border: Border.all(
+            color: const Color(0xFF3D7500),
+            width: clampDouble(width * 0.02, 2, 3),
+          ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.25),
@@ -130,29 +162,29 @@ class LessonOneDayThreeActThree extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 32,
-              height: 32,
+              width: iconSize,
+              height: iconSize,
               decoration: const BoxDecoration(
                 color: Colors.white,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.play_arrow,
-                color: Color(0xFF5EAE00),
-                size: 22,
+                color: const Color(0xFF5EAE00),
+                size: playSize,
               ),
             ),
-            const SizedBox(width: 8),
-            const Flexible(
+            SizedBox(width: clampDouble(width * 0.05, 5, 8)),
+            Flexible(
               child: Text(
                 'BUKSAN\nANG MISYON',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w900,
-                  fontSize: 14,
+                  fontSize: fontSize,
                   height: 1,
-                  shadows: [
+                  shadows: const [
                     Shadow(
                       color: Colors.black54,
                       offset: Offset(1, 1),
