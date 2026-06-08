@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Components/button.dart';
 import 'package:lakbay_game/Views/lesson1.dart';
-import 'package:lakbay_game/Views/lesson3.dart';
+import 'package:lakbay_game/models/user_model.dart';
 
 class LessonOneDayThreeActTwo extends StatefulWidget {
-  const LessonOneDayThreeActTwo({super.key});
+  final UserModel user;
+  const LessonOneDayThreeActTwo({super.key, required this.user});
 
   @override
   State<LessonOneDayThreeActTwo> createState() =>
@@ -127,7 +128,9 @@ class _LessonOneDayThreeActTwoState extends State<LessonOneDayThreeActTwo> {
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (_) => const Lesson1Screen()),
+                    MaterialPageRoute(
+                      builder: (_) => Lesson1Screen(user: widget.user),
+                    ),
                   );
                 },
                 child: Container(

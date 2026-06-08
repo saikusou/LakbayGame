@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Components/side_navigation.dart';
 import 'package:lakbay_game/Views/profile.dart';
+import 'package:lakbay_game/models/user_model.dart';
 
 class Lesson2Screen extends StatefulWidget {
-  const Lesson2Screen({super.key});
+  final UserModel user;
+
+  const Lesson2Screen({super.key, required this.user});
 
   @override
   State<Lesson2Screen> createState() => _Lesson2ScreenState();
@@ -228,7 +231,7 @@ class _Lesson2ScreenState extends State<Lesson2Screen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Guest_668013",
+                      widget.user.userName,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: clampDouble(width * 0.032, 11, 14),
@@ -255,7 +258,9 @@ class _Lesson2ScreenState extends State<Lesson2Screen> {
             onTap: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                MaterialPageRoute(
+                  builder: (_) => ProfileScreen(user: widget.user),
+                ),
               );
             },
             child: Container(
@@ -383,6 +388,7 @@ class _Lesson2ScreenState extends State<Lesson2Screen> {
                       height: height,
                       showMenu: showMenu,
                       onBack: toggleMenu,
+                      user: widget.user,
                     ),
                   ],
                 );

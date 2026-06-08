@@ -4,17 +4,19 @@ import 'package:lakbay_game/Views/game/lesson-three/day-three/act2.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-three/act3.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-three/act4.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-two/act1.dart';
+import 'package:lakbay_game/models/user_model.dart';
 
 class Day3Popup extends StatelessWidget {
   final String title;
+  final UserModel user;
 
-  const Day3Popup({super.key, required this.title});
+  const Day3Popup({super.key, required this.title, required this.user});
 
   @override
   Widget build(BuildContext context) {
     /// 1. LEARNING OBJECTIVES
     if (title.contains('Learning Objectives')) {
-      return const _LearningObjectivesPopup();
+      return _LearningObjectivesPopup(user: user);
     }
 
     /// 2. GAWAIN
@@ -22,7 +24,9 @@ class Day3Popup extends StatelessWidget {
       Future.microtask(() {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const LessonThreeDayOneActTwo()),
+          MaterialPageRoute(
+            builder: (_) => LessonThreeDayOneActTwo(user: user),
+          ),
         );
       });
 
@@ -34,7 +38,9 @@ class Day3Popup extends StatelessWidget {
       Future.microtask(() {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const LessonThreeDayOneActThree()),
+          MaterialPageRoute(
+            builder: (_) => LessonThreeDayOneActThree(user: user),
+          ),
         );
       });
 
@@ -46,7 +52,9 @@ class Day3Popup extends StatelessWidget {
       Future.microtask(() {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const LessonThreeDayOneActFour()),
+          MaterialPageRoute(
+            builder: (_) => LessonThreeDayOneActFour(user: user),
+          ),
         );
       });
 
@@ -55,7 +63,7 @@ class Day3Popup extends StatelessWidget {
 
     /// 5. TAKDANG ARALIN
     if (title.contains('Takdang Aralin')) {
-      return const _TakdangAralinPopup();
+      return _TakdangAralinPopup(user: user);
     }
 
     return const SizedBox();
@@ -66,7 +74,8 @@ class Day3Popup extends StatelessWidget {
 /// 1. LEARNING OBJECTIVES
 /// =========================================================
 class _LearningObjectivesPopup extends StatelessWidget {
-  const _LearningObjectivesPopup();
+  final UserModel user;
+  const _LearningObjectivesPopup({required this.user});
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
@@ -146,12 +155,14 @@ class _LearningObjectivesPopup extends StatelessWidget {
 /// =========================================================
 
 class _GawainPopup extends StatelessWidget {
-  const _GawainPopup();
+  final UserModel user;
+  const _GawainPopup({required this.user});
 
   @override
   Widget build(BuildContext context) {
     return _CustomPopupContainer(
       borderColor: Colors.green,
+      user: user,
       child: const Text(
         "Dito ilalagay ang konsepto ng aralin.",
         textAlign: TextAlign.center,
@@ -165,12 +176,14 @@ class _GawainPopup extends StatelessWidget {
 /// 3. KONSEPTO
 /// =========================================================
 class _KonseptoPopup extends StatelessWidget {
-  const _KonseptoPopup();
+  final UserModel user;
+  const _KonseptoPopup({required this.user});
 
   @override
   Widget build(BuildContext context) {
     return _CustomPopupContainer(
       borderColor: Colors.green,
+      user: user,
       child: const Text(
         "Dito ilalagay ang konsepto ng aralin.",
         textAlign: TextAlign.center,
@@ -185,7 +198,8 @@ class _KonseptoPopup extends StatelessWidget {
 /// =========================================================
 
 class _TamaOMaliPopup extends StatelessWidget {
-  const _TamaOMaliPopup();
+  final UserModel user;
+  const _TamaOMaliPopup({required this.user});
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
@@ -257,7 +271,8 @@ class _TamaOMaliPopup extends StatelessWidget {
 /// =========================================================
 
 class _TakdangAralinPopup extends StatelessWidget {
-  const _TakdangAralinPopup();
+  final UserModel user;
+  const _TakdangAralinPopup({required this.user});
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
@@ -337,9 +352,14 @@ class _TakdangAralinPopup extends StatelessWidget {
 /// =========================================================
 class _CustomPopupContainer extends StatelessWidget {
   final Color borderColor;
+  final UserModel user;
   final Widget child;
 
-  const _CustomPopupContainer({required this.borderColor, required this.child});
+  const _CustomPopupContainer({
+    required this.borderColor,
+    required this.user,
+    required this.child,
+  });
 
   @override
   Widget build(BuildContext context) {
