@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Components/button.dart';
 import 'package:lakbay_game/Views/lesson1.dart';
-import 'package:lakbay_game/Views/lesson3.dart';
 import 'package:lakbay_game/models/user_model.dart';
 
 class LessonOneDayOneActOne extends StatefulWidget {
@@ -34,21 +33,22 @@ class _LessonOneDayOneActOneState extends State<LessonOneDayOneActOne> {
   }
 
   Widget choiceButton({
+    required Size size,
     required String value,
     required String label,
     required Color color,
-    required VoidCallback onTap,
   }) {
     final bool isSelected = currentScenario == 1
         ? answer1 == value
         : answer2 == value;
 
     return GestureDetector(
-      onTap: onTap,
+      onTap: () => selectAnswer(value),
       child: Container(
-        width: 330,
-        height: 45,
-        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+        width: clampDouble(size.width * 0.82, 255, 340),
+        height: clampDouble(size.height * 0.052, 40, 48),
+        margin: EdgeInsets.only(bottom: clampDouble(size.height * 0.007, 4, 7)),
+        padding: const EdgeInsets.symmetric(horizontal: 8),
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(15),
@@ -68,10 +68,11 @@ class _LessonOneDayOneActOneState extends State<LessonOneDayOneActOne> {
           child: Text(
             label,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            maxLines: 2,
+            style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
-              fontSize: 13,
+              fontSize: clampDouble(size.width * 0.032, 12, 14),
             ),
           ),
         ),
@@ -79,47 +80,45 @@ class _LessonOneDayOneActOneState extends State<LessonOneDayOneActOne> {
     );
   }
 
-  List<Widget> answerChoices() {
+  List<Widget> answerChoices(Size size) {
+    final double topMargin = clampDouble(size.height * 0.60, 20, 80);
     if (currentScenario == 1) {
       return [
-        const SizedBox(height: 150),
+        SizedBox(height: topMargin),
         choiceButton(
+          size: size,
           value: 'A',
           label: 'A. Tumawid sa dagat',
           color: Colors.blue,
-          onTap: () => selectAnswer('A'),
         ),
-        const SizedBox(height: 1),
         choiceButton(
+          size: size,
           value: 'B',
           label: 'B. Gumamit ng bangka',
           color: Colors.orange,
-          onTap: () => selectAnswer('B'),
         ),
-        const SizedBox(height: 1),
         choiceButton(
+          size: size,
           value: 'C',
           label: 'C. Naglakbay mula sa ibang lugar',
           color: Colors.purple,
-          onTap: () => selectAnswer('C'),
         ),
       ];
     }
 
     return [
-      const SizedBox(height: 180),
+      SizedBox(height: topMargin),
       choiceButton(
+        size: size,
         value: 'A',
         label: 'A. Malakas at Maganda',
         color: Colors.blue,
-        onTap: () => selectAnswer('A'),
       ),
-      const SizedBox(height: 1),
       choiceButton(
+        size: size,
         value: 'B',
         label: 'B. Alamat ng pinagmulan ng tao',
         color: Colors.orange,
-        onTap: () => selectAnswer('B'),
       ),
     ];
   }
@@ -132,92 +131,90 @@ class _LessonOneDayOneActOneState extends State<LessonOneDayOneActOne> {
         ? 'assets/lesson-one-day1-act2a.png'
         : 'assets/lesson-one-day1-act2b.png';
 
+    final double topSpace = currentScenario == 1
+        ? clampDouble(size.height * 0.63, 370, 500)
+        : clampDouble(size.height * 0.66, 390, 520);
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: SizedBox.expand(
         child: Stack(
           children: [
-            // 1. Background Image (Bottom-most layer)
             Positioned.fill(
               child: Image.asset(backgroundImage, fit: BoxFit.fill),
             ),
 
-            // 2. Main Content Scroll Layer
             SafeArea(
-              child: Center(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: size.height),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      SizedBox(
-                        height: clampDouble(size.height * 0.58, 380, 500),
+                      SizedBox(height: topSpace),
+
+                      Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: answerChoices(size),
+                        ),
                       ),
-                      Column(children: answerChoices()),
-                      const SizedBox(height: 5),
-                      if (currentScenario == 1)
-                        Button(
-                          label: 'NEXT',
-                          press: () {
-                            setState(() {
-                              currentScenario = 2;
-                            });
-                          },
+
+                      SizedBox(height: clampDouble(size.height * 0.008, 4, 8)),
+
+                      Center(
+                        child: SizedBox(
+                          width: clampDouble(size.width * 0.42, 135, 175),
+                          height: clampDouble(size.height * 0.055, 42, 52),
+                          child: Button(
+                            label: currentScenario == 1 ? 'NEXT' : 'SUBMIT',
+                            press: () {
+                              if (currentScenario == 1) {
+                                setState(() {
+                                  currentScenario = 2;
+                                });
+                              } else {
+                                debugPrint('Picture 1 Answer: $answer1');
+                                debugPrint('Picture 2 Answer: $answer2');
+                              }
+                            },
+                          ),
                         ),
-                      if (currentScenario == 2)
-                        Button(
-                          label: 'SUBMIT',
-                          press: () {
-                            debugPrint('Picture 1 Answer: $answer1');
-                            debugPrint('Picture 2 Answer: $answer2');
-                          },
-                        ),
+                      ),
+
+                      SizedBox(height: clampDouble(size.height * 0.03, 20, 35)),
                     ],
                   ),
                 ),
               ),
             ),
 
-            // 3. Navigation UI Controls (Top-most layer, completely touchable)
             SafeArea(
               child: Stack(
                 children: [
                   if (currentScenario == 2)
                     Positioned(
-                      top: clampDouble(size.height * 0.025, 14, 22),
-                      left: clampDouble(size.width * 0.04, 12, 20),
-                      child: GestureDetector(
+                      top: clampDouble(size.height * 0.02, 12, 22),
+                      left: clampDouble(size.width * 0.04, 12, 22),
+                      child: circleIconButton(
+                        size: size,
+                        color: Colors.blue,
+                        icon: Icons.arrow_back,
                         onTap: () {
                           setState(() {
                             currentScenario = 1;
                           });
                         },
-                        child: Container(
-                          width: clampDouble(size.width * 0.14, 50, 70),
-                          height: clampDouble(size.width * 0.14, 50, 70),
-                          decoration: BoxDecoration(
-                            color: Colors.blue,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 4),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Colors.black26,
-                                blurRadius: 8,
-                                offset: Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            Icons.arrow_back,
-                            color: Colors.white,
-                            size: clampDouble(size.width * 0.08, 28, 40),
-                          ),
-                        ),
                       ),
                     ),
+
                   Positioned(
-                    top: clampDouble(size.height * 0.025, 14, 22),
-                    right: clampDouble(size.width * 0.04, 12, 20),
-                    child: GestureDetector(
+                    top: clampDouble(size.height * 0.02, 12, 22),
+                    right: clampDouble(size.width * 0.04, 12, 22),
+                    child: circleIconButton(
+                      size: size,
+                      color: Colors.orange,
+                      icon: Icons.home,
                       onTap: () {
                         Navigator.pushReplacement(
                           context,
@@ -226,33 +223,46 @@ class _LessonOneDayOneActOneState extends State<LessonOneDayOneActOne> {
                           ),
                         );
                       },
-                      child: Container(
-                        width: clampDouble(size.width * 0.14, 50, 70),
-                        height: clampDouble(size.width * 0.14, 50, 70),
-                        decoration: BoxDecoration(
-                          color: Colors.orange,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 4),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black26,
-                              blurRadius: 8,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Icon(
-                          Icons.home,
-                          color: Colors.white,
-                          size: clampDouble(size.width * 0.08, 28, 40),
-                        ),
-                      ),
                     ),
                   ),
                 ],
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget circleIconButton({
+    required Size size,
+    required Color color,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    final double buttonSize = clampDouble(size.width * 0.13, 48, 68);
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: buttonSize,
+        height: buttonSize,
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white, width: 4),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 8,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Icon(
+          icon,
+          color: Colors.white,
+          size: clampDouble(size.width * 0.075, 26, 38),
         ),
       ),
     );
