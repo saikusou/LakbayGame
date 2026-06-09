@@ -5,6 +5,7 @@ import 'package:lakbay_game/models/user_model.dart';
 
 class LessonOneDayTwoActTwo extends StatefulWidget {
   final UserModel user;
+
   const LessonOneDayTwoActTwo({super.key, required this.user});
 
   @override
@@ -41,56 +42,61 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
     required Color color,
     required bool isSelected,
     required VoidCallback onTap,
+    required double width,
+    required double height,
+    required double titleSize,
+    required double subtitleSize,
   }) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          height: isSelected ? 105 : 100,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: isSelected ? Colors.yellow : Colors.white,
-              width: isSelected ? 5 : 3,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: isSelected
-                    ? Colors.yellow.withOpacity(0.6)
-                    : color == const Color(0xFF007ee6)
-                    ? const Color(0xFF004fa3)
-                    : const Color(0xFFc78200),
-                blurRadius: isSelected ? 15 : 0,
-                spreadRadius: isSelected ? 2 : 0,
-                offset: isSelected ? const Offset(0, 2) : const Offset(0, 6),
-              ),
-            ],
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: width,
+        height: isSelected ? height + 6 : height,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: isSelected ? Colors.yellow : Colors.white,
+            width: isSelected ? 5 : 3,
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
+          boxShadow: [
+            BoxShadow(
+              color: isSelected
+                  ? Colors.yellow.withOpacity(0.6)
+                  : color == const Color(0xFF007ee6)
+                  ? const Color(0xFF004fa3)
+                  : const Color(0xFFc78200),
+              blurRadius: isSelected ? 15 : 0,
+              spreadRadius: isSelected ? 2 : 0,
+              offset: isSelected ? const Offset(0, 2) : const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            FittedBox(
+              child: Text(
                 label,
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: isSelected ? 26 : 24,
+                  fontSize: isSelected ? titleSize + 2 : titleSize,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 4),
-              Text(
-                subLabel,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              subLabel,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: subtitleSize,
+                fontWeight: FontWeight.w600,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -102,12 +108,13 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
     required VoidCallback onTap,
   }) {
     final size = MediaQuery.of(context).size;
+    final buttonSize = clampDouble(size.width * 0.14, 48, 66);
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: clampDouble(size.width * 0.14, 50, 70),
-        height: clampDouble(size.width * 0.14, 50, 70),
+        width: buttonSize,
+        height: buttonSize,
         decoration: BoxDecoration(
           color: color,
           shape: BoxShape.circle,
@@ -120,11 +127,7 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
             ),
           ],
         ),
-        child: Icon(
-          icon,
-          color: Colors.white,
-          size: clampDouble(size.width * 0.08, 28, 40),
-        ),
+        child: Icon(icon, color: Colors.white, size: buttonSize * 0.55),
       ),
     );
   }
@@ -132,29 +135,33 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final w = size.width;
+    final h = size.height;
 
     final String backgroundImage = currentScenario == 1
         ? 'assets/lesson-two-day1-act21.png'
         : 'assets/lesson-two-day1-act22.png';
 
+    final double horizontalPadding = clampDouble(w * 0.06, 16, 28);
+    final double choiceWidth = clampDouble(w * 0.38, 130, 190);
+    final double choiceHeight = clampDouble(h * 0.115, 82, 105);
+    final double titleSize = clampDouble(w * 0.055, 18, 24);
+    final double subtitleSize = clampDouble(w * 0.032, 10, 13);
+    final double bottomPadding = clampDouble(h * 0.08, 35, 75);
+
     return Scaffold(
-      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: false,
       body: SizedBox.expand(
         child: Stack(
           children: [
-            // Background Image
             Positioned.fill(
-              child: Transform.scale(
-                scale: 1,
-                child: Image.asset(backgroundImage, fit: BoxFit.fill),
-              ),
+              child: Image.asset(backgroundImage, fit: BoxFit.fill),
             ),
 
-            // Back Button (Scenario 2 Only)
             if (currentScenario == 2)
               Positioned(
-                top: clampDouble(size.height * 0.025, 14, 22),
-                left: clampDouble(size.width * 0.04, 12, 20),
+                top: clampDouble(h * 0.025, 14, 24),
+                left: clampDouble(w * 0.04, 12, 22),
                 child: circleButton(
                   icon: Icons.arrow_back,
                   color: Colors.blue,
@@ -166,10 +173,9 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
                 ),
               ),
 
-            // Home Button
             Positioned(
-              top: clampDouble(size.height * 0.025, 14, 22),
-              right: clampDouble(size.width * 0.04, 12, 20),
+              top: clampDouble(h * 0.025, 14, 24),
+              right: clampDouble(w * 0.04, 12, 22),
               child: circleButton(
                 icon: Icons.home,
                 color: Colors.orange,
@@ -184,64 +190,66 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
               ),
             ),
 
-            // Bottom Interactive HUD Layout
             SafeArea(
               child: Align(
                 alignment: Alignment.bottomCenter,
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.only(
-                    left: 24,
-                    right: 24,
-                    bottom: 80,
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    left: horizontalPadding,
+                    right: horizontalPadding,
+                    bottom: bottomPadding,
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Styled Dynamic Selection Row
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Row(
-                          children: [
-                            choiceButton(
-                              label: '🔍 FACT',
-                              subLabel: 'Siyentipikong\nPag-aaral',
-                              color: const Color(0xFF007ee6),
-                              isSelected: currentAnswer == 'FACT',
-                              onTap: () => selectAnswer('FACT'),
-                            ),
-                            const SizedBox(width: 15),
-                            choiceButton(
-                              label: '📖 KUWENTO',
-                              subLabel: 'Alamat o\nKaalamang Bayan',
-                              color: const Color(0xFFffb900),
-                              isSelected: currentAnswer == 'KUWENTO',
-                              onTap: () => selectAnswer('KUWENTO'),
-                            ),
-                          ],
-                        ),
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: clampDouble(w * 0.04, 10, 18),
+                        runSpacing: 12,
+                        children: [
+                          choiceButton(
+                            label: '🔍 FACT',
+                            subLabel: 'Siyentipikong\nPag-aaral',
+                            color: const Color(0xFF007ee6),
+                            isSelected: currentAnswer == 'FACT',
+                            onTap: () => selectAnswer('FACT'),
+                            width: choiceWidth,
+                            height: choiceHeight,
+                            titleSize: titleSize,
+                            subtitleSize: subtitleSize,
+                          ),
+                          choiceButton(
+                            label: '📖 KUWENTO',
+                            subLabel: 'Alamat o\nKaalamang Bayan',
+                            color: const Color(0xFFffb900),
+                            isSelected: currentAnswer == 'KUWENTO',
+                            onTap: () => selectAnswer('KUWENTO'),
+                            width: choiceWidth,
+                            height: choiceHeight,
+                            titleSize: titleSize,
+                            subtitleSize: subtitleSize,
+                          ),
+                        ],
                       ),
 
-                      const SizedBox(height: 20),
+                      SizedBox(height: clampDouble(h * 0.025, 12, 22)),
 
-                      // Navigation Action Buttons
-                      if (currentScenario == 1)
-                        Button(
-                          label: 'NEXT',
+                      SizedBox(
+                        width: clampDouble(w * 0.45, 150, 220),
+                        child: Button(
+                          label: currentScenario == 1 ? 'NEXT' : 'SUBMIT',
                           press: () {
-                            setState(() {
-                              currentScenario = 2;
-                            });
+                            if (currentScenario == 1) {
+                              setState(() {
+                                currentScenario = 2;
+                              });
+                            } else {
+                              debugPrint('Picture 1 Answer: $answer1');
+                              debugPrint('Picture 2 Answer: $answer2');
+                            }
                           },
                         ),
-
-                      if (currentScenario == 2)
-                        Button(
-                          label: 'SUBMIT',
-                          press: () {
-                            debugPrint('Picture 1 Answer: $answer1');
-                            debugPrint('Picture 2 Answer: $answer2');
-                          },
-                        ),
+                      ),
                     ],
                   ),
                 ),

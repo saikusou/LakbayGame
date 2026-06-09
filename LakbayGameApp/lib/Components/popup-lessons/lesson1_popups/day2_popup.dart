@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:lakbay_game/Views/game/lesson-one/day-two/act1.dart';
+import 'package:lakbay_game/Views/game/lesson-one/day-two/act3.dart';
+import 'package:lakbay_game/Views/game/lesson-one/day-two/act4.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-one/act4.dart';
 import 'package:lakbay_game/Views/game/lesson-three/game_two.dart';
 import 'package:lakbay_game/models/user_model.dart';
@@ -17,21 +20,32 @@ class Day2Popup extends StatelessWidget {
     }
 
     /// 2. GAWAIN
-    if (title.contains('GAWAIN 1:Hularawan')) {
+    if (title.contains('Fact O Kuwento')) {
       return _GawainPopup(user: user);
     }
 
     /// 3. KONSEPTO
     if (title.contains('Crack the Code')) {
-      return _KonseptoPopup(user: user);
+      Future.microtask(() {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => LessonOneDayTwoActThree(user: user),
+          ),
+        );
+      });
+
+      return const SizedBox.shrink();
     }
 
     /// 4. Pagtataya
     if (title.contains('Pagtataya')) {
-      Future.microtask(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) return;
+
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => LessonThreeGameTwo(user: user)),
+          MaterialPageRoute(builder: (_) => LessonOneDayTwoActFour(user: user)),
         );
       });
 
@@ -217,7 +231,7 @@ class _GawainPopup extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => LessonThreeActFour(user: user),
+                      builder: (context) => LessonOneDayTwoActTwo(user: user),
                     ),
                   );
                 },

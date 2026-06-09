@@ -2,26 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/lesson1.dart';
 import 'package:lakbay_game/models/user_model.dart';
 
-void main() {
-  runApp(const EducationalGameApp());
-}
-
-class EducationalGameApp extends StatelessWidget {
-  const EducationalGameApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: LessonOneDayTwoActFour(
-        user: UserModel(id: null, userName: '', email: '', gender: ''),
-      ),
-    );
-  }
-}
-
 class LessonOneDayTwoActFour extends StatefulWidget {
   final UserModel user;
+
   const LessonOneDayTwoActFour({super.key, required this.user});
 
   @override
@@ -29,7 +12,7 @@ class LessonOneDayTwoActFour extends StatefulWidget {
 }
 
 class _LessonOneDayTwoActFourState extends State<LessonOneDayTwoActFour> {
-  static const String backgroundImage = 'assets/lesson-two-day2-act4.png';
+  static const String backgroundImage = 'assets/lesson-two-day2-act4a.png';
 
   final Map<String, String?> answers = {
     'Teoryang Austronesyano': null,
@@ -92,57 +75,56 @@ class _LessonOneDayTwoActFourState extends State<LessonOneDayTwoActFour> {
   }
 
   Widget header(double iconSize) {
-    return Padding(
-      padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.03),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => Lesson1Screen(user: widget.user),
-                ),
-              );
-            },
-            child: Container(
-              width: iconSize,
-              height: iconSize,
-              decoration: BoxDecoration(
-                color: Colors.amber,
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 3),
+    return Row(
+      children: [
+        GestureDetector(
+          onTap: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => Lesson1Screen(user: widget.user),
               ),
-              child: Icon(
-                Icons.arrow_back,
-                color: Colors.white,
-                size: iconSize * 0.6,
-              ),
+            );
+          },
+          child: Container(
+            width: iconSize,
+            height: iconSize,
+            decoration: BoxDecoration(
+              color: Colors.amber,
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white, width: 3),
+            ),
+            child: Icon(
+              Icons.arrow_back,
+              color: Colors.white,
+              size: iconSize * 0.58,
             ),
           ),
-          const Spacer(),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   Widget tableHeaderText(String text, double fontSize) {
     return Expanded(
-      child: Text(
-        text,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: fontSize,
-          fontWeight: FontWeight.bold,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: fontSize,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );
   }
 
-  Widget tableHeader(double fontSize) {
+  Widget tableHeader(double fontSize, double height) {
     return Container(
-      height: 34,
+      height: height,
       color: Colors.blue[900],
       child: Row(
         children: [
@@ -169,7 +151,7 @@ class _LessonOneDayTwoActFourState extends State<LessonOneDayTwoActFour> {
 
     return Container(
       decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: Colors.blue.shade900, width: 1)),
+        border: Border(top: BorderSide(color: Colors.blue.shade900)),
       ),
       child: Row(
         children: [
@@ -186,6 +168,8 @@ class _LessonOneDayTwoActFourState extends State<LessonOneDayTwoActFour> {
                     child: Text(
                       title,
                       textAlign: TextAlign.center,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: Colors.blue,
                         fontSize: titleFont,
@@ -214,13 +198,15 @@ class _LessonOneDayTwoActFourState extends State<LessonOneDayTwoActFour> {
                   decoration: BoxDecoration(
                     color: dropColor.withOpacity(0.25),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: dropColor, width: 1.6),
+                    border: Border.all(color: dropColor, width: 1.5),
                   ),
                   child: Text(
                     current == null
                         ? 'I-drag ang sagot dito'
                         : getChoiceText(current),
                     textAlign: TextAlign.center,
+                    maxLines: 4,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: answerFont,
                       color: current == null ? Colors.grey[600] : Colors.black,
@@ -246,6 +232,8 @@ class _LessonOneDayTwoActFourState extends State<LessonOneDayTwoActFour> {
                     child: Text(
                       rightText,
                       textAlign: TextAlign.center,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: Colors.blue,
                         fontSize: titleFont,
@@ -263,13 +251,13 @@ class _LessonOneDayTwoActFourState extends State<LessonOneDayTwoActFour> {
   }
 
   Widget tableBox(Size size) {
-    final rowHeight = clampDouble(size.height * 0.105, 70, 92);
-    final iconSize = clampDouble(size.width * 0.06, 18, 26);
-    final titleFont = clampDouble(size.width * 0.025, 8, 11);
-    final answerFont = clampDouble(size.width * 0.023, 7, 10);
+    final rowHeight = clampDouble(size.height * 0.105, 62, 88);
+    final iconSize = clampDouble(size.width * 0.055, 16, 25);
+    final titleFont = clampDouble(size.width * 0.024, 8, 12);
+    final answerFont = clampDouble(size.width * 0.022, 7, 11);
+    final headerHeight = clampDouble(size.height * 0.045, 28, 36);
 
     return Container(
-      margin: EdgeInsets.only(top: clampDouble(size.height * 0.26, 150, 245)),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.95),
         borderRadius: BorderRadius.circular(14),
@@ -277,8 +265,9 @@ class _LessonOneDayTwoActFourState extends State<LessonOneDayTwoActFour> {
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          tableHeader(titleFont),
+          tableHeader(titleFont, headerHeight),
           tableRow(
             title: 'Teoryang Austronesyano',
             leftIcon: '⛵',
@@ -318,7 +307,7 @@ class _LessonOneDayTwoActFourState extends State<LessonOneDayTwoActFour> {
   }
 
   Widget choiceCard(Map<String, String> choice, double width, Size size) {
-    final fontSize = clampDouble(size.width * 0.025, 8, 11);
+    final fontSize = clampDouble(size.width * 0.023, 8, 11);
 
     return Container(
       width: width,
@@ -330,15 +319,17 @@ class _LessonOneDayTwoActFourState extends State<LessonOneDayTwoActFour> {
       ),
       child: Row(
         children: [
-          Text(choice['icon']!, style: const TextStyle(fontSize: 20)),
+          Text(choice['icon']!, style: const TextStyle(fontSize: 18)),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               choice['text']!,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
             ),
           ),
-          const Icon(Icons.drag_indicator, size: 17, color: Colors.blueGrey),
+          const Icon(Icons.drag_indicator, size: 16, color: Colors.blueGrey),
         ],
       ),
     );
@@ -346,7 +337,6 @@ class _LessonOneDayTwoActFourState extends State<LessonOneDayTwoActFour> {
 
   Widget choicesBox(Size size) {
     return Container(
-      margin: const EdgeInsets.only(top: 12),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.orange[100]?.withOpacity(0.95),
@@ -379,7 +369,7 @@ class _LessonOneDayTwoActFourState extends State<LessonOneDayTwoActFour> {
                   maxSimultaneousDrags: isUsed ? 0 : 1,
                   feedback: Material(
                     color: Colors.transparent,
-                    child: choiceCard(choice, size.width * 0.72, size),
+                    child: choiceCard(choice, size.width * 0.70, size),
                   ),
                   childWhenDragging: const SizedBox(height: 42),
                   child: choiceCard(choice, double.infinity, size),
@@ -393,87 +383,106 @@ class _LessonOneDayTwoActFourState extends State<LessonOneDayTwoActFour> {
   }
 
   Widget bottomArea(Size size) {
-    final fontSize = clampDouble(size.width * 0.024, 8, 10);
+    final fontSize = clampDouble(size.width * 0.022, 8, 10);
 
-    return Padding(
-      padding: const EdgeInsets.only(top: 10, bottom: 20),
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.orange[50]?.withOpacity(0.95),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.brown, width: 1.5),
-              ),
-              child: Text(
-                'Tandaan: Basahing mabuti ang bawat paliwanag upang mailagay ang tamang impormasyon.',
-                style: TextStyle(
-                  fontSize: fontSize,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.brown,
-                ),
-              ),
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.orange[50]?.withOpacity(0.95),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.brown, width: 1.5),
             ),
-          ),
-          const SizedBox(width: 8),
-          ElevatedButton(
-            onPressed: checkAnswers,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.grey[700],
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-                side: const BorderSide(color: Colors.white, width: 2),
-              ),
-            ),
-            child: const Text(
-              'ISUMITE ➜',
+            child: Text(
+              'Tandaan: Basahing mabuti ang bawat paliwanag upang mailagay ang tamang impormasyon.',
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w900,
+                fontSize: fontSize,
+                fontWeight: FontWeight.bold,
+                color: Colors.brown,
               ),
             ),
           ),
-        ],
-      ),
+        ),
+        const SizedBox(width: 8),
+        ElevatedButton(
+          onPressed: checkAnswers,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.grey[700],
+            padding: EdgeInsets.symmetric(
+              horizontal: clampDouble(size.width * 0.03, 10, 16),
+              vertical: clampDouble(size.height * 0.018, 10, 15),
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+              side: const BorderSide(color: Colors.white, width: 2),
+            ),
+          ),
+          child: const Text(
+            'ISUMITE ➜',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 13,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final iconSize = clampDouble(size.width * 0.11, 40, 50);
-
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: SizedBox.expand(
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: Image.asset(backgroundImage, fit: BoxFit.fill),
-            ),
-            Positioned.fill(
-              child: SafeArea(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: clampDouble(size.width * 0.035, 10, 18),
-                  ),
-                  child: Column(
-                    children: [
-                      header(iconSize),
-                      tableBox(size),
-                      choicesBox(size),
-                      bottomArea(size),
-                    ],
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final size = Size(constraints.maxWidth, constraints.maxHeight);
+
+          final iconSize = clampDouble(size.width * 0.10, 38, 52);
+          final horizontalPadding = clampDouble(size.width * 0.035, 10, 20);
+          final topSpace = clampDouble(size.height * 0.18, 85, 155);
+          final contentWidth = clampDouble(size.width * 0.92, 300, 760);
+
+          return SizedBox.expand(
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: Image.asset(backgroundImage, fit: BoxFit.fill),
+                ),
+                SafeArea(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: horizontalPadding,
+                      vertical: 10,
+                    ),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(maxWidth: contentWidth),
+                        child: Column(
+                          children: [
+                            header(iconSize),
+                            SizedBox(height: topSpace),
+                            tableBox(size),
+                            const SizedBox(height: 12),
+                            choicesBox(size),
+                            const SizedBox(height: 10),
+                            bottomArea(size),
+                            const SizedBox(height: 20),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
