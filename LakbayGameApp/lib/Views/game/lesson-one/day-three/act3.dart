@@ -4,6 +4,7 @@ import 'package:lakbay_game/models/user_model.dart';
 
 class LessonOneDayThreeActThree extends StatelessWidget {
   final UserModel user;
+
   const LessonOneDayThreeActThree({super.key, required this.user});
 
   double clampDouble(double value, double min, double max) {
@@ -16,7 +17,7 @@ class LessonOneDayThreeActThree extends StatelessWidget {
     final w = size.width;
     final h = size.height;
 
-    final double homeSize = clampDouble(w * 0.14, 48, 72);
+    final double homeSize = clampDouble(w * 0.14, 50, 70);
     final double buttonWidth = clampDouble(w * 0.34, 115, 155);
     final double buttonHeight = clampDouble(h * 0.065, 45, 58);
     final double rightPosition = clampDouble(w * 0.11, 25, 50);
@@ -32,29 +33,26 @@ class LessonOneDayThreeActThree extends StatelessWidget {
               ),
             ),
 
-          Positioned(
-            top: clampDouble(size.height * 0.025, 14, 22),
-            right: clampDouble(size.width * 0.04, 12, 20),
-            child: GestureDetector(
-              onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => Lesson1Screen(user: user)),
-                );
-              },
-              child: Container(
-                width: clampDouble(size.width * 0.14, 50, 70),
-                height: clampDouble(size.width * 0.14, 50, 70),
-                decoration: BoxDecoration(
-                  color: Colors.orange,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 4),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 8,
-                      offset: Offset(0, 4),
+            // Home Button
+            Positioned(
+              top: clampDouble(h * 0.025, 14, 22),
+              right: clampDouble(w * 0.04, 12, 20),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => Lesson1Screen(user: user),
                     ),
+                  );
+                },
+                child: Container(
+                  width: homeSize,
+                  height: homeSize,
+                  decoration: BoxDecoration(
+                    color: Colors.orange,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 4),
                     boxShadow: const [
                       BoxShadow(
                         color: Colors.black26,
@@ -72,6 +70,7 @@ class LessonOneDayThreeActThree extends StatelessWidget {
               ),
             ),
 
+            // Mission 1
             Positioned(
               top: h * 0.50,
               right: rightPosition,
@@ -84,6 +83,7 @@ class LessonOneDayThreeActThree extends StatelessWidget {
               ),
             ),
 
+            // Mission 2
             Positioned(
               top: h * 0.61,
               right: rightPosition,
@@ -96,6 +96,7 @@ class LessonOneDayThreeActThree extends StatelessWidget {
               ),
             ),
 
+            // Mission 3
             Positioned(
               top: h * 0.72,
               right: rightPosition,
@@ -108,6 +109,7 @@ class LessonOneDayThreeActThree extends StatelessWidget {
               ),
             ),
 
+            // Mission 4
             Positioned(
               top: h * 0.82,
               right: rightPosition,
@@ -175,7 +177,7 @@ class LessonOneDayThreeActThree extends StatelessWidget {
               ),
               child: Icon(
                 Icons.play_arrow,
-                color: const Color(0xFF5EAE00),
+                color: Color(0xFF5EAE00),
                 size: playSize,
               ),
             ),
