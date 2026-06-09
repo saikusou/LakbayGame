@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:lakbay_game/Views/game/lesson-one/day-three/act3-a.dart';
+import 'package:lakbay_game/Views/game/lesson-one/day-three/act3-b.dart';
+import 'package:lakbay_game/Views/game/lesson-one/day-three/act3-c.dart';
+import 'package:lakbay_game/Views/game/lesson-one/day-three/act3-d.dart';
 import 'package:lakbay_game/Views/lesson1.dart';
 import 'package:lakbay_game/models/user_model.dart';
+
+/// ADD YOUR MISSION PAGES HERE
 
 class LessonOneDayThreeActThree extends StatelessWidget {
   final UserModel user;
@@ -9,6 +15,10 @@ class LessonOneDayThreeActThree extends StatelessWidget {
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
+  }
+
+  void openMission(BuildContext context, Widget page) {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => page));
   }
 
   @override
@@ -38,6 +48,13 @@ class LessonOneDayThreeActThree extends StatelessWidget {
             h * 0.60,
             h * 0.71,
             h * 0.815,
+          ];
+
+          final List<Widget> missionPages = [
+            LessonOneDayThreeActThreeA(user: user),
+            LessonOneDayThreeActThreeB(user: user),
+            LessonOneDayThreeActThreeC(user: user),
+            LessonOneDayThreeActThreeD(user: user),
           ];
 
           return SizedBox.expand(
@@ -95,7 +112,7 @@ class LessonOneDayThreeActThree extends StatelessWidget {
                       height: buttonHeight,
                       smallScreen: smallScreen,
                       onTap: () {
-                        debugPrint('Mission ${i + 1}');
+                        openMission(context, missionPages[i]);
                       },
                     ),
                   ),
