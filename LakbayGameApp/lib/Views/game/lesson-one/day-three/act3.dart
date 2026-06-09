@@ -13,116 +13,96 @@ class LessonOneDayThreeActThree extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final w = size.width;
-    final h = size.height;
-
-    final double homeSize = clampDouble(w * 0.14, 50, 70);
-    final double buttonWidth = clampDouble(w * 0.34, 115, 155);
-    final double buttonHeight = clampDouble(h * 0.065, 45, 58);
-    final double rightPosition = clampDouble(w * 0.11, 25, 50);
-
     return Scaffold(
-      body: SizedBox.expand(
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: Image.asset(
-                'assets/lesson-two-day3-act3.png',
-                fit: BoxFit.fill,
-              ),
-            ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final double w = constraints.maxWidth;
+          final double h = constraints.maxHeight;
 
-            // Home Button
-            Positioned(
-              top: clampDouble(h * 0.025, 14, 22),
-              right: clampDouble(w * 0.04, 12, 20),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => Lesson1Screen(user: user),
-                    ),
-                  );
-                },
-                child: Container(
-                  width: homeSize,
-                  height: homeSize,
-                  decoration: BoxDecoration(
-                    color: Colors.orange,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 4),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 8,
-                        offset: Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Icon(
-                    Icons.home,
-                    color: Colors.white,
-                    size: clampDouble(homeSize * 0.55, 26, 40),
+          final bool smallScreen = w < 380;
+
+          final double homeSize = clampDouble(w * 0.13, 45, 65);
+
+          final double buttonWidth = smallScreen
+              ? clampDouble(w * 0.34, 105, 130)
+              : clampDouble(w * 0.38, 130, 165);
+
+          final double buttonHeight = clampDouble(h * 0.064, 43, 58);
+
+          final double rightPosition = smallScreen
+              ? clampDouble(w * 0.055, 12, 25)
+              : clampDouble(w * 0.08, 18, 45);
+
+          final List<double> missionTops = [
+            h * 0.49,
+            h * 0.60,
+            h * 0.71,
+            h * 0.815,
+          ];
+
+          return SizedBox.expand(
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: Image.asset(
+                    'assets/lesson-two-day3-act3.png',
+                    fit: BoxFit.fill,
                   ),
                 ),
-              ),
-            ),
 
-            // Mission 1
-            Positioned(
-              top: h * 0.50,
-              right: rightPosition,
-              child: missionButton(
-                width: buttonWidth,
-                height: buttonHeight,
-                onTap: () {
-                  debugPrint('Mission 1');
-                },
-              ),
-            ),
+                Positioned(
+                  top: clampDouble(h * 0.025, 12, 22),
+                  right: clampDouble(w * 0.035, 10, 20),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => Lesson1Screen(user: user),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      width: homeSize,
+                      height: homeSize,
+                      decoration: BoxDecoration(
+                        color: Colors.orange,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 4),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 8,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        Icons.home,
+                        color: Colors.white,
+                        size: clampDouble(homeSize * 0.55, 24, 36),
+                      ),
+                    ),
+                  ),
+                ),
 
-            // Mission 2
-            Positioned(
-              top: h * 0.61,
-              right: rightPosition,
-              child: missionButton(
-                width: buttonWidth,
-                height: buttonHeight,
-                onTap: () {
-                  debugPrint('Mission 2');
-                },
-              ),
+                for (int i = 0; i < 4; i++)
+                  Positioned(
+                    top: missionTops[i],
+                    right: rightPosition,
+                    child: missionButton(
+                      width: buttonWidth,
+                      height: buttonHeight,
+                      smallScreen: smallScreen,
+                      onTap: () {
+                        debugPrint('Mission ${i + 1}');
+                      },
+                    ),
+                  ),
+              ],
             ),
-
-            // Mission 3
-            Positioned(
-              top: h * 0.72,
-              right: rightPosition,
-              child: missionButton(
-                width: buttonWidth,
-                height: buttonHeight,
-                onTap: () {
-                  debugPrint('Mission 3');
-                },
-              ),
-            ),
-
-            // Mission 4
-            Positioned(
-              top: h * 0.82,
-              right: rightPosition,
-              child: missionButton(
-                width: buttonWidth,
-                height: buttonHeight,
-                onTap: () {
-                  debugPrint('Mission 4');
-                },
-              ),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -130,11 +110,14 @@ class LessonOneDayThreeActThree extends StatelessWidget {
   Widget missionButton({
     required double width,
     required double height,
+    required bool smallScreen,
     required VoidCallback onTap,
   }) {
-    final double iconSize = clampDouble(height * 0.58, 24, 34);
-    final double playSize = clampDouble(height * 0.40, 18, 24);
-    final double fontSize = clampDouble(height * 0.25, 11, 14);
+    final double iconSize = clampDouble(height * 0.52, 20, 30);
+    final double playSize = clampDouble(height * 0.38, 16, 24);
+    final double fontSize = smallScreen
+        ? clampDouble(height * 0.21, 9, 11)
+        : clampDouble(height * 0.24, 10.5, 14);
 
     return GestureDetector(
       onTap: onTap,
@@ -142,21 +125,16 @@ class LessonOneDayThreeActThree extends StatelessWidget {
         width: width,
         height: height,
         padding: EdgeInsets.symmetric(
-          horizontal: clampDouble(width * 0.07, 6, 10),
+          horizontal: smallScreen ? 5 : clampDouble(width * 0.055, 6, 10),
         ),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(
-            clampDouble(width * 0.09, 10, 15),
-          ),
+          borderRadius: BorderRadius.circular(12),
           gradient: const LinearGradient(
             colors: [Color(0xFFB7F300), Color(0xFF5EAE00)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
-          border: Border.all(
-            color: const Color(0xFF3D7500),
-            width: clampDouble(width * 0.02, 2, 3),
-          ),
+          border: Border.all(color: const Color(0xFF3D7500), width: 2),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.25),
@@ -181,7 +159,7 @@ class LessonOneDayThreeActThree extends StatelessWidget {
                 size: playSize,
               ),
             ),
-            SizedBox(width: clampDouble(width * 0.05, 5, 8)),
+            SizedBox(width: smallScreen ? 3 : 6),
             Flexible(
               child: Text(
                 'BUKSAN\nANG MISYON',
@@ -190,7 +168,7 @@ class LessonOneDayThreeActThree extends StatelessWidget {
                   color: Colors.white,
                   fontWeight: FontWeight.w900,
                   fontSize: fontSize,
-                  height: 1,
+                  height: 0.95,
                   shadows: const [
                     Shadow(
                       color: Colors.black54,

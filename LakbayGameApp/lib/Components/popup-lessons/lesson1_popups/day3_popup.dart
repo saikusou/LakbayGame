@@ -381,7 +381,6 @@ class _TamaOMaliPopup extends StatelessWidget {
 /// =========================================================
 /// 5. TAKDANG ARALIN
 /// =========================================================
-
 class _TakdangAralinPopup extends StatelessWidget {
   final UserModel user;
 
@@ -395,64 +394,76 @@ class _TakdangAralinPopup extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
-    final popupHeight = clampDouble(size.height * 0.75, 450, 500);
-    final popupWidth = clampDouble(size.width * 0.90, 350, 550);
+    final double popupHeight = clampDouble(size.height * 0.75, 450, 500);
+    final double popupWidth = clampDouble(size.width * 0.90, 350, 550);
 
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.all(18),
-
       child: Container(
         width: popupWidth,
         height: popupHeight,
-
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(28),
-
           border: Border.all(color: Colors.blue, width: 5),
-
-          /// BACKGROUND IMAGE
           image: const DecorationImage(
-            image: AssetImage('assets/lesson-three-act5.png'),
-            fit: BoxFit.cover,
+            image: AssetImage('assets/lesson-one-day3-act4.png'),
+            fit: BoxFit.fill,
           ),
         ),
-
-        child: Column(
+        child: Stack(
           children: [
             /// CLOSE BUTTON
-            Align(
-              alignment: Alignment.topRight,
+            Positioned(
+              top: 14,
+              right: 14,
+              child: GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 3),
+                  ),
+                  child: const Icon(Icons.close, color: Colors.white, size: 26),
+                ),
+              ),
+            ),
 
-              child: Padding(
-                padding: const EdgeInsets.all(14),
-
-                child: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-
-                  child: Container(
-                    width: 44,
-                    height: 44,
-
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-
-                      border: Border.all(color: Colors.white, width: 3),
+            /// SMALLER TAPOS NA BUTTON
+            Positioned(
+              bottom: 15,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: SizedBox(
+                  width: clampDouble(size.width * 0.25, 100, 140),
+                  height: 42,
+                  child: ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      elevation: 6,
+                      padding: EdgeInsets.zero,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
+                        side: const BorderSide(color: Colors.white, width: 2),
+                      ),
                     ),
-
-                    child: const Icon(
-                      Icons.close,
-                      color: Colors.white,
-                      size: 26,
+                    child: const Text(
+                      'TAPOS NA',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-
-            /// OPTIONAL SPACE
-            const Spacer(),
           ],
         ),
       ),
