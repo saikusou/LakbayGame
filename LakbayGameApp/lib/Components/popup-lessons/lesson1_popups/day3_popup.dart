@@ -20,7 +20,7 @@ class Day3Popup extends StatelessWidget {
     }
 
     /// 2. GAWAIN
-    if (title.contains('GAWAIN 1:Hularawan')) {
+    if (title.contains('Tukuyin ang Ebidensya')) {
       return _GawainPopup(user: user);
     }
 
@@ -29,7 +29,9 @@ class Day3Popup extends StatelessWidget {
       Future.microtask(() {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => LessonThreeGameTwo(user: user)),
+          MaterialPageRoute(
+            builder: (_) => LessonOneDayThreeActThree(user: user),
+          ),
         );
       });
 
@@ -216,7 +218,7 @@ class _GawainPopup extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => LessonThreeActFour(user: user),
+                      builder: (context) => LessonOneDayThreeActTwo(user: user),
                     ),
                   );
                 },

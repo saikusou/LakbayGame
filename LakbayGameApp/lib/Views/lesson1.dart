@@ -20,8 +20,6 @@ class Lesson1Screen extends StatefulWidget {
 
 class _Lesson1ScreenState extends State<Lesson1Screen> {
   bool showMenu = false;
-
-  /// KEEP STONE HIGHLIGHTED
   int? selectedDay;
 
   double clampDouble(double value, double min, double max) {
@@ -29,62 +27,55 @@ class _Lesson1ScreenState extends State<Lesson1Screen> {
   }
 
   void toggleMenu() {
+    if (!mounted) return;
+
     setState(() {
       showMenu = !showMenu;
     });
   }
 
-  /// =========================================================
-  /// OPEN CONTENT POPUP
-  /// =========================================================
+  Widget getPopup({required int dayNumber, required String title}) {
+    switch (dayNumber) {
+      case 1:
+        return Day1Popup(title: title, user: widget.user);
+      case 2:
+        return Day2Popup(title: title, user: widget.user);
+      case 3:
+        return Day3Popup(title: title, user: widget.user);
+      case 4:
+        return Day4Popup(title: title, user: widget.user);
+      default:
+        return Day1Popup(title: title, user: widget.user);
+    }
+  }
+
   Future<void> showLessonPopup({
-    required BuildContext context,
+    required BuildContext dialogContext,
     required int dayNumber,
     required String title,
   }) async {
-    Widget popup;
+    if (!mounted) return;
 
-    switch (dayNumber) {
-      case 1:
-        popup = Day1Popup(title: title, user: widget.user);
-        break;
+    final popup = getPopup(dayNumber: dayNumber, title: title);
 
-      case 2:
-        popup = Day2Popup(title: title, user: widget.user);
-        break;
+    Navigator.of(dialogContext).pop();
 
-      case 3:
-        popup = Day3Popup(title: title, user: widget.user);
-        break;
+    if (!mounted) return;
 
-      case 4:
-        popup = Day4Popup(title: title, user: widget.user);
-        break;
-
-      default:
-        popup = Day1Popup(title: title, user: widget.user);
-    }
-
-    /// CLOSE DAY MENU POPUP
-    Navigator.pop(context);
-
-    /// OPEN CONTENT POPUP
     await showDialog(
-      context: this.context,
+      context: context,
       barrierDismissible: false,
       builder: (_) => popup,
     );
 
-    /// REOPEN DAY MENU POPUP
-    if (mounted) {
-      showDayModal(context: this.context, dayNumber: dayNumber);
-    }
+    if (!mounted) return;
+
+    showDayModal(dayNumber: dayNumber);
   }
 
-  /// =========================================================
-  /// DAY MODAL
-  /// =========================================================
-  void showDayModal({required BuildContext context, required int dayNumber}) {
+  void showDayModal({required int dayNumber}) {
+    if (!mounted) return;
+
     setState(() {
       selectedDay = dayNumber;
     });
@@ -97,7 +88,6 @@ class _Lesson1ScreenState extends State<Lesson1Screen> {
       case 1:
         title = "Unang Araw";
         headerImage = 'assets/stone-1.png';
-
         contents = [
           {"icon": Icons.track_changes, "title": "1. Learning Objectives"},
           {"icon": Icons.extension, "title": "2. I-Konek Mo!"},
@@ -110,7 +100,6 @@ class _Lesson1ScreenState extends State<Lesson1Screen> {
       case 2:
         title = "Ikalawang Araw";
         headerImage = 'assets/stone-2.png';
-
         contents = [
           {"icon": Icons.menu_book, "title": "1. Learning Objectives"},
           {"icon": Icons.quiz, "title": "2. Fact O Kuwento"},
@@ -123,7 +112,6 @@ class _Lesson1ScreenState extends State<Lesson1Screen> {
       case 3:
         title = "Ikatlong Araw";
         headerImage = 'assets/stone-3.png';
-
         contents = [
           {"icon": Icons.history_edu, "title": "1. Learning Objectives"},
           {"icon": Icons.public, "title": "2. Tukuyin ang Ebidensya"},
@@ -135,7 +123,6 @@ class _Lesson1ScreenState extends State<Lesson1Screen> {
       case 4:
         title = "Ika-apat na Araw";
         headerImage = 'assets/stone-4.png';
-
         contents = [
           {"icon": Icons.star, "title": "1. Learning Objectives"},
           {"icon": Icons.workspace_premium, "title": "2. Pagsusulit"},
@@ -147,8 +134,8 @@ class _Lesson1ScreenState extends State<Lesson1Screen> {
 
     showDialog(
       context: context,
-      builder: (context) {
-        final size = MediaQuery.of(context).size;
+      builder: (dialogContext) {
+        final size = MediaQuery.of(dialogContext).size;
 
         return Dialog(
           backgroundColor: Colors.transparent,
@@ -170,12 +157,11 @@ class _Lesson1ScreenState extends State<Lesson1Screen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    /// CLOSE BUTTON
                     Align(
                       alignment: Alignment.topRight,
                       child: GestureDetector(
                         onTap: () {
-                          Navigator.pop(context);
+                          Navigator.of(dialogContext).pop();
                         },
                         child: Container(
                           padding: const EdgeInsets.all(6),
@@ -193,12 +179,10 @@ class _Lesson1ScreenState extends State<Lesson1Screen> {
                       ),
                     ),
 
-                    /// HEADER IMAGE
                     Image.asset(headerImage, height: 90, fit: BoxFit.contain),
 
                     const SizedBox(height: 10),
 
-                    /// TITLE
                     Text(
                       title,
                       style: const TextStyle(
@@ -210,14 +194,13 @@ class _Lesson1ScreenState extends State<Lesson1Screen> {
 
                     const SizedBox(height: 12),
 
-                    /// LESSON BUTTONS
                     ...contents.map(
                       (item) => buildLessonButton(
                         icon: item["icon"],
                         title: item["title"],
                         onTap: () async {
                           await showLessonPopup(
-                            context: context,
+                            dialogContext: dialogContext,
                             dayNumber: dayNumber,
                             title: item["title"],
                           );
@@ -232,15 +215,14 @@ class _Lesson1ScreenState extends State<Lesson1Screen> {
         );
       },
     ).then((_) {
+      if (!mounted) return;
+
       setState(() {
         selectedDay = null;
       });
     });
   }
 
-  /// =========================================================
-  /// LESSON BUTTON
-  /// =========================================================
   Widget buildLessonButton({
     required IconData icon,
     required String title,
@@ -264,9 +246,7 @@ class _Lesson1ScreenState extends State<Lesson1Screen> {
                 backgroundColor: Colors.green,
                 child: Icon(icon, color: Colors.white, size: 22),
               ),
-
               const SizedBox(width: 12),
-
               Expanded(
                 child: Text(
                   title,
@@ -277,7 +257,6 @@ class _Lesson1ScreenState extends State<Lesson1Screen> {
                   ),
                 ),
               ),
-
               const Icon(
                 Icons.arrow_forward_ios,
                 size: 16,
@@ -290,9 +269,6 @@ class _Lesson1ScreenState extends State<Lesson1Screen> {
     );
   }
 
-  /// =========================================================
-  /// PROFILE BOX
-  /// =========================================================
   Widget buildProfileBox(double width, double height) {
     return Positioned(
       top: height * 0.02,
@@ -316,9 +292,7 @@ class _Lesson1ScreenState extends State<Lesson1Screen> {
                   backgroundColor: Colors.orange,
                   child: const Icon(Icons.person, color: Colors.white),
                 ),
-
                 SizedBox(width: width * 0.025),
-
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -329,9 +303,7 @@ class _Lesson1ScreenState extends State<Lesson1Screen> {
                         fontSize: clampDouble(width * 0.032, 11, 14),
                       ),
                     ),
-
                     const SizedBox(height: 4),
-
                     Text(
                       "202,000",
                       style: TextStyle(
@@ -350,6 +322,8 @@ class _Lesson1ScreenState extends State<Lesson1Screen> {
 
           GestureDetector(
             onTap: () {
+              if (!mounted) return;
+
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -377,9 +351,6 @@ class _Lesson1ScreenState extends State<Lesson1Screen> {
     );
   }
 
-  /// =========================================================
-  /// MENU BUTTON
-  /// =========================================================
   Widget buildMenuButton(double width, double height) {
     return Positioned(
       top: height * 0.02,
@@ -403,9 +374,6 @@ class _Lesson1ScreenState extends State<Lesson1Screen> {
     );
   }
 
-  /// =========================================================
-  /// STONES
-  /// =========================================================
   Widget buildStone({
     required double bottom,
     required double left,
@@ -421,15 +389,12 @@ class _Lesson1ScreenState extends State<Lesson1Screen> {
         width: width,
         isSelected: selectedDay == dayNumber,
         onTap: () {
-          showDayModal(context: context, dayNumber: dayNumber);
+          showDayModal(dayNumber: dayNumber);
         },
       ),
     );
   }
 
-  /// =========================================================
-  /// MAIN BUILD
-  /// =========================================================
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -504,9 +469,6 @@ class _Lesson1ScreenState extends State<Lesson1Screen> {
   }
 }
 
-/// =========================================================
-/// STONE IMAGE
-/// =========================================================
 class DayStoneImage extends StatefulWidget {
   final String imagePath;
   final double width;
@@ -535,46 +497,48 @@ class _DayStoneImageState extends State<DayStoneImage> {
   Widget build(BuildContext context) {
     return MouseRegion(
       onEnter: (_) {
+        if (!mounted) return;
+
         setState(() {
           isHovering = true;
         });
       },
-
       onExit: (_) {
+        if (!mounted) return;
+
         setState(() {
           isHovering = false;
         });
       },
-
       child: GestureDetector(
         onTap: widget.onTap,
-
         onTapDown: (_) {
+          if (!mounted) return;
+
           setState(() {
             isPressed = true;
           });
         },
-
         onTapUp: (_) {
+          if (!mounted) return;
+
           setState(() {
             isPressed = false;
           });
         },
-
         onTapCancel: () {
+          if (!mounted) return;
+
           setState(() {
             isPressed = false;
           });
         },
-
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
           curve: Curves.easeInOut,
           padding: const EdgeInsets.all(6),
-
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(30),
-
             boxShadow: isHighlighted
                 ? [
                     BoxShadow(
@@ -585,11 +549,9 @@ class _DayStoneImageState extends State<DayStoneImage> {
                   ]
                 : [],
           ),
-
           child: AnimatedScale(
             duration: const Duration(milliseconds: 180),
             scale: isHighlighted ? 1.12 : 1.0,
-
             child: Image.asset(
               widget.imagePath,
               width: widget.width,
