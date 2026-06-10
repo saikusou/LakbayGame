@@ -17,6 +17,7 @@ class _LessonOneDayOneActOneState extends State<LessonOneDayOneActOne> {
 
   String? answer1;
   String? answer2;
+  String? answer3;
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
@@ -26,10 +27,250 @@ class _LessonOneDayOneActOneState extends State<LessonOneDayOneActOne> {
     setState(() {
       if (currentScenario == 1) {
         answer1 = answer;
-      } else {
+      } else if (currentScenario == 2) {
         answer2 = answer;
+      } else {
+        answer3 = answer;
       }
     });
+  }
+
+  String get backgroundImage {
+    if (currentScenario == 1) {
+      return 'assets/lesson-one-day1-act2a.png';
+    } else {
+      return 'assets/lesson-one-day1-act2b.png';
+    }
+  }
+
+  String get question {
+    if (currentScenario == 1) {
+      return 'Paano nakarating ang mga unang tao sa Pilipinas?';
+    } else if (currentScenario == 2) {
+      return 'Anong alamat o kwento ang naaalala ninyo?';
+    } else {
+      return 'Bakit mahalaga ang lokasyon ng Pilipinas sa pagdating ng tao noon?';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final size = Size(constraints.maxWidth, constraints.maxHeight);
+          final w = size.width;
+          final h = size.height;
+
+          final bool smallScreen = h < 700;
+          final bool smallWidth = w < 360;
+
+          final double iconTop = clampDouble(h * 0.018, 10, 22);
+          final double iconSide = clampDouble(w * 0.035, 10, 22);
+
+          final double choicesBottom = smallScreen
+              ? clampDouble(h * 0.09, 60, 85)
+              : clampDouble(h * 0.11, 80, 110);
+
+          final double nextButtonBottom = clampDouble(h * 0.025, 16, 34);
+
+          final double nextButtonWidth = smallWidth
+              ? clampDouble(w * 0.34, 105, 135)
+              : clampDouble(w * 0.40, 125, 175);
+
+          final double nextButtonHeight = clampDouble(h * 0.055, 38, 52);
+
+          return Stack(
+            children: [
+              Positioned.fill(
+                child: Image.asset(backgroundImage, fit: BoxFit.fill),
+              ),
+
+              SafeArea(
+                child: Stack(
+                  children: [
+                    if (currentScenario > 1)
+                      Positioned(
+                        top: iconTop,
+                        left: iconSide,
+                        child: circleIconButton(
+                          size: size,
+                          color: Colors.blue,
+                          icon: Icons.arrow_back,
+                          onTap: () {
+                            setState(() {
+                              currentScenario--;
+                            });
+                          },
+                        ),
+                      ),
+
+                    Positioned(
+                      top: iconTop,
+                      right: iconSide,
+                      child: circleIconButton(
+                        size: size,
+                        color: Colors.orange,
+                        icon: Icons.home,
+                        onTap: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => Lesson1Screen(user: widget.user),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: choicesBottom,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          questionText(size),
+                          SizedBox(height: clampDouble(h * 0.014, 8, 15)),
+                          ...answerChoices(size),
+                        ],
+                      ),
+                    ),
+
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: nextButtonBottom,
+                      child: Center(
+                        child: SizedBox(
+                          width: nextButtonWidth,
+                          height: nextButtonHeight,
+                          child: Button(
+                            label: currentScenario < 3 ? 'NEXT' : 'SUBMIT',
+                            press: () {
+                              if (currentScenario < 3) {
+                                setState(() {
+                                  currentScenario++;
+                                });
+                              } else {
+                                debugPrint('Picture 1 Answer: $answer1');
+                                debugPrint('Picture 2 Answer: $answer2');
+                                debugPrint('Picture 3 Answer: $answer3');
+                              }
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget questionText(Size size) {
+    final w = size.width;
+    final h = size.height;
+
+    return Container(
+      width: clampDouble(w * 0.84, 245, 370),
+      padding: EdgeInsets.symmetric(
+        horizontal: clampDouble(w * 0.035, 10, 18),
+        vertical: clampDouble(h * 0.011, 7, 13),
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.92),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: Colors.orange, width: 4),
+        boxShadow: const [
+          BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 4)),
+        ],
+      ),
+      child: Text(
+        question,
+        textAlign: TextAlign.center,
+        maxLines: 3,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+          fontSize: clampDouble(w * 0.038, 13, 17),
+        ),
+      ),
+    );
+  }
+
+  List<Widget> answerChoices(Size size) {
+    if (currentScenario == 1) {
+      return [
+        choiceButton(
+          size: size,
+          value: 'A',
+          label: 'A. Tumawid sa dagat',
+          color: Colors.blue,
+        ),
+        choiceButton(
+          size: size,
+          value: 'B',
+          label: 'B. Gumamit ng bangka',
+          color: Colors.blue,
+        ),
+        choiceButton(
+          size: size,
+          value: 'C',
+          label: 'C. Naglakbay mula sa ibang lugar',
+          color: Colors.blue,
+        ),
+      ];
+    }
+
+    if (currentScenario == 2) {
+      return [
+        choiceButton(
+          size: size,
+          value: 'A',
+          label: 'A. Malakas at Maganda',
+          color: Colors.blue,
+        ),
+        choiceButton(
+          size: size,
+          value: 'B',
+          label: 'B. Alamat ng pinagmulan ng tao',
+          color: Colors.blue,
+        ),
+        choiceButton(
+          size: size,
+          value: 'C',
+          label: 'C. Isang uri ng pamumuhay',
+          color: Colors.blue,
+        ),
+      ];
+    }
+
+    return [
+      choiceButton(
+        size: size,
+        value: 'A',
+        label: 'A. Pangingisda',
+        color: Colors.blue,
+      ),
+      choiceButton(
+        size: size,
+        value: 'B',
+        label: 'B. Pagsasaka',
+        color: Colors.blue,
+      ),
+      choiceButton(
+        size: size,
+        value: 'C',
+        label: 'C. Pakikipagkalakalan',
+        color: Colors.blue,
+      ),
+    ];
   }
 
   Widget choiceButton({
@@ -40,15 +281,33 @@ class _LessonOneDayOneActOneState extends State<LessonOneDayOneActOne> {
   }) {
     final bool isSelected = currentScenario == 1
         ? answer1 == value
-        : answer2 == value;
+        : currentScenario == 2
+        ? answer2 == value
+        : answer3 == value;
+
+    final w = size.width;
+    final h = size.height;
+
+    final bool smallWidth = w < 360;
+    final bool smallHeight = h < 700;
 
     return GestureDetector(
       onTap: () => selectAnswer(value),
       child: Container(
-        width: clampDouble(size.width * 0.82, 255, 340),
-        height: clampDouble(size.height * 0.052, 40, 48),
-        margin: EdgeInsets.only(bottom: clampDouble(size.height * 0.007, 4, 7)),
-        padding: const EdgeInsets.symmetric(horizontal: 8),
+        width: smallWidth
+            ? clampDouble(w * 0.74, 210, 265)
+            : clampDouble(w * 0.78, 230, 335),
+        height: smallHeight
+            ? clampDouble(h * 0.047, 34, 41)
+            : clampDouble(h * 0.052, 38, 48),
+        margin: EdgeInsets.only(
+          bottom: smallHeight
+              ? clampDouble(h * 0.006, 4, 7)
+              : clampDouble(h * 0.008, 5, 9),
+        ),
+        padding: EdgeInsets.symmetric(
+          horizontal: clampDouble(w * 0.025, 8, 14),
+        ),
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(15),
@@ -65,170 +324,21 @@ class _LessonOneDayOneActOneState extends State<LessonOneDayOneActOne> {
           ],
         ),
         child: Center(
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: clampDouble(size.width * 0.032, 12, 14),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: smallWidth
+                    ? clampDouble(w * 0.032, 11, 13)
+                    : clampDouble(w * 0.034, 12, 15),
+              ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  List<Widget> answerChoices(Size size) {
-    final double topMargin = clampDouble(size.height * 0.60, 20, 80);
-    if (currentScenario == 1) {
-      return [
-        SizedBox(height: topMargin),
-        choiceButton(
-          size: size,
-          value: 'A',
-          label: 'A. Tumawid sa dagat',
-          color: Colors.blue,
-        ),
-        choiceButton(
-          size: size,
-          value: 'B',
-          label: 'B. Gumamit ng bangka',
-          color: Colors.orange,
-        ),
-        choiceButton(
-          size: size,
-          value: 'C',
-          label: 'C. Naglakbay mula sa ibang lugar',
-          color: Colors.purple,
-        ),
-      ];
-    }
-
-    return [
-      SizedBox(height: topMargin),
-      choiceButton(
-        size: size,
-        value: 'A',
-        label: 'A. Malakas at Maganda',
-        color: Colors.blue,
-      ),
-      choiceButton(
-        size: size,
-        value: 'B',
-        label: 'B. Alamat ng pinagmulan ng tao',
-        color: Colors.orange,
-      ),
-    ];
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
-    final String backgroundImage = currentScenario == 1
-        ? 'assets/lesson-one-day1-act2a.png'
-        : 'assets/lesson-one-day1-act2b.png';
-
-    final double topSpace = currentScenario == 1
-        ? clampDouble(size.height * 0.63, 370, 500)
-        : clampDouble(size.height * 0.66, 390, 520);
-
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      body: SizedBox.expand(
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: Image.asset(backgroundImage, fit: BoxFit.fill),
-            ),
-
-            SafeArea(
-              child: SingleChildScrollView(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: size.height),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(height: topSpace),
-
-                      Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: answerChoices(size),
-                        ),
-                      ),
-
-                      SizedBox(height: clampDouble(size.height * 0.008, 4, 8)),
-
-                      Center(
-                        child: SizedBox(
-                          width: clampDouble(size.width * 0.42, 135, 175),
-                          height: clampDouble(size.height * 0.055, 42, 52),
-                          child: Button(
-                            label: currentScenario == 1 ? 'NEXT' : 'SUBMIT',
-                            press: () {
-                              if (currentScenario == 1) {
-                                setState(() {
-                                  currentScenario = 2;
-                                });
-                              } else {
-                                debugPrint('Picture 1 Answer: $answer1');
-                                debugPrint('Picture 2 Answer: $answer2');
-                              }
-                            },
-                          ),
-                        ),
-                      ),
-
-                      SizedBox(height: clampDouble(size.height * 0.03, 20, 35)),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-            SafeArea(
-              child: Stack(
-                children: [
-                  if (currentScenario == 2)
-                    Positioned(
-                      top: clampDouble(size.height * 0.02, 12, 22),
-                      left: clampDouble(size.width * 0.04, 12, 22),
-                      child: circleIconButton(
-                        size: size,
-                        color: Colors.blue,
-                        icon: Icons.arrow_back,
-                        onTap: () {
-                          setState(() {
-                            currentScenario = 1;
-                          });
-                        },
-                      ),
-                    ),
-
-                  Positioned(
-                    top: clampDouble(size.height * 0.02, 12, 22),
-                    right: clampDouble(size.width * 0.04, 12, 22),
-                    child: circleIconButton(
-                      size: size,
-                      color: Colors.orange,
-                      icon: Icons.home,
-                      onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => Lesson1Screen(user: widget.user),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
         ),
       ),
     );
@@ -240,7 +350,11 @@ class _LessonOneDayOneActOneState extends State<LessonOneDayOneActOne> {
     required IconData icon,
     required VoidCallback onTap,
   }) {
-    final double buttonSize = clampDouble(size.width * 0.13, 48, 68);
+    final w = size.width;
+
+    final double buttonSize = w < 360
+        ? clampDouble(w * 0.12, 40, 50)
+        : clampDouble(w * 0.13, 46, 64);
 
     return GestureDetector(
       onTap: onTap,
@@ -262,7 +376,7 @@ class _LessonOneDayOneActOneState extends State<LessonOneDayOneActOne> {
         child: Icon(
           icon,
           color: Colors.white,
-          size: clampDouble(size.width * 0.075, 26, 38),
+          size: clampDouble(w * 0.07, 23, 34),
         ),
       ),
     );
