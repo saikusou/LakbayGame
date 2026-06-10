@@ -38,8 +38,10 @@ class _LessonOneDayOneActOneState extends State<LessonOneDayOneActOne> {
   String get backgroundImage {
     if (currentScenario == 1) {
       return 'assets/lesson-one-day1-act2a.png';
-    } else {
+    } else if (currentScenario == 2) {
       return 'assets/lesson-one-day1-act2b.png';
+    } else {
+      return 'assets/lesson-one-day1-act2c.png'; // third image
     }
   }
 
