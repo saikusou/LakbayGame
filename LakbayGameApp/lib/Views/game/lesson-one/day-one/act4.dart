@@ -271,29 +271,19 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
           Positioned(
             top: clampDouble(h * 0.025, 14, 24),
             right: clampDouble(w * 0.04, 12, 22),
-            child: GestureDetector(
-              onTap: goHome,
-              child: Container(
-                width: clampDouble(w * 0.13, 48, 68),
-                height: clampDouble(w * 0.13, 48, 68),
-                decoration: BoxDecoration(
-                  color: Colors.orange,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 4),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 8,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Icon(
-                  Icons.home,
-                  color: Colors.white,
-                  size: clampDouble(w * 0.075, 26, 38),
-                ),
-              ),
+            child: circleButton(
+              icon: Icons.home,
+              color: Colors.orange,
+              size: size,
+              onTap: () {
+                FocusScope.of(context).unfocus();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => Lesson1Screen(user: widget.user),
+                  ),
+                );
+              },
             ),
           ),
 

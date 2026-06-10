@@ -355,6 +355,7 @@ class _TamaOMaliPopup extends StatelessWidget {
                     ),
                   );
                 },
+
                 child: Container(
                   width: 55,
                   height: 55,
