@@ -1,23 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:lakbay_game/Views/game/lesson-one/day-one/act3a.dart';
 import 'package:lakbay_game/Views/lesson1.dart';
 import 'package:lakbay_game/models/user_model.dart';
 
 // import your next page here
 // import 'package:lakbay_game/Views/your_next_page.dart';
 
-class LessonOneDayOneActThree extends StatefulWidget {
+class LessonOneDayOneActThreeA extends StatefulWidget {
   final UserModel user;
 
-  const LessonOneDayOneActThree({super.key, required this.user});
+  const LessonOneDayOneActThreeA({super.key, required this.user});
 
   @override
-  State<LessonOneDayOneActThree> createState() =>
-      _LessonOneDayOneActThreeState();
+  State<LessonOneDayOneActThreeA> createState() =>
+      _LessonOneDayOneActThreeAState();
 }
 
-class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
+class _LessonOneDayOneActThreeAState extends State<LessonOneDayOneActThreeA> {
   final List<TextEditingController> controllers = List.generate(
     14,
     (_) => TextEditingController(),
@@ -57,7 +56,7 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (_) => LessonOneDayOneActThreeA(user: widget.user),
+        builder: (_) => Lesson1Screen(user: widget.user),
 
         // change this to your next page:
         // builder: (_) => YourNextPage(user: widget.user),
@@ -81,7 +80,7 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
           child: Stack(
             alignment: Alignment.center,
             children: [
-              Image.asset('assets/lesson-one-day1-act3a.png', fit: BoxFit.fill),
+              Image.asset('assets/lesson-one-day1-act32.png', fit: BoxFit.fill),
 
               Positioned(
                 top: clampDouble(size.height * 0.015, 8, 16),
@@ -120,7 +119,7 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
                     side: const BorderSide(color: Colors.white, width: 3),
                   ),
                   child: Text(
-                    'OK',
+                    'Done',
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -257,7 +256,7 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
           children: [
             Positioned.fill(
               child: Image.asset(
-                'assets/lesson-one-day1-act3.png',
+                'assets/lesson-one-day1-act31.png',
                 fit: BoxFit.fill,
               ),
             ),

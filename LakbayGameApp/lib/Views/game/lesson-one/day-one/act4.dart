@@ -34,6 +34,60 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
         answer2 = answer;
       }
     });
+
+    showAnswerPopup();
+  }
+
+  void showAnswerPopup() {
+    final size = MediaQuery.of(context).size;
+    final w = size.width;
+    final h = size.height;
+
+    final String popupImage = currentScenario == 1
+        ? 'assets/lesson-one-day1-act4m.png'
+        : 'assets/lesson-one-day1-act4t.png';
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: EdgeInsets.all(clampDouble(w * 0.05, 16, 25)),
+          child: Container(
+            width: clampDouble(w * 0.9, 320, 520),
+            height: clampDouble(h * 0.55, 350, 480),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(25),
+              image: DecorationImage(
+                image: AssetImage(popupImage),
+                fit: BoxFit.fill,
+              ),
+            ),
+            child: Stack(
+              children: [
+                Positioned(
+                  bottom: clampDouble(h * 0.04, 25, 40),
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: SizedBox(
+                      width: clampDouble(w * 0.35, 120, 170),
+                      child: Button(
+                        label: 'OK',
+                        press: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void goHome() {
@@ -137,6 +191,8 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
   void submitAnswers() {
     debugPrint('Picture 1 Answer: $answer1');
     debugPrint('Picture 2 Answer: $answer2');
+
+    goHome();
   }
 
   @override
@@ -149,17 +205,12 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
         ? 'assets/lesson-one-day1-act4a.png'
         : 'assets/lesson-one-day1-act4b.png';
 
-    final double topButton = clampDouble(h * 0.02, 10, 22);
-    final double sideButton = clampDouble(w * 0.04, 12, 22);
-
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           Positioned.fill(
-            child: SizedBox.expand(
-              child: Image.asset(backgroundImage, fit: BoxFit.fill),
-            ),
+            child: Image.asset(backgroundImage, fit: BoxFit.fill),
           ),
 
           Positioned(
@@ -201,7 +252,7 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
                 SizedBox(
                   width: clampDouble(w * 0.45, 140, 210),
                   child: Button(
-                    label: currentScenario == 1 ? 'NEXT' : 'SUBMIT',
+                    label: currentScenario == 1 ? 'NEXT' : 'DONE',
                     press: () {
                       if (currentScenario == 1) {
                         setState(() {
@@ -221,14 +272,7 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
             top: clampDouble(h * 0.025, 14, 24),
             right: clampDouble(w * 0.04, 12, 22),
             child: GestureDetector(
-              onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => Lesson1Screen(user: widget.user),
-                  ),
-                );
-              },
+              onTap: goHome,
               child: Container(
                 width: clampDouble(w * 0.13, 48, 68),
                 height: clampDouble(w * 0.13, 48, 68),
@@ -255,8 +299,8 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
 
           if (currentScenario == 2)
             Positioned(
-              top: topButton,
-              left: sideButton,
+              top: clampDouble(h * 0.02, 10, 22),
+              left: clampDouble(w * 0.04, 12, 22),
               child: SafeArea(
                 bottom: false,
                 child: circleButton(
