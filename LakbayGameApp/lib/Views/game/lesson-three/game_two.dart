@@ -8,62 +8,62 @@ class HiddenPopup extends StatelessWidget {
 
   const HiddenPopup({super.key, required this.image, required this.users});
 
+  double clampDouble(double value, double min, double max) {
+    return value.clamp(min, max).toDouble();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
+    final popupW = clampDouble(size.width * 0.86, 280, 380);
+    final popupH = clampDouble(size.height * 0.62, 360, 520);
+    final closeSize = clampDouble(size.width * 0.10, 34, 45);
+
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.all(18),
-
+      insetPadding: EdgeInsets.symmetric(
+        horizontal: clampDouble(size.width * 0.04, 12, 24),
+        vertical: clampDouble(size.height * 0.03, 12, 28),
+      ),
       child: Container(
-        width: 330,
-        height: 420,
-
+        width: popupW,
+        height: popupH,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(25),
-
-          /// FULL IMAGE BACKGROUND
-          image: DecorationImage(image: AssetImage(image), fit: BoxFit.cover),
-
-          border: Border.all(color: Colors.orange, width: 5),
+          image: DecorationImage(image: AssetImage(image), fit: BoxFit.fill),
+          border: Border.all(
+            color: Colors.orange,
+            width: clampDouble(size.width * 0.012, 3, 5),
+          ),
         ),
-
-        child: Column(
-          children: [
-            /// CLOSE BUTTON
-            Align(
-              alignment: Alignment.topRight,
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-
-                  child: Container(
-                    width: 40,
-                    height: 40,
-
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 3),
-                    ),
-
-                    child: const Center(
-                      child: Text(
-                        "X",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+        child: Align(
+          alignment: Alignment.topRight,
+          child: Padding(
+            padding: EdgeInsets.all(clampDouble(size.width * 0.025, 7, 12)),
+            child: GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Container(
+                width: closeSize,
+                height: closeSize,
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 3),
+                ),
+                child: Center(
+                  child: Text(
+                    "X",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: clampDouble(size.width * 0.05, 16, 22),
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -95,27 +95,26 @@ class _LessonThreeGameTwoState extends State<LessonThreeGameTwo> {
     required double x,
     required double y,
     required double size,
-    required double scale,
-    required double offsetX,
-    required double offsetY,
+    required double scaleX,
+    required double scaleY,
     required String popupImage,
   }) {
+    final circleWidth = size * scaleX;
+    final circleHeight = size * scaleY;
+
     return Positioned(
-      left: offsetX + (x * scale) - ((size * scale) / 2),
-      top: offsetY + (y * scale) - ((size * scale) / 2),
-
+      left: (x * scaleX) - (circleWidth / 2),
+      top: (y * scaleY) - (circleHeight / 2),
       child: GestureDetector(
-        onTap: () {
-          showHiddenPopup(popupImage);
-        },
-
+        onTap: () => showHiddenPopup(popupImage),
         child: Container(
-          width: size * scale,
-          height: size * scale,
-
+          width: circleWidth,
+          height: circleHeight,
           decoration: const BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.transparent,
+
+            // For testing. Change to Colors.transparent later.
+            color: Color.fromARGB(0, 90, 11, 11),
           ),
         ),
       ),
@@ -126,7 +125,6 @@ class _LessonThreeGameTwoState extends State<LessonThreeGameTwo> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-
       body: LayoutBuilder(
         builder: (context, constraints) {
           final screenW = constraints.maxWidth;
@@ -135,15 +133,8 @@ class _LessonThreeGameTwoState extends State<LessonThreeGameTwo> {
           const imageW = 1024.0;
           const imageH = 1792.0;
 
-          final scale = (screenW / imageW > screenH / imageH)
-              ? screenW / imageW
-              : screenH / imageH;
-
-          final displayW = imageW * scale;
-          final displayH = imageH * scale;
-
-          final offsetX = (screenW - displayW) / 2;
-          final offsetY = (screenH - displayH) / 2;
+          final scaleX = screenW / imageW;
+          final scaleY = screenH / imageH;
 
           return Stack(
             children: [
@@ -151,18 +142,17 @@ class _LessonThreeGameTwoState extends State<LessonThreeGameTwo> {
               Positioned.fill(
                 child: Image.asset(
                   'assets/lesson-three-game2.png',
-                  fit: BoxFit.cover,
+                  fit: BoxFit.fill,
                 ),
               ),
 
               /// HIDDEN 1
               hiddenCircle(
-                x: 410,
-                y: 556,
-                size: 70,
-                scale: scale,
-                offsetX: offsetX,
-                offsetY: offsetY,
+                x: 389,
+                y: 565,
+                size: 90,
+                scaleX: scaleX,
+                scaleY: scaleY,
                 popupImage: "assets/lesson-three-game2b.png",
               ),
 
@@ -171,40 +161,35 @@ class _LessonThreeGameTwoState extends State<LessonThreeGameTwo> {
                 x: 500,
                 y: 1054,
                 size: 70,
-                scale: scale,
-                offsetX: offsetX,
-                offsetY: offsetY,
+                scaleX: scaleX,
+                scaleY: scaleY,
                 popupImage: "assets/lesson-three-game2d.png",
               ),
 
               /// HIDDEN 3
               hiddenCircle(
-                x: 586,
+                x: 599,
                 y: 1138,
                 size: 70,
-                scale: scale,
-                offsetX: offsetX,
-                offsetY: offsetY,
+                scaleX: scaleX,
+                scaleY: scaleY,
                 popupImage: "assets/lesson-three-game2c.png",
               ),
 
               /// HIDDEN 4
               hiddenCircle(
-                x: 110,
+                x: 30,
                 y: 1260,
-                size: 50,
-                scale: scale,
-                offsetX: offsetX,
-                offsetY: offsetY,
+                size: 70,
+                scaleX: scaleX,
+                scaleY: scaleY,
                 popupImage: "assets/lesson-three-game2a.png",
               ),
 
               /// HOME BUTTON
               Positioned(
                 top: clampDouble(screenH * 0.025, 14, 22),
-
                 right: clampDouble(screenW * 0.04, 12, 20),
-
                 child: GestureDetector(
                   onTap: () {
                     Navigator.pushReplacement(
@@ -214,18 +199,16 @@ class _LessonThreeGameTwoState extends State<LessonThreeGameTwo> {
                       ),
                     );
                   },
-
                   child: Container(
                     width: clampDouble(screenW * 0.14, 50, 70),
-
                     height: clampDouble(screenW * 0.14, 50, 70),
-
                     decoration: BoxDecoration(
                       color: Colors.orange,
                       shape: BoxShape.circle,
-
-                      border: Border.all(color: Colors.white, width: 4),
-
+                      border: Border.all(
+                        color: const Color.fromARGB(255, 105, 69, 69),
+                        width: 4,
+                      ),
                       boxShadow: const [
                         BoxShadow(
                           color: Colors.black26,
@@ -234,11 +217,9 @@ class _LessonThreeGameTwoState extends State<LessonThreeGameTwo> {
                         ),
                       ],
                     ),
-
                     child: Icon(
                       Icons.home,
                       color: Colors.white,
-
                       size: clampDouble(screenW * 0.08, 28, 40),
                     ),
                   ),
