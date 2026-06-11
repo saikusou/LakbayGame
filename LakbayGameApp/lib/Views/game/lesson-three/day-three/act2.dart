@@ -18,39 +18,78 @@ class _LessonThreeDayOneActTwoState extends State<LessonThreeDayOneActTwo> {
 
   String? answer1;
   String? answer2;
+  String? answer3;
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
+  }
+
+  String? get currentAnswer {
+    if (currentScenario == 1) return answer1;
+    if (currentScenario == 2) return answer2;
+    return answer3;
   }
 
   void selectAnswer(String answer) {
     setState(() {
       if (currentScenario == 1) {
         answer1 = answer;
-      } else {
+      } else if (currentScenario == 2) {
         answer2 = answer;
+      } else {
+        answer3 = answer;
       }
     });
+  }
+
+  String get backgroundImage {
+    if (currentScenario == 1) {
+      return 'assets/lesson-three-day3-act2-c1.png';
+    } else if (currentScenario == 2) {
+      return 'assets/lesson-three-day3-act2-c2.png';
+    } else {
+      return 'assets/lesson-three-day3-act2-c3.png';
+    }
+  }
+
+  void nextScenario() {
+    if (currentScenario < 3) {
+      setState(() => currentScenario++);
+    }
+  }
+
+  void previousScenario() {
+    if (currentScenario > 1) {
+      setState(() => currentScenario--);
+    }
+  }
+
+  void submitAnswers() {
+    debugPrint('Picture 1 Answer: $answer1');
+    debugPrint('Picture 2 Answer: $answer2');
+    debugPrint('Picture 3 Answer: $answer3');
   }
 
   Widget choiceButton({
     required String label,
     required IconData icon,
     required Color color,
+    required double width,
+    required double height,
+    required double fontSize,
+    required double iconSize,
     required VoidCallback onTap,
   }) {
-    final bool isSelected = currentScenario == 1
-        ? answer1 == label
-        : answer2 == label;
+    final bool isSelected = currentAnswer == label;
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 150,
-        height: 70,
+        width: width,
+        height: height,
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(35),
+          borderRadius: BorderRadius.circular(height / 2),
           border: Border.all(
             color: isSelected ? Colors.yellowAccent : Colors.white,
             width: isSelected ? 5 : 4,
@@ -69,15 +108,18 @@ class _LessonThreeDayOneActTwoState extends State<LessonThreeDayOneActTwo> {
             Icon(
               icon,
               color: label == 'ILAYA' ? Colors.yellowAccent : Colors.pinkAccent,
-              size: 32,
+              size: iconSize,
             ),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 22,
+            SizedBox(width: width * 0.05),
+            Flexible(
+              child: Text(
+                label,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: fontSize,
+                ),
               ),
             ),
           ],
@@ -86,157 +128,139 @@ class _LessonThreeDayOneActTwoState extends State<LessonThreeDayOneActTwo> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
-    final String backgroundImage = currentScenario == 1
-        ? 'assets/lesson-three-day3-act2-c1.png'
-        : 'assets/lesson-three-day3-act2-c2.png';
-
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      body: SizedBox.expand(
-        child: Stack(
-          children: [
-            /// 1. BACKGROUND (Bottom layer)
-            Positioned.fill(
-              child: Transform.scale(
-                scale: 1,
-                child: Image.asset(backgroundImage, fit: BoxFit.fill),
-              ),
-            ),
-
-            /// 2. CONTENT BUTTONS (Middle layer)
-            SafeArea(
-              child: Center(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: clampDouble(size.height * 0.70, 470, 610),
-                      ),
-                      const SizedBox(height: 55),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          choiceButton(
-                            label: 'ILAYA',
-                            icon: Icons.star,
-                            color: Colors.blue,
-                            onTap: () {
-                              selectAnswer('ILAYA');
-                            },
-                          ),
-                          choiceButton(
-                            label: 'ILAWUD',
-                            icon: Icons.favorite,
-                            color: Colors.red,
-                            onTap: () {
-                              selectAnswer('ILAWUD');
-                            },
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      if (currentScenario == 1)
-                        Button(
-                          label: 'NEXT',
-                          press: () {
-                            setState(() {
-                              currentScenario = 2;
-                            });
-                          },
-                        ),
-                      if (currentScenario == 2)
-                        Button(
-                          label: 'SUBMIT',
-                          press: () {
-                            debugPrint('Picture 1 Answer: $answer1');
-                            debugPrint('Picture 2 Answer: $answer2');
-                            // ADD RESULT PAGE HERE
-                          },
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-            /// 3. INTERACTIVE NAVIGATION BUTTONS (Top Layer)
-            /// Placed at the end of the Stack so they sit on top of everything else and register clicks correctly.
-            if (currentScenario == 2)
-              Positioned(
-                top: clampDouble(size.height * 0.025, 14, 22),
-                left: clampDouble(size.width * 0.04, 12, 20),
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      currentScenario = 1;
-                    });
-                  },
-                  child: Container(
-                    width: clampDouble(size.width * 0.14, 50, 70),
-                    height: clampDouble(size.width * 0.14, 50, 70),
-                    decoration: BoxDecoration(
-                      color: Colors.blue,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 4),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 8,
-                          offset: Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Icon(
-                      Icons.arrow_back,
-                      color: Colors.white,
-                      size: clampDouble(size.width * 0.08, 28, 40),
-                    ),
-                  ),
-                ),
-              ),
-
-            Positioned(
-              top: clampDouble(size.height * 0.025, 14, 22),
-              right: clampDouble(size.width * 0.04, 12, 20),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => Lesson3Screen(user: widget.user),
-                    ),
-                  );
-                },
-                child: Container(
-                  width: clampDouble(size.width * 0.14, 50, 70),
-                  height: clampDouble(size.width * 0.14, 50, 70),
-                  decoration: BoxDecoration(
-                    color: Colors.orange,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 4),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 8,
-                        offset: Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Icon(
-                    Icons.home,
-                    color: Colors.white,
-                    size: clampDouble(size.width * 0.08, 28, 40),
-                  ),
-                ),
-              ),
+  Widget circleButton({
+    required IconData icon,
+    required Color color,
+    required double size,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white, width: 4),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 8,
+              offset: Offset(0, 4),
             ),
           ],
         ),
+        child: Icon(icon, color: Colors.white, size: size * 0.55),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final safe = MediaQuery.of(context).padding;
+
+    final bool isSmallScreen = size.height < 700;
+
+    final double sidePadding = clampDouble(size.width * 0.045, 12, 24);
+    final double topPadding = safe.top + clampDouble(size.height * 0.01, 6, 14);
+
+    final double topButtonSize = clampDouble(size.width * 0.12, 42, 62);
+
+    final double choiceWidth = clampDouble(size.width * 0.38, 120, 165);
+    final double choiceHeight = clampDouble(size.height * 0.075, 46, 66);
+    final double choiceFont = clampDouble(size.width * 0.043, 14, 21);
+    final double choiceIcon = clampDouble(size.width * 0.062, 21, 31);
+
+    final double choicesBottom = clampDouble(size.height * 0.105, 64, 105);
+    final double buttonBottom = clampDouble(size.height * 0.015, 8, 18);
+
+    final double buttonScale = isSmallScreen ? 0.78 : 0.92;
+
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(backgroundImage, fit: BoxFit.fill),
+          ),
+
+          Positioned(
+            left: sidePadding,
+            right: sidePadding,
+            bottom: choicesBottom,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                choiceButton(
+                  label: 'ILAYA',
+                  icon: Icons.star,
+                  color: Colors.blue,
+                  width: choiceWidth,
+                  height: choiceHeight,
+                  fontSize: choiceFont,
+                  iconSize: choiceIcon,
+                  onTap: () => selectAnswer('ILAYA'),
+                ),
+                choiceButton(
+                  label: 'ILAWUD',
+                  icon: Icons.favorite,
+                  color: Colors.red,
+                  width: choiceWidth,
+                  height: choiceHeight,
+                  fontSize: choiceFont,
+                  iconSize: choiceIcon,
+                  onTap: () => selectAnswer('ILAWUD'),
+                ),
+              ],
+            ),
+          ),
+
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: safe.bottom + buttonBottom,
+            child: Center(
+              child: Transform.scale(
+                scale: buttonScale,
+                child: currentScenario < 3
+                    ? Button(label: 'NEXT', press: nextScenario)
+                    : Button(label: 'SUBMIT', press: submitAnswers),
+              ),
+            ),
+          ),
+
+          if (currentScenario > 1)
+            Positioned(
+              top: topPadding,
+              left: sidePadding,
+              child: circleButton(
+                icon: Icons.arrow_back,
+                color: Colors.blue,
+                size: topButtonSize,
+                onTap: previousScenario,
+              ),
+            ),
+
+          Positioned(
+            top: topPadding,
+            right: sidePadding,
+            child: circleButton(
+              icon: Icons.home,
+              color: Colors.orange,
+              size: topButtonSize,
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => Lesson3Screen(user: widget.user),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
