@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/game/lesson-one/day-three/act2.dart';
 import 'package:lakbay_game/Views/game/lesson-one/day-three/act3.dart';
+import 'package:lakbay_game/Views/game/lesson-one/day-three/act4.dart';
+import 'package:lakbay_game/Views/game/lesson-one/day-three/act5.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-one/act4.dart';
 import 'package:lakbay_game/Views/game/lesson-three/game_one.dart';
 import 'package:lakbay_game/Views/game/lesson-three/game_two.dart';
@@ -34,9 +36,36 @@ class Day3Popup extends StatelessWidget {
       return _TamaOMaliPopup(user: user);
     }
 
+    /// 4. TAMA O MALI
+    if (title.contains('Pagsusuri')) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) return;
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => LessonOneDayThreeActFour(user: user),
+          ),
+        );
+      });
+
+      return const SizedBox.shrink();
+    }
+
     /// 5. TAKDANG ARALIN
     if (title.contains('Takdang Aralin')) {
-      return _TakdangAralinPopup(user: user);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) return;
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => LessonOneDayThreeActFive(user: user),
+          ),
+        );
+      });
+
+      return const SizedBox.shrink();
     }
 
     return const SizedBox();
