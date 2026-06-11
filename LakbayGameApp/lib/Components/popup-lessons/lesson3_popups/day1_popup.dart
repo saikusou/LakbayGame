@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-one/act4.dart';
+import 'package:lakbay_game/Views/game/lesson-three/day-three/act2.dart';
 import 'package:lakbay_game/Views/game/lesson-three/game_one.dart';
 import 'package:lakbay_game/Views/game/lesson-three/game_two.dart';
 import 'package:lakbay_game/models/user_model.dart';
@@ -214,7 +215,7 @@ class _GawainPopup extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => LessonThreeActFour(user: user),
+                      builder: (context) => LessonThreeGameOne(user: user),
                     ),
                   );
                 },
@@ -409,7 +410,7 @@ class _TakdangAralinPopup extends StatelessWidget {
 
           /// BACKGROUND IMAGE
           image: const DecorationImage(
-            image: AssetImage('assets/lesson-three-act5.png'),
+            image: AssetImage('assets/lesson-three-act5t.png'),
             fit: BoxFit.fill,
           ),
         ),

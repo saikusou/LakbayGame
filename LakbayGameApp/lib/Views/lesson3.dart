@@ -114,9 +114,8 @@ class _Lesson3ScreenState extends State<Lesson3Screen> {
         contents = [
           {"icon": Icons.menu_book, "title": "1. Learning Objectives"},
           {"icon": Icons.quiz, "title": "2. GAWAIN 2: Ilaya o Ilawud"},
-          {"icon": Icons.groups, "title": "3. Presentasyon"},
-          {"icon": Icons.assignment, "title": "4. Katanungan"},
-          {"icon": Icons.assignment, "title": "5. Takdang Aralin"},
+          {"icon": Icons.assignment, "title": "3. Katanungan"},
+          {"icon": Icons.assignment, "title": "4. Takdang Aralin"},
         ];
         break;
 
