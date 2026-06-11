@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lakbay_game/Views/lesson1.dart';
 import 'package:lakbay_game/models/user_model.dart';
 
 class LessonOneDayThreeActThree extends StatefulWidget {
@@ -26,12 +27,6 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
     if (currentRound == 1) return 'assets/lesson-one-day3-act3a.png';
     if (currentRound == 2) return 'assets/lesson-one-day3-act3b.png';
     return 'assets/lesson-one-day3-act3c.png';
-  }
-
-  int? get currentAnswer {
-    if (currentRound == 1) return answer1;
-    if (currentRound == 2) return answer2;
-    return answer3;
   }
 
   void setCurrentAnswer(int value) {
@@ -65,7 +60,7 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
   Widget topButton({
     required IconData icon,
     required double size,
-    VoidCallback? onTap,
+    required VoidCallback onTap,
   }) {
     return InkWell(
       onTap: onTap,
@@ -287,6 +282,13 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
     );
   }
 
+  void goHome() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => Lesson1Screen(user: widget.user)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -306,11 +308,7 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
           return Stack(
             children: [
               Positioned.fill(
-                child: Image.asset(
-                  currentImage,
-                  fit: BoxFit.fill,
-                  alignment: Alignment.center,
-                ),
+                child: Image.asset(currentImage, fit: BoxFit.fill),
               ),
 
               SafeArea(
@@ -327,6 +325,16 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
                     ),
 
                     Positioned(
+                      top: clampDouble(screenH * 0.015, 8, 16),
+                      right: horizontalPadding,
+                      child: topButton(
+                        icon: Icons.home,
+                        size: topButtonSize,
+                        onTap: goHome,
+                      ),
+                    ),
+
+                    Positioned(
                       left: horizontalPadding,
                       right: horizontalPadding,
                       top: cardTop,
@@ -337,11 +345,9 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             currentQuestionCard(screenW),
-
                             SizedBox(
                               height: clampDouble(screenH * 0.012, 7, 12),
                             ),
-
                             Row(
                               children: [
                                 Expanded(
