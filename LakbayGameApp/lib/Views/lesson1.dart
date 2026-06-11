@@ -116,7 +116,8 @@ class _Lesson1ScreenState extends State<Lesson1Screen> {
           {"icon": Icons.history_edu, "title": "1. Learning Objectives"},
           {"icon": Icons.public, "title": "2. Tukuyin ang Ebidensya"},
           {"icon": Icons.school, "title": "3. Group Mission"},
-          {"icon": Icons.edit, "title": "4. Takdang Aralin"},
+          {"icon": Icons.edit, "title": "4. Pagsusuri"},
+          {"icon": Icons.edit, "title": "5. Takdang Aralin"},
         ];
         break;
 
