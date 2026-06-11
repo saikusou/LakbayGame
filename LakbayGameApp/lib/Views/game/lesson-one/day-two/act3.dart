@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:lakbay_game/Views/game/lesson-one/day-one/act3a.dart';
+import 'package:lakbay_game/Views/game/lesson-one/day-two/act3a.dart';
 import 'package:lakbay_game/Views/lesson1.dart';
 import 'package:lakbay_game/models/user_model.dart';
+
+// import your next page here
+// import 'package:lakbay_game/Views/your_next_page.dart';
 
 class LessonOneDayTwoActThree extends StatefulWidget {
   final UserModel user;
@@ -18,6 +24,8 @@ class _LessonOneDayTwoActThreeState extends State<LessonOneDayTwoActThree> {
     (_) => TextEditingController(),
   );
 
+  final List<FocusNode> focusNodes = List.generate(14, (_) => FocusNode());
+
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
   }
@@ -27,6 +35,11 @@ class _LessonOneDayTwoActThreeState extends State<LessonOneDayTwoActThree> {
     for (final controller in controllers) {
       controller.dispose();
     }
+
+    for (final focusNode in focusNodes) {
+      focusNode.dispose();
+    }
+
     super.dispose();
   }
 
@@ -34,34 +47,93 @@ class _LessonOneDayTwoActThreeState extends State<LessonOneDayTwoActThree> {
     for (final controller in controllers) {
       controller.clear();
     }
+
+    focusNodes.first.requestFocus();
     setState(() {});
+  }
+
+  void goToNextPage() {
+    Navigator.pop(context); // close modal first
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => LessonOneDayTwoActThreeA(user: widget.user),
+
+        // change this to your next page:
+        // builder: (_) => YourNextPage(user: widget.user),
+      ),
+    );
   }
 
   void submitAnswers() {
     showDialog(
       context: context,
       barrierDismissible: true,
-      builder: (context) {
-        final size = MediaQuery.of(context).size;
+      builder: (dialogContext) {
+        final size = MediaQuery.of(dialogContext).size;
 
         return Dialog(
           backgroundColor: Colors.transparent,
           insetPadding: EdgeInsets.symmetric(
             horizontal: clampDouble(size.width * 0.04, 12, 24),
-            vertical: clampDouble(size.height * 0.03, 16, 28),
+            vertical: clampDouble(size.height * 0.04, 12, 24),
           ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(
-              clampDouble(size.width * 0.06, 18, 30),
-            ),
-            child: SizedBox(
-              width: clampDouble(size.width * 0.92, 280, 520),
-              height: clampDouble(size.height * 0.50, 260, 430),
-              child: Image.asset(
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Image.asset(
                 'assets/lesson-two-day2-act3-c2.png',
                 fit: BoxFit.fill,
               ),
-            ),
+
+              Positioned(
+                top: clampDouble(size.height * 0.015, 8, 16),
+                right: clampDouble(size.width * 0.025, 8, 16),
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(dialogContext),
+                  child: Container(
+                    width: clampDouble(size.width * 0.11, 34, 45),
+                    height: clampDouble(size.width * 0.11, 34, 45),
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: clampDouble(size.width * 0.07, 22, 30),
+                    ),
+                  ),
+                ),
+              ),
+
+              Positioned(
+                bottom: clampDouble(size.height * 0.035, 18, 32),
+                child: ElevatedButton(
+                  onPressed: goToNextPage,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: clampDouble(size.width * 0.08, 24, 42),
+                      vertical: clampDouble(size.height * 0.015, 9, 14),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    side: const BorderSide(color: Colors.white, width: 3),
+                  ),
+                  child: Text(
+                    'OK',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: clampDouble(size.width * 0.04, 14, 18),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       },
@@ -74,11 +146,37 @@ class _LessonOneDayTwoActThreeState extends State<LessonOneDayTwoActThree> {
       height: boxSize,
       child: TextField(
         controller: controllers[index],
+        focusNode: focusNodes[index],
         textAlign: TextAlign.center,
         maxLength: 1,
         textCapitalization: TextCapitalization.characters,
+        keyboardType: TextInputType.text,
+        inputFormatters: [
+          LengthLimitingTextInputFormatter(1),
+          TextInputFormatter.withFunction((oldValue, newValue) {
+            final upperText = newValue.text.toUpperCase();
+
+            return TextEditingValue(
+              text: upperText,
+              selection: TextSelection.collapsed(offset: upperText.length),
+            );
+          }),
+        ],
+        onChanged: (value) {
+          if (value.isNotEmpty) {
+            if (index < focusNodes.length - 1) {
+              focusNodes[index + 1].requestFocus();
+            } else {
+              focusNodes[index].unfocus();
+            }
+          } else {
+            if (index > 0) {
+              focusNodes[index - 1].requestFocus();
+            }
+          }
+        },
         style: TextStyle(
-          fontSize: boxSize * 0.65,
+          fontSize: boxSize * 0.72,
           fontWeight: FontWeight.bold,
           color: Colors.black,
         ),
@@ -88,11 +186,11 @@ class _LessonOneDayTwoActThreeState extends State<LessonOneDayTwoActThree> {
           fillColor: Colors.white,
           contentPadding: EdgeInsets.zero,
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(5),
+            borderRadius: BorderRadius.circular(4),
             borderSide: const BorderSide(color: Colors.black, width: 2),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(5),
+            borderRadius: BorderRadius.circular(4),
             borderSide: const BorderSide(color: Colors.blue, width: 3),
           ),
         ),
@@ -108,7 +206,6 @@ class _LessonOneDayTwoActThreeState extends State<LessonOneDayTwoActThree> {
     required double width,
     required double height,
     required double fontSize,
-    required double iconSize,
   }) {
     return SizedBox(
       width: width,
@@ -123,7 +220,7 @@ class _LessonOneDayTwoActThreeState extends State<LessonOneDayTwoActThree> {
           ),
           side: const BorderSide(color: Colors.white, width: 3),
         ),
-        icon: Icon(icon, color: Colors.white, size: iconSize),
+        icon: Icon(icon, color: Colors.white, size: fontSize + 5),
         label: Text(
           label,
           style: TextStyle(
@@ -142,122 +239,124 @@ class _LessonOneDayTwoActThreeState extends State<LessonOneDayTwoActThree> {
     final w = size.width;
     final h = size.height;
 
-    final double boxSize = clampDouble(w * 0.14, 28, 45);
-    final double spacing = clampDouble(w * 0.008, 2, 6);
+    final double horizontalPadding = clampDouble(w * 0.025, 8, 18);
+    final double availableWidth = w - (horizontalPadding * 2);
+    final double spacing = clampDouble(w * 0.004, 1.5, 4);
 
-    final double buttonWidth = clampDouble(w * 0.33, 120, 165);
-    final double buttonHeight = clampDouble(h * 0.065, 42, 55);
-    final double buttonFont = clampDouble(w * 0.038, 13, 16);
-    final double buttonIcon = clampDouble(w * 0.055, 18, 24);
+    final double boxSize = clampDouble(
+      (availableWidth - (spacing * 28)) / 14,
+      20,
+      38,
+    );
 
-    final double homeSize = clampDouble(w * 0.14, 48, 70);
-    final double homeIcon = clampDouble(w * 0.08, 26, 40);
+    final double buttonWidth = clampDouble(w * 0.32, 105, 155);
+    final double buttonHeight = clampDouble(h * 0.055, 38, 46);
+    final double buttonFontSize = clampDouble(w * 0.035, 12, 15);
+    final double bottomPosition = clampDouble(h * 0.035, 18, 35);
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return Stack(
-            children: [
-              Positioned.fill(
-                child: Image.asset(
-                  'assets/lesson-two-day2-act3-c1.png',
-                  fit: BoxFit.fill,
-                ),
+      body: SizedBox.expand(
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: Image.asset(
+                'assets/lesson-two-day2-act3-c1.png',
+                fit: BoxFit.fill,
               ),
+            ),
 
-              Positioned(
-                left: w * 0.03,
-                right: w * 0.03,
-                bottom: clampDouble(h * 0.000, 0, 20),
-                child: SafeArea(
-                  top: false,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Wrap(
-                        alignment: WrapAlignment.center,
-                        spacing: spacing,
-                        runSpacing: spacing,
-                        children: List.generate(
-                          5,
-                          (index) => inputBox(index, boxSize),
+            Positioned(
+              left: horizontalPadding,
+              right: horizontalPadding,
+              bottom: bottomPosition - 30, // move UP
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    physics: const BouncingScrollPhysics(),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(
+                        14,
+                        (index) => Padding(
+                          padding: EdgeInsets.symmetric(horizontal: spacing),
+                          child: inputBox(index, boxSize),
                         ),
-                      ),
-
-                      SizedBox(height: clampDouble(h * 0.018, 10, 18)),
-
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          actionButton(
-                            label: 'Retry',
-                            icon: Icons.refresh,
-                            color: Colors.red,
-                            onPressed: retryAnswers,
-                            width: buttonWidth,
-                            height: buttonHeight,
-                            fontSize: buttonFont,
-                            iconSize: buttonIcon,
-                          ),
-                          SizedBox(width: clampDouble(w * 0.04, 12, 22)),
-                          actionButton(
-                            label: 'Submit',
-                            icon: Icons.check,
-                            color: Colors.green,
-                            onPressed: submitAnswers,
-                            width: buttonWidth,
-                            height: buttonHeight,
-                            fontSize: buttonFont,
-                            iconSize: buttonIcon,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              Positioned(
-                top: clampDouble(h * 0.025, 14, 24),
-                right: clampDouble(w * 0.04, 12, 22),
-                child: SafeArea(
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => Lesson1Screen(user: widget.user),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      width: homeSize,
-                      height: homeSize,
-                      decoration: BoxDecoration(
-                        color: Colors.orange,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 4),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 8,
-                            offset: Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Icon(
-                        Icons.home,
-                        color: Colors.white,
-                        size: homeIcon,
                       ),
                     ),
                   ),
+
+                  SizedBox(height: clampDouble(h * 0.018, 10, 18)),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      actionButton(
+                        label: 'Retry',
+                        icon: Icons.refresh,
+                        color: Colors.red,
+                        onPressed: retryAnswers,
+                        width: buttonWidth,
+                        height: buttonHeight,
+                        fontSize: buttonFontSize,
+                      ),
+
+                      SizedBox(width: clampDouble(w * 0.04, 14, 28)),
+
+                      actionButton(
+                        label: 'Check',
+                        icon: Icons.check,
+                        color: Colors.green,
+                        onPressed: submitAnswers,
+                        width: buttonWidth,
+                        height: buttonHeight,
+                        fontSize: buttonFontSize,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            Positioned(
+              top: clampDouble(h * 0.025, 14, 24),
+              right: clampDouble(w * 0.04, 12, 22),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => Lesson1Screen(user: widget.user),
+                    ),
+                  );
+                },
+                child: Container(
+                  width: clampDouble(w * 0.13, 48, 68),
+                  height: clampDouble(w * 0.13, 48, 68),
+                  decoration: BoxDecoration(
+                    color: Colors.orange,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 4),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 8,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    Icons.home,
+                    color: Colors.white,
+                    size: clampDouble(w * 0.075, 26, 38),
+                  ),
                 ),
               ),
-            ],
-          );
-        },
+            ),
+          ],
+        ),
       ),
     );
   }
