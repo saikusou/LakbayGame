@@ -1,24 +1,290 @@
 import 'package:flutter/material.dart';
-import 'package:lakbay_game/Views/game/lesson-one/day-three/act3-a.dart';
-import 'package:lakbay_game/Views/game/lesson-one/day-three/act3-b.dart';
-import 'package:lakbay_game/Views/game/lesson-one/day-three/act3-c.dart';
-import 'package:lakbay_game/Views/game/lesson-one/day-three/act3-d.dart';
-import 'package:lakbay_game/Views/lesson1.dart';
 import 'package:lakbay_game/models/user_model.dart';
 
-/// ADD YOUR MISSION PAGES HERE
-
-class LessonOneDayThreeActThree extends StatelessWidget {
+class LessonOneDayThreeActThree extends StatefulWidget {
   final UserModel user;
 
   const LessonOneDayThreeActThree({super.key, required this.user});
+
+  @override
+  State<LessonOneDayThreeActThree> createState() =>
+      _LessonOneDayThreeActThreeState();
+}
+
+class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
+  int currentRound = 1;
+
+  int? answer1;
+  int? answer2;
+  int? answer3;
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
   }
 
-  void openMission(BuildContext context, Widget page) {
-    Navigator.push(context, MaterialPageRoute(builder: (_) => page));
+  String get currentImage {
+    if (currentRound == 1) return 'assets/lesson-one-day3-act3a.png';
+    if (currentRound == 2) return 'assets/lesson-one-day3-act3b.png';
+    return 'assets/lesson-one-day3-act3c.png';
+  }
+
+  int? get currentAnswer {
+    if (currentRound == 1) return answer1;
+    if (currentRound == 2) return answer2;
+    return answer3;
+  }
+
+  void setCurrentAnswer(int value) {
+    setState(() {
+      if (currentRound == 1) {
+        answer1 = value;
+      } else if (currentRound == 2) {
+        answer2 = value;
+      } else {
+        answer3 = value;
+      }
+    });
+  }
+
+  void nextRound() {
+    if (currentRound < 3) {
+      setState(() => currentRound++);
+    } else {
+      Navigator.pop(context);
+    }
+  }
+
+  void backRound() {
+    if (currentRound > 1) {
+      setState(() => currentRound--);
+    } else {
+      Navigator.pop(context);
+    }
+  }
+
+  Widget topButton({
+    required IconData icon,
+    required double size,
+    VoidCallback? onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(size),
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: const Color(0xff8b4b12),
+          shape: BoxShape.circle,
+          border: Border.all(color: const Color(0xffffc24b), width: 2),
+        ),
+        child: Icon(icon, color: Colors.white, size: size * 0.55),
+      ),
+    );
+  }
+
+  Widget choiceButton({
+    required String text,
+    required int index,
+    required int? groupValue,
+    required Function(int) onChanged,
+    required double fontSize,
+  }) {
+    final bool selected = groupValue == index;
+
+    return Expanded(
+      child: InkWell(
+        onTap: () => onChanged(index),
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 3),
+          padding: EdgeInsets.symmetric(
+            vertical: clampDouble(fontSize * 0.7, 5, 8),
+            horizontal: 4,
+          ),
+          decoration: BoxDecoration(
+            color: selected ? const Color(0xffffdf7e) : const Color(0xfffff6cf),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: const Color(0xffc28a2c), width: 1.4),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                selected ? Icons.radio_button_checked : Icons.radio_button_off,
+                size: fontSize + 4,
+                color: const Color(0xff7a4b10),
+              ),
+              const SizedBox(width: 3),
+              Expanded(
+                child: Text(
+                  text,
+                  textAlign: TextAlign.center,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: fontSize,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xff4b2a08),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget questionCard({
+    required int number,
+    required IconData icon,
+    required String question,
+    required List<String> choices,
+    required int? groupValue,
+    required Function(int) onChanged,
+    required double width,
+  }) {
+    final double choiceFont = clampDouble(width * 0.026, 8, 12);
+    final double questionFont = clampDouble(width * 0.034, 12, 16);
+
+    return Container(
+      padding: EdgeInsets.all(clampDouble(width * 0.018, 7, 12)),
+      decoration: BoxDecoration(
+        color: const Color(0xffffeaa5),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xffa96c19), width: 2),
+        boxShadow: const [
+          BoxShadow(color: Colors.black26, blurRadius: 2, offset: Offset(1, 2)),
+        ],
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: clampDouble(width * 0.13, 45, 70),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircleAvatar(
+                  radius: clampDouble(width * 0.032, 11, 16),
+                  backgroundColor: const Color(0xff8b4b12),
+                  child: Text(
+                    '$number',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                SizedBox(height: clampDouble(width * 0.01, 3, 6)),
+                Icon(icon, size: clampDouble(width * 0.08, 28, 44)),
+              ],
+            ),
+          ),
+          SizedBox(width: clampDouble(width * 0.015, 5, 10)),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  question,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: questionFont,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xff3d2408),
+                  ),
+                ),
+                SizedBox(height: clampDouble(width * 0.015, 5, 9)),
+                Row(
+                  children: List.generate(
+                    choices.length,
+                    (index) => choiceButton(
+                      text: choices[index],
+                      index: index,
+                      groupValue: groupValue,
+                      onChanged: onChanged,
+                      fontSize: choiceFont,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget currentQuestionCard(double screenW) {
+    if (currentRound == 1) {
+      return questionCard(
+        number: 1,
+        icon: Icons.landscape,
+        question: 'Ano ang ipinapakita ng mapa?',
+        choices: const [
+          'Mga hayop\nsa Pilipinas',
+          'Ruta ng\npaglalakbay',
+          'Mga ninuno\nng Pilipino',
+          'Uri ng\npagkain noon',
+        ],
+        groupValue: answer1,
+        onChanged: setCurrentAnswer,
+        width: screenW,
+      );
+    }
+
+    if (currentRound == 2) {
+      return questionCard(
+        number: 2,
+        icon: Icons.directions_boat,
+        question: 'Ano ang ginamit sa paglalakbay?',
+        choices: const ['Bangka', 'Kotse', 'Tren', 'Bisikleta'],
+        groupValue: answer2,
+        onChanged: setCurrentAnswer,
+        width: screenW,
+      );
+    }
+
+    return questionCard(
+      number: 3,
+      icon: Icons.groups,
+      question: 'Sino ang tinutukoy sa aralin?',
+      choices: const [
+        'Mga ninuno',
+        'Mga turista',
+        'Mga sundalo',
+        'Mga mangangalakal',
+      ],
+      groupValue: answer3,
+      onChanged: setCurrentAnswer,
+      width: screenW,
+    );
+  }
+
+  Widget bottomButton(String text, double fontSize, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        height: clampDouble(fontSize * 3.3, 34, 42),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: const Color(0xff8b4b12),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: const Color(0xffffb33b), width: 2),
+        ),
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w900,
+            fontSize: fontSize,
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -26,178 +292,94 @@ class LessonOneDayThreeActThree extends StatelessWidget {
     return Scaffold(
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final double w = constraints.maxWidth;
-          final double h = constraints.maxHeight;
+          final double screenW = constraints.maxWidth;
+          final double screenH = constraints.maxHeight;
 
-          final bool smallScreen = w < 380;
+          const double designW = 430;
+          final double scale = (screenW / designW).clamp(0.75, 1.25);
 
-          final double homeSize = clampDouble(w * 0.13, 45, 65);
+          final double horizontalPadding = clampDouble(screenW * 0.025, 8, 14);
+          final double topButtonSize = clampDouble(screenW * 0.09, 34, 45);
+          final double cardTop = screenH * 0.69;
+          final double bottomFont = clampDouble(screenW * 0.03, 10, 12);
 
-          final double buttonWidth = smallScreen
-              ? clampDouble(w * 0.34, 105, 130)
-              : clampDouble(w * 0.38, 130, 165);
-
-          final double buttonHeight = clampDouble(h * 0.064, 43, 58);
-
-          final double rightPosition = smallScreen
-              ? clampDouble(w * 0.055, 12, 25)
-              : clampDouble(w * 0.08, 18, 45);
-
-          final List<double> missionTops = [
-            h * 0.49,
-            h * 0.60,
-            h * 0.71,
-            h * 0.815,
-          ];
-
-          final List<Widget> missionPages = [
-            LessonOneDayThreeActThreeA(user: user),
-            LessonOneDayThreeActThreeB(user: user),
-            LessonOneDayThreeActThreeC(user: user),
-            LessonOneDayThreeActThreeD(user: user),
-          ];
-
-          return SizedBox.expand(
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: Image.asset(
-                    'assets/lesson-two-day3-act3.png',
-                    fit: BoxFit.fill,
-                  ),
+          return Stack(
+            children: [
+              Positioned.fill(
+                child: Image.asset(
+                  currentImage,
+                  fit: BoxFit.fill,
+                  alignment: Alignment.center,
                 ),
+              ),
 
-                Positioned(
-                  top: clampDouble(h * 0.025, 12, 22),
-                  right: clampDouble(w * 0.035, 10, 20),
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => Lesson1Screen(user: user),
+              SafeArea(
+                child: Stack(
+                  children: [
+                    Positioned(
+                      top: clampDouble(screenH * 0.015, 8, 16),
+                      left: horizontalPadding,
+                      child: topButton(
+                        icon: Icons.arrow_back,
+                        size: topButtonSize,
+                        onTap: backRound,
+                      ),
+                    ),
+
+                    Positioned(
+                      left: horizontalPadding,
+                      right: horizontalPadding,
+                      top: cardTop,
+                      child: Transform.scale(
+                        scale: scale,
+                        alignment: Alignment.topCenter,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            currentQuestionCard(screenW),
+
+                            SizedBox(
+                              height: clampDouble(screenH * 0.012, 7, 12),
+                            ),
+
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: bottomButton(
+                                    'BABALIK',
+                                    bottomFont,
+                                    backRound,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  flex: 2,
+                                  child: bottomButton(
+                                    'Round $currentRound / 3',
+                                    bottomFont,
+                                    () {},
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: bottomButton(
+                                    currentRound == 3 ? 'SUBMIT' : 'SUSUNOD',
+                                    bottomFont,
+                                    nextRound,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                      );
-                    },
-                    child: Container(
-                      width: homeSize,
-                      height: homeSize,
-                      decoration: BoxDecoration(
-                        color: Colors.orange,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 4),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 8,
-                            offset: Offset(0, 4),
-                          ),
-                        ],
                       ),
-                      child: Icon(
-                        Icons.home,
-                        color: Colors.white,
-                        size: clampDouble(homeSize * 0.55, 24, 36),
-                      ),
-                    ),
-                  ),
-                ),
-
-                for (int i = 0; i < 4; i++)
-                  Positioned(
-                    top: missionTops[i],
-                    right: rightPosition,
-                    child: missionButton(
-                      width: buttonWidth,
-                      height: buttonHeight,
-                      smallScreen: smallScreen,
-                      onTap: () {
-                        openMission(context, missionPages[i]);
-                      },
-                    ),
-                  ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget missionButton({
-    required double width,
-    required double height,
-    required bool smallScreen,
-    required VoidCallback onTap,
-  }) {
-    final double iconSize = clampDouble(height * 0.52, 20, 30);
-    final double playSize = clampDouble(height * 0.38, 16, 24);
-    final double fontSize = smallScreen
-        ? clampDouble(height * 0.21, 9, 11)
-        : clampDouble(height * 0.24, 10.5, 14);
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: width,
-        height: height,
-        padding: EdgeInsets.symmetric(
-          horizontal: smallScreen ? 5 : clampDouble(width * 0.055, 6, 10),
-        ),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          gradient: const LinearGradient(
-            colors: [Color(0xFFB7F300), Color(0xFF5EAE00)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-          border: Border.all(color: const Color(0xFF3D7500), width: 2),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.25),
-              blurRadius: 4,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: iconSize,
-              height: iconSize,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.play_arrow,
-                color: Color(0xFF5EAE00),
-                size: playSize,
-              ),
-            ),
-            SizedBox(width: smallScreen ? 3 : 6),
-            Flexible(
-              child: Text(
-                'BUKSAN\nANG MISYON',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w900,
-                  fontSize: fontSize,
-                  height: 0.95,
-                  shadows: const [
-                    Shadow(
-                      color: Colors.black54,
-                      offset: Offset(1, 1),
-                      blurRadius: 2,
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
-        ),
+            ],
+          );
+        },
       ),
     );
   }
