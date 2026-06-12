@@ -115,7 +115,7 @@ class _LessonTwoDayOneActThreeState extends State<LessonTwoDayOneActThree> {
             shape: BoxShape.circle,
 
             // For testing. Change to Colors.transparent later.
-            color: Color.fromARGB(206, 194, 11, 11),
+            color: Color.fromARGB(0, 194, 11, 11),
           ),
         ),
       ),
@@ -150,41 +150,71 @@ class _LessonTwoDayOneActThreeState extends State<LessonTwoDayOneActThree> {
               /// HIDDEN 1
               hiddenCircle(
                 x: 495,
-                y: 1268,
+                y: 1238,
                 size: 190,
                 scaleX: scaleX,
                 scaleY: scaleY,
-                popupImage: "assets/lesson-three-game2b.png",
+                popupImage: "assets/lesson-two-day1-act3-pic1.png",
               ),
 
               /// HIDDEN 2
               hiddenCircle(
-                x: 500,
-                y: 1054,
-                size: 70,
+                x: 240,
+                y: 1084,
+                size: 190,
                 scaleX: scaleX,
                 scaleY: scaleY,
-                popupImage: "assets/lesson-three-game2d.png",
+                popupImage: "assets/lesson-two-day1-act3-pic2.png",
               ),
 
               /// HIDDEN 3
               hiddenCircle(
-                x: 599,
+                x: 799,
                 y: 1138,
-                size: 70,
+                size: 190,
                 scaleX: scaleX,
                 scaleY: scaleY,
-                popupImage: "assets/lesson-three-game2c.png",
+                popupImage: "assets/lesson-two-day1-act3-pic3.png",
               ),
 
               /// HIDDEN 4
               hiddenCircle(
-                x: 30,
-                y: 1260,
-                size: 70,
+                x: 350,
+                y: 1310,
+                size: 150,
                 scaleX: scaleX,
                 scaleY: scaleY,
-                popupImage: "assets/lesson-three-game2a.png",
+                popupImage: "assets/lesson-two-day1-act3-pic4.png",
+              ),
+
+              /// HIDDEN 5
+              hiddenCircle(
+                x: 230,
+                y: 1550,
+                size: 160,
+                scaleX: scaleX,
+                scaleY: scaleY,
+                popupImage: "assets/lesson-two-day1-act3-pic5.png",
+              ),
+
+              /// HIDDEN 5
+              hiddenCircle(
+                x: 700,
+                y: 1550,
+                size: 160,
+                scaleX: scaleX,
+                scaleY: scaleY,
+                popupImage: "assets/lesson-two-day1-act3-pic6.png",
+              ),
+
+              /// HIDDEN 5
+              hiddenCircle(
+                x: 880,
+                y: 1350,
+                size: 140,
+                scaleX: scaleX,
+                scaleY: scaleY,
+                popupImage: "assets/lesson-two-day1-act3-pic7.png",
               ),
 
               /// HOME BUTTON
