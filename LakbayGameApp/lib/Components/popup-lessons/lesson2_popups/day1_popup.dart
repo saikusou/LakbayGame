@@ -3,6 +3,8 @@ import 'package:lakbay_game/Views/game/lesson-one/day-one/act1.dart';
 import 'package:lakbay_game/Views/game/lesson-one/day-one/act3.dart';
 import 'package:lakbay_game/Views/game/lesson-one/day-one/act4.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-one/act4.dart';
+import 'package:lakbay_game/Views/game/lesson-two/act2.dart';
+import 'package:lakbay_game/Views/game/lesson-two/act3.dart';
 import 'package:lakbay_game/models/user_model.dart';
 
 class Day1Popup extends StatelessWidget {
@@ -23,7 +25,7 @@ class Day1Popup extends StatelessWidget {
       Future.microtask(() {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => LessonOneDayOneActOne(user: user)),
+          MaterialPageRoute(builder: (_) => LessonTwoDayOneActTwo(user: user)),
         );
       });
 
@@ -45,7 +47,7 @@ class Day1Popup extends StatelessWidget {
     }
 
     /// 4. TAMA O MALI
-    if (title.contains('Tama o Mali')) {
+    if (title.contains('Picture mining')) {
       return _TamaOMaliPopup(user: user);
     }
 
@@ -309,7 +311,7 @@ class _TamaOMaliPopup extends StatelessWidget {
 
           /// IMAGE FILLS ENTIRE POPUP
           image: const DecorationImage(
-            image: AssetImage('assets/lesson-one-day1-act4.png'),
+            image: AssetImage('assets/lesson-two-day1-act3.png'),
             fit: BoxFit.fill,
           ),
         ),
@@ -351,7 +353,7 @@ class _TamaOMaliPopup extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => LessonOneActFour(user: user),
+                      builder: (context) => LessonTwoDayOneActThree(user: user),
                     ),
                   );
                 },
@@ -415,7 +417,7 @@ class _TakdangAralinPopup extends StatelessWidget {
 
           /// BACKGROUND IMAGE
           image: const DecorationImage(
-            image: AssetImage('assets/lesson-one-day1-act5.png'),
+            image: AssetImage('assets/lesson-two-day1-act3.png'),
             fit: BoxFit.fill,
           ),
         ),
