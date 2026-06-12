@@ -126,8 +126,11 @@ class _Lesson1ScreenState extends State<Lesson1Screen> {
         headerImage = 'assets/stone-4.png';
         contents = [
           {"icon": Icons.star, "title": "1. Learning Objectives"},
-          {"icon": Icons.workspace_premium, "title": "2. Pagsusulit"},
-          {"icon": Icons.edit, "title": "3. Katanungan"},
+          {
+            "icon": Icons.workspace_premium,
+            "title": "2. Pagtukoy sa Pamantayan",
+          },
+          {"icon": Icons.edit, "title": "3. Pagsusulit"},
           {"icon": Icons.assignment, "title": "4. Takdang Aralin"},
         ];
         break;

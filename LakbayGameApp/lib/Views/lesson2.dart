@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Components/side_navigation.dart';
 import 'package:lakbay_game/Views/profile.dart';
+
+/// POPUPS
+import 'package:lakbay_game/Components/popup-lessons/lesson2_popups/day1_popup.dart';
+import 'package:lakbay_game/Components/popup-lessons/lesson1_popups/day2_popup.dart';
+import 'package:lakbay_game/Components/popup-lessons/lesson1_popups/day3_popup.dart';
+import 'package:lakbay_game/Components/popup-lessons/lesson1_popups/day4_popup.dart';
 import 'package:lakbay_game/models/user_model.dart';
 
 class Lesson2Screen extends StatefulWidget {
@@ -21,12 +27,55 @@ class _Lesson2ScreenState extends State<Lesson2Screen> {
   }
 
   void toggleMenu() {
+    if (!mounted) return;
+
     setState(() {
       showMenu = !showMenu;
     });
   }
 
-  void showDayModal({required BuildContext context, required int dayNumber}) {
+  Widget getPopup({required int dayNumber, required String title}) {
+    switch (dayNumber) {
+      case 1:
+        return Day1Popup(title: title, user: widget.user);
+      case 2:
+        return Day2Popup(title: title, user: widget.user);
+      case 3:
+        return Day3Popup(title: title, user: widget.user);
+      case 4:
+        return Day4Popup(title: title, user: widget.user);
+      default:
+        return Day1Popup(title: title, user: widget.user);
+    }
+  }
+
+  Future<void> showLessonPopup({
+    required BuildContext dialogContext,
+    required int dayNumber,
+    required String title,
+  }) async {
+    if (!mounted) return;
+
+    final popup = getPopup(dayNumber: dayNumber, title: title);
+
+    Navigator.of(dialogContext).pop();
+
+    if (!mounted) return;
+
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => popup,
+    );
+
+    if (!mounted) return;
+
+    showDayModal(dayNumber: dayNumber);
+  }
+
+  void showDayModal({required int dayNumber}) {
+    if (!mounted) return;
+
     setState(() {
       selectedDay = dayNumber;
     });
@@ -41,9 +90,9 @@ class _Lesson2ScreenState extends State<Lesson2Screen> {
         headerImage = 'assets/stone-1.png';
         contents = [
           {"icon": Icons.track_changes, "title": "1. Learning Objectives"},
-          {"icon": Icons.extension, "title": "2. I-KONEK MO!"},
-          {"icon": Icons.lightbulb, "title": "3. Konsepto"},
-          {"icon": Icons.check_circle, "title": "4. Tama o Mali"},
+          {"icon": Icons.extension, "title": "2. Ayusin mo ako!"},
+          {"icon": Icons.lightbulb, "title": "3. Picture mining"},
+          {"icon": Icons.check_circle, "title": "4. Subukan natin partner"},
           {"icon": Icons.assignment, "title": "5. Takdang Aralin"},
         ];
         break;
@@ -52,9 +101,11 @@ class _Lesson2ScreenState extends State<Lesson2Screen> {
         title = "Ikalawang Araw";
         headerImage = 'assets/stone-2.png';
         contents = [
-          {"icon": Icons.menu_book, "title": "1. Pagbasa"},
-          {"icon": Icons.quiz, "title": "2. Pagsusulit"},
-          {"icon": Icons.groups, "title": "3. Talakayan"},
+          {"icon": Icons.menu_book, "title": "1. Learning Objectives"},
+          {"icon": Icons.quiz, "title": "2. Fact O Kuwento"},
+          {"icon": Icons.groups, "title": "3. Crack the Code"},
+          {"icon": Icons.assignment, "title": "4. Pagtataya"},
+          {"icon": Icons.assignment, "title": "5. Takdang Aralin"},
         ];
         break;
 
@@ -62,10 +113,11 @@ class _Lesson2ScreenState extends State<Lesson2Screen> {
         title = "Ikatlong Araw";
         headerImage = 'assets/stone-3.png';
         contents = [
-          {"icon": Icons.history_edu, "title": "1. Kasaysayan"},
-          {"icon": Icons.public, "title": "2. Pamahalaan"},
-          {"icon": Icons.school, "title": "3. Aralin"},
-          {"icon": Icons.edit, "title": "4. Gawain"},
+          {"icon": Icons.history_edu, "title": "1. Learning Objectives"},
+          {"icon": Icons.public, "title": "2. Tukuyin ang Ebidensya"},
+          {"icon": Icons.school, "title": "3. Group Mission"},
+          {"icon": Icons.edit, "title": "4. Pagsusuri"},
+          {"icon": Icons.edit, "title": "5. Takdang Aralin"},
         ];
         break;
 
@@ -73,16 +125,21 @@ class _Lesson2ScreenState extends State<Lesson2Screen> {
         title = "Ika-apat na Araw";
         headerImage = 'assets/stone-4.png';
         contents = [
-          {"icon": Icons.star, "title": "1. Review"},
-          {"icon": Icons.workspace_premium, "title": "2. Achievement"},
+          {"icon": Icons.star, "title": "1. Learning Objectives"},
+          {
+            "icon": Icons.workspace_premium,
+            "title": "2. Pagtukoy sa Pamantayan",
+          },
+          {"icon": Icons.edit, "title": "3. Pagsusulit"},
+          {"icon": Icons.assignment, "title": "4. Takdang Aralin"},
         ];
         break;
     }
 
     showDialog(
       context: context,
-      builder: (context) {
-        final size = MediaQuery.of(context).size;
+      builder: (dialogContext) {
+        final size = MediaQuery.of(dialogContext).size;
 
         return Dialog(
           backgroundColor: Colors.transparent,
@@ -108,7 +165,7 @@ class _Lesson2ScreenState extends State<Lesson2Screen> {
                       alignment: Alignment.topRight,
                       child: GestureDetector(
                         onTap: () {
-                          Navigator.pop(context);
+                          Navigator.of(dialogContext).pop();
                         },
                         child: Container(
                           padding: const EdgeInsets.all(6),
@@ -145,7 +202,13 @@ class _Lesson2ScreenState extends State<Lesson2Screen> {
                       (item) => buildLessonButton(
                         icon: item["icon"],
                         title: item["title"],
-                        onTap: () {},
+                        onTap: () async {
+                          await showLessonPopup(
+                            dialogContext: dialogContext,
+                            dayNumber: dayNumber,
+                            title: item["title"],
+                          );
+                        },
                       ),
                     ),
                   ],
@@ -156,6 +219,8 @@ class _Lesson2ScreenState extends State<Lesson2Screen> {
         );
       },
     ).then((_) {
+      if (!mounted) return;
+
       setState(() {
         selectedDay = null;
       });
@@ -195,6 +260,11 @@ class _Lesson2ScreenState extends State<Lesson2Screen> {
                     color: Colors.black87,
                   ),
                 ),
+              ),
+              const Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: Colors.brown,
               ),
             ],
           ),
@@ -256,6 +326,8 @@ class _Lesson2ScreenState extends State<Lesson2Screen> {
 
           GestureDetector(
             onTap: () {
+              if (!mounted) return;
+
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -321,7 +393,7 @@ class _Lesson2ScreenState extends State<Lesson2Screen> {
         width: width,
         isSelected: selectedDay == dayNumber,
         onTap: () {
-          showDayModal(context: context, dayNumber: dayNumber);
+          showDayModal(dayNumber: dayNumber);
         },
       ),
     );
@@ -334,7 +406,7 @@ class _Lesson2ScreenState extends State<Lesson2Screen> {
         clipBehavior: Clip.none,
         children: [
           Positioned.fill(
-            child: Image.asset('assets/lesson2.png', fit: BoxFit.fill),
+            child: Image.asset('assets/lesson1.png', fit: BoxFit.fill),
           ),
 
           SafeArea(
@@ -429,11 +501,15 @@ class _DayStoneImageState extends State<DayStoneImage> {
   Widget build(BuildContext context) {
     return MouseRegion(
       onEnter: (_) {
+        if (!mounted) return;
+
         setState(() {
           isHovering = true;
         });
       },
       onExit: (_) {
+        if (!mounted) return;
+
         setState(() {
           isHovering = false;
         });
@@ -441,16 +517,22 @@ class _DayStoneImageState extends State<DayStoneImage> {
       child: GestureDetector(
         onTap: widget.onTap,
         onTapDown: (_) {
+          if (!mounted) return;
+
           setState(() {
             isPressed = true;
           });
         },
         onTapUp: (_) {
+          if (!mounted) return;
+
           setState(() {
             isPressed = false;
           });
         },
         onTapCancel: () {
+          if (!mounted) return;
+
           setState(() {
             isPressed = false;
           });

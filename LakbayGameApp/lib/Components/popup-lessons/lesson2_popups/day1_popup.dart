@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:lakbay_game/Views/game/lesson-one/day-one/act1.dart';
+import 'package:lakbay_game/Views/game/lesson-one/day-one/act3.dart';
+import 'package:lakbay_game/Views/game/lesson-one/day-one/act4.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-one/act4.dart';
-import 'package:lakbay_game/Views/game/lesson-three/game_one.dart';
-import 'package:lakbay_game/Views/game/lesson-three/game_two.dart';
 import 'package:lakbay_game/models/user_model.dart';
 
-class Day4Popup extends StatelessWidget {
+class Day1Popup extends StatelessWidget {
   final String title;
   final UserModel user;
 
-  const Day4Popup({super.key, required this.title, required this.user});
+  const Day1Popup({super.key, required this.title, required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -18,16 +19,25 @@ class Day4Popup extends StatelessWidget {
     }
 
     /// 2. GAWAIN
-    if (title.contains('GAWAIN 1:Hularawan')) {
-      return _GawainPopup(user: user);
-    }
-
-    /// 3. KONSEPTO
-    if (title.contains('Pagtukoy sa Pamantayan')) {
+    if (title.contains('Ayusin mo ako')) {
       Future.microtask(() {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => LessonThreeGameTwo(user: user)),
+          MaterialPageRoute(builder: (_) => LessonOneDayOneActOne(user: user)),
+        );
+      });
+
+      return const SizedBox.shrink();
+    }
+
+    /// 3. KONSEPTO
+    if (title.contains('Konsepto')) {
+      Future.microtask(() {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => LessonOneDayOneActThree(user: user),
+          ),
         );
       });
 
@@ -35,13 +45,13 @@ class Day4Popup extends StatelessWidget {
     }
 
     /// 4. TAMA O MALI
-    if (title.contains('Pagsusulit')) {
+    if (title.contains('Tama o Mali')) {
       return _TamaOMaliPopup(user: user);
     }
 
     /// 5. TAKDANG ARALIN
     if (title.contains('Takdang Aralin')) {
-      return _TakdangAralinPopup(user: user);
+      return const _TakdangAralinPopup();
     }
 
     return const SizedBox();
@@ -82,7 +92,7 @@ class _LearningObjectivesPopup extends StatelessWidget {
 
           /// BACKGROUND IMAGE
           image: const DecorationImage(
-            image: AssetImage('assets/lesson-one-day4-act1.png'),
+            image: AssetImage('assets/lesson-two-day1-act1t.png'),
             fit: BoxFit.fill,
           ),
         ),
@@ -135,7 +145,6 @@ class _LearningObjectivesPopup extends StatelessWidget {
 
 class _GawainPopup extends StatelessWidget {
   final UserModel user;
-
   const _GawainPopup({required this.user});
 
   double clampDouble(double value, double min, double max) {
@@ -165,7 +174,7 @@ class _GawainPopup extends StatelessWidget {
           /// BACKGROUND IMAGE
           image: const DecorationImage(
             image: AssetImage('assets/lesson3-day2.png'),
-            fit: BoxFit.fill,
+            fit: BoxFit.cover,
           ),
         ),
 
@@ -253,9 +262,7 @@ class _GawainPopup extends StatelessWidget {
 /// 3. KONSEPTO
 /// =========================================================
 class _KonseptoPopup extends StatelessWidget {
-  final UserModel user;
-
-  const _KonseptoPopup({required this.user});
+  const _KonseptoPopup();
 
   @override
   Widget build(BuildContext context) {
@@ -302,7 +309,7 @@ class _TamaOMaliPopup extends StatelessWidget {
 
           /// IMAGE FILLS ENTIRE POPUP
           image: const DecorationImage(
-            image: AssetImage('assets/lesson-three-day1-act4.png'),
+            image: AssetImage('assets/lesson-one-day1-act4.png'),
             fit: BoxFit.fill,
           ),
         ),
@@ -344,10 +351,11 @@ class _TamaOMaliPopup extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => LessonThreeActFour(user: user),
+                      builder: (context) => LessonOneActFour(user: user),
                     ),
                   );
                 },
+
                 child: Container(
                   width: 55,
                   height: 55,
@@ -379,9 +387,7 @@ class _TamaOMaliPopup extends StatelessWidget {
 /// =========================================================
 
 class _TakdangAralinPopup extends StatelessWidget {
-  final UserModel user;
-
-  const _TakdangAralinPopup({required this.user});
+  const _TakdangAralinPopup();
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
@@ -409,8 +415,8 @@ class _TakdangAralinPopup extends StatelessWidget {
 
           /// BACKGROUND IMAGE
           image: const DecorationImage(
-            image: AssetImage('assets/lesson-three-act5.png'),
-            fit: BoxFit.cover,
+            image: AssetImage('assets/lesson-one-day1-act5.png'),
+            fit: BoxFit.fill,
           ),
         ),
 
