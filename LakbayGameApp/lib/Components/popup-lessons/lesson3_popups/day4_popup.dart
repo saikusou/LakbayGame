@@ -4,7 +4,7 @@ import 'package:lakbay_game/Views/game/lesson-three/day-one/act4.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-three/act2.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-three/act3.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-three/act4.dart';
-import 'package:lakbay_game/Views/game/lesson-three/day-two/act1.dart';
+import 'package:lakbay_game/Views/game/lesson-three/day-four/act3.dart';
 import 'package:lakbay_game/models/user_model.dart';
 
 class Day4Popup extends StatelessWidget {
@@ -26,7 +26,7 @@ class Day4Popup extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => LessonThreeDayOneActTwo(user: user),
+            builder: (_) => LessonThreeDayFourActTwo(user: user),
           ),
         );
       });
@@ -54,7 +54,7 @@ class Day4Popup extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => LessonThreeDayOneActFour(user: user),
+            builder: (_) => LessonThreeDayFourActThree(user: user),
           ),
         );
       });
@@ -104,7 +104,7 @@ class _LearningObjectivesPopup extends StatelessWidget {
 
           /// BACKGROUND IMAGE
           image: const DecorationImage(
-            image: AssetImage('assets/lesson-three-day3-act1.png'),
+            image: AssetImage('assets/lesson-three-day4-act1.png'),
             fit: BoxFit.cover,
           ),
         ),

@@ -26,8 +26,8 @@ class _LessonThreeDayFourActTwoState extends State<LessonThreeDayFourActTwo> {
     [
       'Pamayanang malapit sa ilog o dagat.',
       'Ang mga tao ay nagtatanim at nangangaso.',
-      'May mga bangka at mangingisda, Nasa Kabundukan o looban.',
-      'Nakikipagkalakalan gamit ang mga producto, tulad ng bigas at Kayo.',
+      'May mga bangka at mangingisda, nasa kabundukan o looban.',
+      'Nakikipagkalakalan gamit ang mga produkto, tulad ng bigas at kahoy.',
       'Nakikipagkalakalan gamit ang mga produkto, tulad ng isda at iba pang yamang-dagat.',
     ],
   ];
@@ -49,10 +49,6 @@ class _LessonThreeDayFourActTwoState extends State<LessonThreeDayFourActTwo> {
     );
   }
 
-  double clampDouble(double value, double min, double max) {
-    return value.clamp(min, max).toDouble();
-  }
-
   @override
   void dispose() {
     for (final page in answers) {
@@ -63,18 +59,25 @@ class _LessonThreeDayFourActTwoState extends State<LessonThreeDayFourActTwo> {
     super.dispose();
   }
 
-  Widget answerBox(int index) {
-    return Container(
-      width: 85,
-      height: 38,
-      margin: const EdgeInsets.only(left: 8),
+  double clampDouble(double value, double min, double max) {
+    return value.clamp(min, max).toDouble();
+  }
+
+  Widget answerBox({
+    required int index,
+    required double width,
+    required double height,
+    required double fontSize,
+  }) {
+    return SizedBox(
+      width: width,
+      height: height,
       child: TextField(
         controller: answers[currentPage][index],
         textAlign: TextAlign.center,
         textCapitalization: TextCapitalization.characters,
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
         decoration: InputDecoration(
-          hintText: '',
           filled: true,
           fillColor: Colors.white,
           contentPadding: EdgeInsets.zero,
@@ -95,9 +98,15 @@ class _LessonThreeDayFourActTwoState extends State<LessonThreeDayFourActTwo> {
     );
   }
 
-  Widget questionItem(int index, double fontSize) {
+  Widget questionItem({
+    required int index,
+    required double fontSize,
+    required double answerWidth,
+    required double answerHeight,
+    required double answerFontSize,
+  }) {
     return Padding(
-      padding: EdgeInsets.only(bottom: clampDouble(fontSize * 1.2, 18, 28)),
+      padding: EdgeInsets.only(bottom: clampDouble(fontSize * 1.25, 14, 24)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -105,18 +114,27 @@ class _LessonThreeDayFourActTwoState extends State<LessonThreeDayFourActTwo> {
             '${index + 1}.',
             style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 6),
+
           Expanded(
             child: Text(
               questions[currentPage][index],
               style: TextStyle(
                 fontSize: fontSize,
                 fontWeight: FontWeight.w600,
-                height: 1.35,
+                height: 1.25,
               ),
             ),
           ),
-          answerBox(index),
+
+          SizedBox(width: clampDouble(answerWidth * 0.08, 5, 10)),
+
+          answerBox(
+            index: index,
+            width: answerWidth,
+            height: answerHeight,
+            fontSize: answerFontSize,
+          ),
         ],
       ),
     );
@@ -126,31 +144,27 @@ class _LessonThreeDayFourActTwoState extends State<LessonThreeDayFourActTwo> {
     required IconData icon,
     required VoidCallback onTap,
     required Color color,
+    required double buttonSize,
+    required double iconSize,
   }) {
-    final size = MediaQuery.of(context).size;
-
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: clampDouble(size.width * 0.14, 50, 70),
-        height: clampDouble(size.width * 0.14, 50, 70),
+        width: buttonSize,
+        height: buttonSize,
         decoration: BoxDecoration(
           color: color,
           shape: BoxShape.circle,
-          border: Border.all(color: Colors.white, width: 4),
+          border: Border.all(color: Colors.white, width: 3),
           boxShadow: const [
             BoxShadow(
               color: Colors.black26,
-              blurRadius: 8,
+              blurRadius: 7,
               offset: Offset(0, 4),
             ),
           ],
         ),
-        child: Icon(
-          icon,
-          color: Colors.white,
-          size: clampDouble(size.width * 0.08, 28, 40),
-        ),
+        child: Icon(icon, color: Colors.white, size: iconSize),
       ),
     );
   }
@@ -158,13 +172,44 @@ class _LessonThreeDayFourActTwoState extends State<LessonThreeDayFourActTwo> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
 
-    final questionTop = clampDouble(size.height * 0.34, 250, 330);
-    final horizontalPadding = clampDouble(size.width * 0.09, 28, 55);
-    final fontSize = clampDouble(size.width * 0.038, 14, 18);
+    final bool isSmallScreen = size.height < 700;
+    final bool isVerySmallWidth = size.width < 380;
+
+    final double questionTop = clampDouble(
+      size.height * (isSmallScreen ? 0.30 : 0.34),
+      isSmallScreen ? 205 : 245,
+      isSmallScreen ? 255 : 330,
+    );
+
+    final double horizontalPadding = clampDouble(
+      size.width * 0.075,
+      isVerySmallWidth ? 18 : 24,
+      55,
+    );
+
+    final double fontSize = clampDouble(
+      size.width * 0.036,
+      isVerySmallWidth ? 12.5 : 14,
+      18,
+    );
+
+    final double answerWidth = clampDouble(
+      size.width * 0.19,
+      isVerySmallWidth ? 58 : 68,
+      88,
+    );
+
+    final double answerHeight = clampDouble(size.height * 0.048, 32, 40);
+
+    final double answerFontSize = clampDouble(size.width * 0.038, 13, 16);
+
+    final double buttonSize = clampDouble(size.width * 0.13, 45, 64);
+    final double iconSize = clampDouble(size.width * 0.07, 25, 36);
 
     return Scaffold(
-      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           Positioned.fill(
@@ -175,24 +220,34 @@ class _LessonThreeDayFourActTwoState extends State<LessonThreeDayFourActTwo> {
             top: questionTop,
             left: horizontalPadding,
             right: horizontalPadding,
-            bottom: 100,
+            bottom: keyboardHeight > 0
+                ? keyboardHeight + 20
+                : clampDouble(size.height * 0.12, 85, 115),
             child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
               child: Column(
                 children: List.generate(
                   questions[currentPage].length,
-                  (index) => questionItem(index, fontSize),
+                  (index) => questionItem(
+                    index: index,
+                    fontSize: fontSize,
+                    answerWidth: answerWidth,
+                    answerHeight: answerHeight,
+                    answerFontSize: answerFontSize,
+                  ),
                 ),
               ),
             ),
           ),
 
-          /// HOME BUTTON
           Positioned(
-            top: clampDouble(size.height * 0.025, 14, 22),
-            right: clampDouble(size.width * 0.04, 12, 20),
+            top: clampDouble(size.height * 0.025, 14, 24),
+            right: clampDouble(size.width * 0.04, 12, 22),
             child: circleButton(
               icon: Icons.home,
               color: Colors.orange,
+              buttonSize: buttonSize,
+              iconSize: iconSize,
               onTap: () {
                 Navigator.pushReplacement(
                   context,
@@ -204,14 +259,15 @@ class _LessonThreeDayFourActTwoState extends State<LessonThreeDayFourActTwo> {
             ),
           ),
 
-          /// BACK BUTTON
           if (currentPage == 1)
             Positioned(
-              bottom: 25,
-              left: 30,
+              bottom: clampDouble(size.height * 0.035, 18, 30),
+              left: clampDouble(size.width * 0.07, 20, 35),
               child: circleButton(
                 icon: Icons.arrow_back,
                 color: Colors.blue,
+                buttonSize: buttonSize,
+                iconSize: iconSize,
                 onTap: () {
                   setState(() {
                     currentPage = 0;
@@ -220,14 +276,15 @@ class _LessonThreeDayFourActTwoState extends State<LessonThreeDayFourActTwo> {
               ),
             ),
 
-          /// NEXT BUTTON
           if (currentPage == 0)
             Positioned(
-              bottom: 25,
-              right: 30,
+              bottom: clampDouble(size.height * 0.035, 18, 30),
+              right: clampDouble(size.width * 0.07, 20, 35),
               child: circleButton(
                 icon: Icons.arrow_forward,
                 color: Colors.green,
+                buttonSize: buttonSize,
+                iconSize: iconSize,
                 onTap: () {
                   setState(() {
                     currentPage = 1;
