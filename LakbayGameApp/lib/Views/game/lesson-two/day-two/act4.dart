@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lakbay_game/Views/lesson2.dart';
 import 'package:lakbay_game/models/user_model.dart';
 
 class LessonTwoDayTwoActFour extends StatefulWidget {
@@ -12,7 +13,7 @@ class LessonTwoDayTwoActFour extends StatefulWidget {
 
 class _LessonTwoDayTwoActFourState extends State<LessonTwoDayTwoActFour> {
   int currentQuestion = 0;
-  int? selectedAnswer;
+  late List<int?> selectedAnswers;
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
@@ -26,40 +27,64 @@ class _LessonTwoDayTwoActFourState extends State<LessonTwoDayTwoActFour> {
     },
     {
       'question':
-          'Dumating sila sa Pilipinas\nupang palaganapin ang\nKristiyanismo.',
-      'answer': 0,
-    },
-    {
-      'question':
-          'Sinakop nila ang Pilipinas\npagkatapos ng pananakop\nng mga Espanyol.',
+          'Sa panahong ito,\nginamit ang Pilipinas bilang\nimbakan ng kagamitang pandigma.',
       'answer': 1,
     },
     {
       'question':
-          'Sinakop nila ang Pilipinas\nnoong panahon ng\nIkalawang Digmaang Pandaigdig.',
+          'Sa panahong ito naitayo\nang mga base militar\nsa bansang Pilipinas.',
+      'answer': 1,
+    },
+    {
+      'question':
+          'Sa panahong ito\nnaipakilala ang\nKristiyanismo sa Pilipinas.',
+      'answer': 0,
+    },
+    {
+      'question':
+          'Sa panahon na ito ay\nwala na ang mga base military\nsa Pilipinas.',
       'answer': 2,
     },
     {
       'question':
-          'Sinakop nila ang Pilipinas\nnoong panahon ng\nIkalawang Digmaang Pandaigdig.',
+          'Sinakop ang Pilipinas\ndahil sa kanilang alitan\nsa mga Amerikano.',
       'answer': 2,
     },
   ];
 
   final List<Map<String, dynamic>> answers = [
-    {'color': Color.fromARGB(0, 198, 40, 40), 'image': 'assets/flg1.png'},
-    {'color': Color.fromARGB(0, 21, 101, 192), 'image': 'assets/flg2.png'},
-    {'color': Color.fromARGB(0, 46, 125, 50), 'image': 'assets/flg3.png'},
+    {'color': Colors.transparent, 'image': 'assets/flg1.png'},
+    {'color': Colors.transparent, 'image': 'assets/flg2.png'},
+    {'color': Colors.transparent, 'image': 'assets/flg3.png'},
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    selectedAnswers = List.filled(questions.length, null);
+  }
+
   void nextQuestion() {
+    // Prevent moving if no answer selected
+    if (selectedAnswers[currentQuestion] == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Pumili muna ng sagot bago magpatuloy.'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
     if (currentQuestion < questions.length - 1) {
       setState(() {
         currentQuestion++;
-        selectedAnswer = null;
       });
     } else {
-      Navigator.pop(context);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => Lesson2Screen(user: widget.user)),
+      );
     }
   }
 
@@ -67,15 +92,42 @@ class _LessonTwoDayTwoActFourState extends State<LessonTwoDayTwoActFour> {
     if (currentQuestion > 0) {
       setState(() {
         currentQuestion--;
-        selectedAnswer = null;
       });
     }
   }
 
   void selectAnswer(int index) {
     setState(() {
-      selectedAnswer = index;
+      selectedAnswers[currentQuestion] = index;
     });
+  }
+
+  Widget circleButton({
+    required IconData icon,
+    required Color color,
+    required double size,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white, width: 3),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black45,
+              offset: Offset(2, 4),
+              blurRadius: 5,
+            ),
+          ],
+        ),
+        child: Icon(icon, color: Colors.white, size: size * 0.55),
+      ),
+    );
   }
 
   @override
@@ -87,6 +139,9 @@ class _LessonTwoDayTwoActFourState extends State<LessonTwoDayTwoActFour> {
     final double cardHeight = clampDouble(size.height * 0.22, 115, 155);
     final double buttonHeight = clampDouble(size.height * 0.07, 42, 55);
     final double buttonFont = clampDouble(size.width * 0.04, 14, 18);
+    final double iconSize = clampDouble(size.width * 0.12, 42, 58);
+    final double iconTop = clampDouble(size.height * 0.03, 18, 35);
+    final double sidePadding = clampDouble(size.width * 0.04, 14, 25);
 
     return Scaffold(
       body: Container(
@@ -94,7 +149,7 @@ class _LessonTwoDayTwoActFourState extends State<LessonTwoDayTwoActFour> {
         height: double.infinity,
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/spice_background.png'),
+            image: AssetImage('assets/lesson-two-day2-act4-f.png'),
             fit: BoxFit.fill,
           ),
         ),
@@ -106,21 +161,17 @@ class _LessonTwoDayTwoActFourState extends State<LessonTwoDayTwoActFour> {
                 left: size.width * 0.11,
                 right: size.width * 0.11,
                 child: Container(
-                  padding: const EdgeInsets.all(14),
+                  padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: const Color(0xfffff1bd),
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(
-                      color: const Color(0xff8b4b16),
-                      width: 2,
-                    ),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
                     questions[currentQuestion]['question'],
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: questionFont,
-                      height: 1.15,
+                      height: 1.1,
                       fontWeight: FontWeight.w900,
                       color: const Color(0xff092f52),
                     ),
@@ -142,7 +193,7 @@ class _LessonTwoDayTwoActFourState extends State<LessonTwoDayTwoActFour> {
                         height: cardHeight,
                         color: answers[index]['color'],
                         image: answers[index]['image'],
-                        isSelected: selectedAnswer == index,
+                        isSelected: selectedAnswers[currentQuestion] == index,
                         onTap: () => selectAnswer(index),
                       ),
                     );
@@ -182,24 +233,18 @@ class _LessonTwoDayTwoActFourState extends State<LessonTwoDayTwoActFour> {
                                 fontSize: buttonFont,
                                 fontWeight: FontWeight.w900,
                                 color: Colors.white,
-                                shadows: const [
-                                  Shadow(
-                                    offset: Offset(1.5, 1.5),
-                                    color: Colors.black,
-                                  ),
-                                ],
                               ),
                             ),
                           ),
                         ),
                       ),
                     ),
-
                     const SizedBox(width: 12),
-
                     Expanded(
                       child: GestureDetector(
-                        onTap: nextQuestion,
+                        onTap: selectedAnswers[currentQuestion] == null
+                            ? null
+                            : nextQuestion,
                         child: Container(
                           height: buttonHeight,
                           decoration: BoxDecoration(
@@ -223,12 +268,6 @@ class _LessonTwoDayTwoActFourState extends State<LessonTwoDayTwoActFour> {
                                 fontSize: buttonFont,
                                 fontWeight: FontWeight.w900,
                                 color: Colors.white,
-                                shadows: const [
-                                  Shadow(
-                                    offset: Offset(1.5, 1.5),
-                                    color: Colors.black,
-                                  ),
-                                ],
                               ),
                             ),
                           ),
@@ -236,6 +275,24 @@ class _LessonTwoDayTwoActFourState extends State<LessonTwoDayTwoActFour> {
                       ),
                     ),
                   ],
+                ),
+              ),
+
+              Positioned(
+                top: iconTop,
+                right: sidePadding,
+                child: circleButton(
+                  icon: Icons.home,
+                  color: Colors.orange,
+                  size: iconSize,
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => Lesson2Screen(user: widget.user),
+                      ),
+                    );
+                  },
                 ),
               ),
             ],
@@ -262,14 +319,18 @@ class _LessonTwoDayTwoActFourState extends State<LessonTwoDayTwoActFour> {
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isSelected ? Colors.yellow : Colors.transparent,
+            width: isSelected ? 4 : 0,
+          ),
           boxShadow: [
             BoxShadow(
               color: isSelected
-                  ? Colors.yellow.withOpacity(0.8)
+                  ? Colors.yellow.withOpacity(0.9)
                   : Colors.black45,
               offset: const Offset(2, 4),
-              blurRadius: isSelected ? 10 : 4,
-              spreadRadius: isSelected ? 2 : 0,
+              blurRadius: isSelected ? 14 : 4,
+              spreadRadius: isSelected ? 3 : 0,
             ),
           ],
         ),

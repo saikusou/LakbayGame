@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-one/act4.dart';
 import 'package:lakbay_game/Views/game/lesson-two/day-one/act2.dart';
-import 'package:lakbay_game/Views/game/lesson-two/day-one/act3.dart';
-import 'package:lakbay_game/Views/game/lesson-two/day-one/act4.dart';
+
 import 'package:lakbay_game/Views/game/lesson-two/day-one/act5.dart';
 import 'package:lakbay_game/Views/game/lesson-two/day-two/act2.dart';
 import 'package:lakbay_game/Views/game/lesson-two/day-two/act3.dart';
 import 'package:lakbay_game/Views/game/lesson-two/day-two/act4.dart';
+import 'package:lakbay_game/Views/game/lesson-two/day-two/act5.dart';
 import 'package:lakbay_game/models/user_model.dart';
 
 class Day2Popup extends StatelessWidget {
@@ -46,7 +46,14 @@ class Day2Popup extends StatelessWidget {
 
     /// 5. TAKDANG ARALIN
     if (title.contains('Takdang Aralin')) {
-      return _TakdangAralinPopup(user: user);
+      Future.microtask(() {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => LessonTwoDayTwoActFive(user: user)),
+        );
+      });
+
+      return const SizedBox.shrink();
     }
 
     return const SizedBox();
