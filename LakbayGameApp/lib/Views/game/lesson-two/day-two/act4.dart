@@ -64,8 +64,19 @@ class _LessonTwoDayTwoActFourState extends State<LessonTwoDayTwoActFour> {
     selectedAnswers = List.filled(questions.length, null);
   }
 
+  int getScore() {
+    int score = 0;
+
+    for (int i = 0; i < questions.length; i++) {
+      if (selectedAnswers[i] == questions[i]['answer']) {
+        score++;
+      }
+    }
+
+    return score;
+  }
+
   void nextQuestion() {
-    // Prevent moving if no answer selected
     if (selectedAnswers[currentQuestion] == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -81,10 +92,7 @@ class _LessonTwoDayTwoActFourState extends State<LessonTwoDayTwoActFour> {
         currentQuestion++;
       });
     } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => Lesson2Screen(user: widget.user)),
-      );
+      showScoreModal();
     }
   }
 
@@ -100,6 +108,98 @@ class _LessonTwoDayTwoActFourState extends State<LessonTwoDayTwoActFour> {
     setState(() {
       selectedAnswers[currentQuestion] = index;
     });
+  }
+
+  void showScoreModal() {
+    final int score = getScore();
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          backgroundColor: const Color(0xfffff1bd),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(22, 26, 22, 22),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'CONGRATULATIONS!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xff092f52),
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Text(
+                  'Your Score',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.grey.shade800,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '$score / ${questions.length}',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 38,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xff188b2c),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => Lesson2Screen(user: widget.user),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    width: 150,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: const Color(0xff188b2c),
+                      borderRadius: BorderRadius.circular(40),
+                      border: Border.all(color: Colors.yellow, width: 3),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black45,
+                          offset: Offset(2, 4),
+                          blurRadius: 5,
+                        ),
+                      ],
+                    ),
+                    child: const Center(
+                      child: Text(
+                        'OK',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Widget circleButton({
@@ -248,7 +348,9 @@ class _LessonTwoDayTwoActFourState extends State<LessonTwoDayTwoActFour> {
                         child: Container(
                           height: buttonHeight,
                           decoration: BoxDecoration(
-                            color: const Color(0xff188b2c),
+                            color: selectedAnswers[currentQuestion] == null
+                                ? Colors.grey
+                                : const Color(0xff188b2c),
                             borderRadius: BorderRadius.circular(40),
                             border: Border.all(color: Colors.yellow, width: 3),
                             boxShadow: const [
