@@ -19,6 +19,15 @@ class _LessonOneDayThreeActTwoState extends State<LessonOneDayThreeActTwo> {
   String? answer1;
   String? answer2;
 
+  final List<String> correctAnswers = ['B', 'D'];
+
+  int getScore() {
+    int score = 0;
+    if (answer1 == correctAnswers[0]) score += 5;
+    if (answer2 == correctAnswers[1]) score += 5;
+    return score;
+  }
+
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
   }
@@ -69,10 +78,6 @@ class _LessonOneDayThreeActTwoState extends State<LessonOneDayThreeActTwo> {
 
   void submitAnswers() {
     if (answer2 == null) return;
-
-    debugPrint('Picture 1 Answer: $answer1');
-    debugPrint('Picture 2 Answer: $answer2');
-
     showCompletionPopup();
   }
 
@@ -102,6 +107,29 @@ class _LessonOneDayThreeActTwoState extends State<LessonOneDayThreeActTwo> {
               ),
 
               Positioned(
+                top: shortScreen ? 85 : 120,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.orange, width: 3),
+                  ),
+                  child: Text(
+                    'SCORE: ${getScore()} / 10',
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+              ),
+
+              Positioned(
                 right: 10,
                 top: 10,
                 child: GestureDetector(
@@ -127,9 +155,8 @@ class _LessonOneDayThreeActTwoState extends State<LessonOneDayThreeActTwo> {
                 child: SizedBox(
                   width: clampDouble(size.width * 0.34, 120, 170),
                   height: shortScreen ? 38 : 45,
-                  child: Button(
-                    label: 'OK',
-                    press: () {
+                  child: ElevatedButton(
+                    onPressed: () {
                       Navigator.pop(context);
                       Navigator.pushReplacement(
                         context,
@@ -138,6 +165,20 @@ class _LessonOneDayThreeActTwoState extends State<LessonOneDayThreeActTwo> {
                         ),
                       );
                     },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFFB300),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'OK',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -145,6 +186,33 @@ class _LessonOneDayThreeActTwoState extends State<LessonOneDayThreeActTwo> {
           ),
         );
       },
+    );
+  }
+
+  Widget plainButton({
+    required String label,
+    required VoidCallback press,
+    required double width,
+    required double height,
+  }) {
+    return SizedBox(
+      width: width,
+      height: height,
+      child: ElevatedButton(
+        onPressed: press,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFFFFB300),
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          elevation: 5,
+        ),
+        child: Text(
+          label,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+      ),
     );
   }
 
@@ -191,7 +259,6 @@ class _LessonOneDayThreeActTwoState extends State<LessonOneDayThreeActTwo> {
     final bool selected = currentAnswer == letter;
 
     final double choiceWidth = clampDouble(size.width * 0.88, 275, 420);
-
     final double choiceHeight = shortScreen
         ? clampDouble(size.height * 0.052, 38, 44)
         : clampDouble(size.height * 0.06, 45, 58);
@@ -273,7 +340,7 @@ class _LessonOneDayThreeActTwoState extends State<LessonOneDayThreeActTwo> {
         : clampDouble(size.width * 0.038, 12, 16);
 
     final double buttonWidth = clampDouble(size.width * 0.44, 135, 180);
-    final double buttonGap = shortScreen ? 4 : 10;
+    final double buttonHeight = shortScreen ? 38 : 45;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -301,13 +368,12 @@ class _LessonOneDayThreeActTwoState extends State<LessonOneDayThreeActTwo> {
             );
           }).toList(),
         ),
-        SizedBox(height: buttonGap),
-        SizedBox(
+        SizedBox(height: shortScreen ? 4 : 10),
+        plainButton(
+          label: currentScenario == 1 ? 'NEXT' : 'ISUMITE',
+          press: currentScenario == 1 ? nextScenario : submitAnswers,
           width: buttonWidth,
-          height: shortScreen ? 38 : 45,
-          child: currentScenario == 1
-              ? Button(label: 'NEXT', press: nextScenario)
-              : Button(label: 'ISUMITE', press: submitAnswers),
+          height: buttonHeight,
         ),
       ],
     );
@@ -319,7 +385,6 @@ class _LessonOneDayThreeActTwoState extends State<LessonOneDayThreeActTwo> {
       body: LayoutBuilder(
         builder: (context, constraints) {
           final Size size = Size(constraints.maxWidth, constraints.maxHeight);
-
           final bool shortScreen = size.height < 700;
 
           final String backgroundImage = currentScenario == 1
@@ -327,7 +392,6 @@ class _LessonOneDayThreeActTwoState extends State<LessonOneDayThreeActTwo> {
               : 'assets/lesson-two-day3-act2b.png';
 
           final double topPadding = MediaQuery.of(context).padding.top;
-
           final double iconTop =
               topPadding + clampDouble(size.height * 0.012, 6, 14);
 

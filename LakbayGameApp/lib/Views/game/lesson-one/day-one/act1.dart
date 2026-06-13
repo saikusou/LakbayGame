@@ -19,8 +19,16 @@ class _LessonOneDayOneActOneState extends State<LessonOneDayOneActOne> {
   String? answer2;
   String? answer3;
 
+  final List<String> correctAnswers = ['C', 'B', 'C'];
+
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
+  }
+
+  String? get currentAnswer {
+    if (currentScenario == 1) return answer1;
+    if (currentScenario == 2) return answer2;
+    return answer3;
   }
 
   void selectAnswer(String answer) {
@@ -35,13 +43,58 @@ class _LessonOneDayOneActOneState extends State<LessonOneDayOneActOne> {
     });
   }
 
+  int getScore() {
+    int score = 0;
+
+    if (answer1 == correctAnswers[0]) score++;
+    if (answer2 == correctAnswers[1]) score++;
+    if (answer3 == correctAnswers[2]) score++;
+
+    return score;
+  }
+
+  void showScoreDialog() {
+    final int score = getScore();
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(22),
+          ),
+          title: const Text(
+            'Resulta',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: Text(
+            'Nakakuha ka ng $score sa 3 tamang sagot!',
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          actionsAlignment: MainAxisAlignment.center,
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   String get backgroundImage {
     if (currentScenario == 1) {
       return 'assets/lesson-one-day1-act2a.png';
     } else if (currentScenario == 2) {
       return 'assets/lesson-one-day1-act2b.png';
     } else {
-      return 'assets/lesson-one-day1-act2c.png'; // third image
+      return 'assets/lesson-one-day1-act2c.png';
     }
   }
 
@@ -147,19 +200,42 @@ class _LessonOneDayOneActOneState extends State<LessonOneDayOneActOne> {
                         child: SizedBox(
                           width: nextButtonWidth,
                           height: nextButtonHeight,
-                          child: Button(
-                            label: currentScenario < 3 ? 'NEXT' : 'SUBMIT',
-                            press: () {
+                          child: ElevatedButton(
+                            onPressed: () {
+                              if (currentAnswer == null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Pumili muna ng sagot bago magpatuloy.',
+                                    ),
+                                  ),
+                                );
+                                return;
+                              }
+
                               if (currentScenario < 3) {
                                 setState(() {
                                   currentScenario++;
                                 });
                               } else {
-                                debugPrint('Picture 1 Answer: $answer1');
-                                debugPrint('Picture 2 Answer: $answer2');
-                                debugPrint('Picture 3 Answer: $answer3');
+                                showScoreDialog();
                               }
                             },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFF9A825),
+                              foregroundColor: Colors.white,
+                              elevation: 6,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                            ),
+                            child: Text(
+                              currentScenario < 3 ? 'NEXT' : 'SUBMIT',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ),
                       ),

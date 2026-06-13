@@ -3,9 +3,7 @@ import 'package:lakbay_game/Views/game/lesson-one/day-three/act2.dart';
 import 'package:lakbay_game/Views/game/lesson-one/day-three/act3.dart';
 import 'package:lakbay_game/Views/game/lesson-one/day-three/act4.dart';
 import 'package:lakbay_game/Views/game/lesson-one/day-three/act5.dart';
-import 'package:lakbay_game/Views/game/lesson-three/day-one/act4.dart';
-import 'package:lakbay_game/Views/game/lesson-three/game_one.dart';
-import 'package:lakbay_game/Views/game/lesson-three/game_two.dart';
+
 import 'package:lakbay_game/models/user_model.dart';
 
 class Day3Popup extends StatelessWidget {
@@ -347,7 +345,8 @@ class _TamaOMaliPopup extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => LessonThreeActFour(user: user),
+                      builder: (context) =>
+                          LessonOneDayThreeActFour(user: user),
                     ),
                   );
                 },

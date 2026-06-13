@@ -19,14 +19,24 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
   int? answer2;
   int? answer3;
 
+  final List<String> images = [
+    'assets/lesson-one-day3-act3a.png',
+    'assets/lesson-one-day3-act3b.png',
+    'assets/lesson-one-day3-act3c.png',
+  ];
+
   double clampDouble(double value, double min, double max) {
-    return value.clamp(min, max).toDouble();
+    final double low = min < max ? min : max;
+    final double high = min < max ? max : min;
+    return value.clamp(low, high).toDouble();
   }
 
-  String get currentImage {
-    if (currentRound == 1) return 'assets/lesson-one-day3-act3a.png';
-    if (currentRound == 2) return 'assets/lesson-one-day3-act3b.png';
-    return 'assets/lesson-one-day3-act3c.png';
+  String get currentImage => images[currentRound - 1];
+
+  int? get currentAnswer {
+    if (currentRound == 1) return answer1;
+    if (currentRound == 2) return answer2;
+    return answer3;
   }
 
   void setCurrentAnswer(int value) {
@@ -45,7 +55,7 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
     if (currentRound < 3) {
       setState(() => currentRound++);
     } else {
-      Navigator.pop(context);
+      showResultPopup();
     }
   }
 
@@ -57,7 +67,79 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
     }
   }
 
-  Widget topButton({
+  void goHome() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => Lesson1Screen(user: widget.user)),
+    );
+  }
+
+  int getScore() {
+    int score = 0;
+    if (answer1 == 1) score++;
+    if (answer2 == 0) score++;
+    if (answer3 == 0) score++;
+    return score;
+  }
+
+  void showResultPopup() {
+    final int score = getScore();
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) {
+        final size = MediaQuery.of(context).size;
+        final popupWidth = clampDouble(size.width * 0.82, 260, 360);
+
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.all(18),
+          child: Container(
+            width: popupWidth,
+            padding: EdgeInsets.all(clampDouble(size.width * 0.045, 14, 20)),
+            decoration: BoxDecoration(
+              color: const Color(0xfffff1b8),
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: const Color(0xff8b4b12), width: 3),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Tapos Na!',
+                  style: TextStyle(
+                    fontSize: clampDouble(size.width * 0.065, 22, 28),
+                    fontWeight: FontWeight.w900,
+                    color: const Color(0xff5a310b),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Tamang Sagot: $score / 3',
+                  style: TextStyle(
+                    fontSize: clampDouble(size.width * 0.048, 17, 22),
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xff5a310b),
+                  ),
+                ),
+                const SizedBox(height: 18),
+                SizedBox(
+                  width: 130,
+                  child: bottomButton('OK', 14, () {
+                    Navigator.pop(context);
+                    goHome();
+                  }),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget circleButton({
     required IconData icon,
     required double size,
     required VoidCallback onTap,
@@ -84,47 +166,49 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
     required int? groupValue,
     required Function(int) onChanged,
     required double fontSize,
+    required bool compact,
   }) {
     final bool selected = groupValue == index;
 
-    return Expanded(
-      child: InkWell(
-        onTap: () => onChanged(index),
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 3),
-          padding: EdgeInsets.symmetric(
-            vertical: clampDouble(fontSize * 0.7, 5, 8),
-            horizontal: 4,
-          ),
-          decoration: BoxDecoration(
-            color: selected ? const Color(0xffffdf7e) : const Color(0xfffff6cf),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: const Color(0xffc28a2c), width: 1.4),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                selected ? Icons.radio_button_checked : Icons.radio_button_off,
-                size: fontSize + 4,
-                color: const Color(0xff7a4b10),
-              ),
-              const SizedBox(width: 3),
-              Expanded(
-                child: Text(
-                  text,
-                  textAlign: TextAlign.center,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: fontSize,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xff4b2a08),
-                  ),
+    return InkWell(
+      onTap: () => onChanged(index),
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        width: compact ? double.infinity : null,
+        margin: EdgeInsets.symmetric(
+          horizontal: compact ? 0 : 4,
+          vertical: compact ? 3 : 0,
+        ),
+        padding: EdgeInsets.symmetric(
+          vertical: clampDouble(fontSize * 0.75, 7, 11),
+          horizontal: 6,
+        ),
+        decoration: BoxDecoration(
+          color: selected ? const Color(0xffffdf7e) : const Color(0xfffff6cf),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: const Color(0xffc28a2c), width: 1.5),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              selected ? Icons.radio_button_checked : Icons.radio_button_off,
+              size: fontSize + 5,
+              color: const Color(0xff7a4b10),
+            ),
+            const SizedBox(width: 5),
+            Expanded(
+              child: Text(
+                text.replaceAll('\n', ' '),
+                textAlign: TextAlign.center,
+                softWrap: true,
+                style: TextStyle(
+                  fontSize: fontSize,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xff4b2a08),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -132,66 +216,57 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
 
   Widget questionCard({
     required int number,
-    required IconData icon,
     required String question,
     required List<String> choices,
     required int? groupValue,
     required Function(int) onChanged,
     required double width,
   }) {
-    final double choiceFont = clampDouble(width * 0.026, 8, 12);
-    final double questionFont = clampDouble(width * 0.034, 12, 16);
+    final bool compact = width < 390;
+    final double questionFont = clampDouble(width * 0.042, 14, 20);
+    final double choiceFont = clampDouble(width * 0.032, 11, 15);
 
     return Container(
-      padding: EdgeInsets.all(clampDouble(width * 0.018, 7, 12)),
+      width: double.infinity,
+      padding: EdgeInsets.all(clampDouble(width * 0.03, 10, 18)),
       decoration: BoxDecoration(
         color: const Color(0xffffeaa5),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xffa96c19), width: 2),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xffa96c19), width: 2.5),
         boxShadow: const [
-          BoxShadow(color: Colors.black26, blurRadius: 2, offset: Offset(1, 2)),
+          BoxShadow(color: Colors.black26, blurRadius: 3, offset: Offset(1, 3)),
         ],
       ),
-      child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(
-            width: clampDouble(width * 0.13, 45, 70),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircleAvatar(
-                  radius: clampDouble(width * 0.032, 11, 16),
-                  backgroundColor: const Color(0xff8b4b12),
-                  child: Text(
-                    '$number',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '$number. ',
+                style: TextStyle(
+                  fontSize: questionFont,
+                  fontWeight: FontWeight.w900,
+                  color: const Color(0xff3d2408),
                 ),
-                SizedBox(height: clampDouble(width * 0.01, 3, 6)),
-                Icon(icon, size: clampDouble(width * 0.08, 28, 44)),
-              ],
-            ),
-          ),
-          SizedBox(width: clampDouble(width * 0.015, 5, 10)),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
+              ),
+              Expanded(
+                child: Text(
                   question,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                  softWrap: true,
                   style: TextStyle(
                     fontSize: questionFont,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w900,
                     color: const Color(0xff3d2408),
                   ),
                 ),
-                SizedBox(height: clampDouble(width * 0.015, 5, 9)),
-                Row(
+              ),
+            ],
+          ),
+          SizedBox(height: clampDouble(width * 0.022, 8, 13)),
+          compact
+              ? Column(
                   children: List.generate(
                     choices.length,
                     (index) => choiceButton(
@@ -200,12 +275,25 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
                       groupValue: groupValue,
                       onChanged: onChanged,
                       fontSize: choiceFont,
+                      compact: true,
+                    ),
+                  ),
+                )
+              : Row(
+                  children: List.generate(
+                    choices.length,
+                    (index) => Expanded(
+                      child: choiceButton(
+                        text: choices[index],
+                        index: index,
+                        groupValue: groupValue,
+                        onChanged: onChanged,
+                        fontSize: choiceFont,
+                        compact: false,
+                      ),
                     ),
                   ),
                 ),
-              ],
-            ),
-          ),
         ],
       ),
     );
@@ -215,13 +303,12 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
     if (currentRound == 1) {
       return questionCard(
         number: 1,
-        icon: Icons.landscape,
         question: 'Ano ang ipinapakita ng mapa?',
         choices: const [
-          'Mga hayop\nsa Pilipinas',
-          'Ruta ng\npaglalakbay',
-          'Mga ninuno\nng Pilipino',
-          'Uri ng\npagkain noon',
+          'Mga hayop sa Pilipinas',
+          'Ruta ng paglalakbay',
+          'Mga ninuno ng Pilipino',
+          'Uri ng pagkain noon',
         ],
         groupValue: answer1,
         onChanged: setCurrentAnswer,
@@ -232,7 +319,6 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
     if (currentRound == 2) {
       return questionCard(
         number: 2,
-        icon: Icons.directions_boat,
         question: 'Ano ang ginamit sa paglalakbay?',
         choices: const ['Bangka', 'Kotse', 'Tren', 'Bisikleta'],
         groupValue: answer2,
@@ -243,7 +329,6 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
 
     return questionCard(
       number: 3,
-      icon: Icons.groups,
       question: 'Sino ang tinutukoy sa aralin?',
       choices: const [
         'Mga ninuno',
@@ -260,32 +345,28 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
   Widget bottomButton(String text, double fontSize, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(12),
       child: Container(
-        height: clampDouble(fontSize * 3.3, 34, 42),
+        height: clampDouble(fontSize * 3.6, 40, 50),
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: const Color(0xff8b4b12),
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(color: const Color(0xffffb33b), width: 2),
         ),
-        child: Text(
-          text,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w900,
-            fontSize: fontSize,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            text,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w900,
+              fontSize: fontSize,
+            ),
           ),
         ),
       ),
-    );
-  }
-
-  void goHome() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => Lesson1Screen(user: widget.user)),
     );
   }
 
@@ -297,13 +378,14 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
           final double screenW = constraints.maxWidth;
           final double screenH = constraints.maxHeight;
 
-          const double designW = 430;
-          final double scale = (screenW / designW).clamp(0.75, 1.25);
+          final bool smallHeight = screenH < 700;
 
-          final double horizontalPadding = clampDouble(screenW * 0.025, 8, 14);
-          final double topButtonSize = clampDouble(screenW * 0.09, 34, 45);
-          final double cardTop = screenH * 0.69;
-          final double bottomFont = clampDouble(screenW * 0.03, 10, 12);
+          final double horizontalPadding = clampDouble(screenW * 0.035, 10, 18);
+          final double topButtonSize = clampDouble(screenW * 0.095, 34, 46);
+          final double bottomFont = clampDouble(screenW * 0.033, 11, 15);
+
+          final double bottomCardPadding = smallHeight ? 10 : 20;
+          final double maxCardHeight = screenH * (smallHeight ? 0.40 : 0.36);
 
           return Stack(
             children: [
@@ -317,7 +399,7 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
                     Positioned(
                       top: clampDouble(screenH * 0.015, 8, 16),
                       left: horizontalPadding,
-                      child: topButton(
+                      child: circleButton(
                         icon: Icons.arrow_back,
                         size: topButtonSize,
                         onTap: backRound,
@@ -327,7 +409,7 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
                     Positioned(
                       top: clampDouble(screenH * 0.015, 8, 16),
                       right: horizontalPadding,
-                      child: topButton(
+                      child: circleButton(
                         icon: Icons.home,
                         size: topButtonSize,
                         onTap: goHome,
@@ -337,46 +419,50 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
                     Positioned(
                       left: horizontalPadding,
                       right: horizontalPadding,
-                      top: cardTop,
-                      child: Transform.scale(
-                        scale: scale,
-                        alignment: Alignment.topCenter,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            currentQuestionCard(screenW),
-                            SizedBox(
-                              height: clampDouble(screenH * 0.012, 7, 12),
-                            ),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: bottomButton(
-                                    'BABALIK',
-                                    bottomFont,
-                                    backRound,
+                      bottom: bottomCardPadding,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(maxHeight: maxCardHeight),
+                        child: SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              currentQuestionCard(screenW),
+
+                              SizedBox(
+                                height: clampDouble(screenH * 0.014, 7, 14),
+                              ),
+
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: bottomButton(
+                                      'BABALIK',
+                                      bottomFont,
+                                      backRound,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  flex: 2,
-                                  child: bottomButton(
-                                    'Round $currentRound / 3',
-                                    bottomFont,
-                                    () {},
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    flex: 2,
+                                    child: bottomButton(
+                                      'Round $currentRound / 3',
+                                      bottomFont,
+                                      () {},
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: bottomButton(
-                                    currentRound == 3 ? 'SUBMIT' : 'SUSUNOD',
-                                    bottomFont,
-                                    nextRound,
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: bottomButton(
+                                      currentRound == 3 ? 'SUBMIT' : 'SUSUNOD',
+                                      bottomFont,
+                                      nextRound,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lakbay_game/Components/button.dart';
 import 'package:lakbay_game/Views/lesson1.dart';
 import 'package:lakbay_game/models/user_model.dart';
 
@@ -18,6 +17,8 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
   String? answer1;
   String? answer2;
 
+  final List<String> correctAnswers = ['FACT', 'KUWENTO'];
+
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
   }
@@ -34,6 +35,122 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
         answer2 = answer;
       }
     });
+  }
+
+  int getScore() {
+    int score = 0;
+
+    if (answer1 == correctAnswers[0]) score += 5;
+    if (answer2 == correctAnswers[1]) score += 5;
+
+    return score;
+  }
+
+  void showScorePopup() {
+    final int score = getScore();
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFFCF4),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: Colors.orange, width: 4),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'ISKOR MO',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orange,
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                Text(
+                  '$score / 10',
+                  style: const TextStyle(
+                    fontSize: 46,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                Text(
+                  score == 10
+                      ? 'Perfect! Magaling!'
+                      : 'Good job! Subukan ulit para mas mataas ang score.',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                plainButton(
+                  label: 'OK',
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => Lesson1Screen(user: widget.user),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget plainButton({required String label, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 180,
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          color: Colors.orange,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: Colors.white, width: 3),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 6,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Text(
+          label,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
   }
 
   Widget choiceButton({
@@ -86,7 +203,9 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
                 ),
               ),
             ),
+
             const SizedBox(height: 4),
+
             Text(
               subLabel,
               textAlign: TextAlign.center,
@@ -130,6 +249,23 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
         child: Icon(icon, color: Colors.white, size: buttonSize * 0.55),
       ),
     );
+  }
+
+  void handleNextOrSubmit() {
+    if (currentAnswer == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Pumili muna ng sagot.')));
+      return;
+    }
+
+    if (currentScenario == 1) {
+      setState(() {
+        currentScenario = 2;
+      });
+    } else {
+      showScorePopup();
+    }
   }
 
   @override
@@ -208,7 +344,7 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
                         runSpacing: 12,
                         children: [
                           choiceButton(
-                            label: '🔍 FACT',
+                            label: 'FACT',
                             subLabel: 'Siyentipikong\nPag-aaral',
                             color: const Color(0xFF007ee6),
                             isSelected: currentAnswer == 'FACT',
@@ -218,8 +354,9 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
                             titleSize: titleSize,
                             subtitleSize: subtitleSize,
                           ),
+
                           choiceButton(
-                            label: '📖 KUWENTO',
+                            label: 'KUWENTO',
                             subLabel: 'Alamat o\nKaalamang Bayan',
                             color: const Color(0xFFffb900),
                             isSelected: currentAnswer == 'KUWENTO',
@@ -234,21 +371,9 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
 
                       SizedBox(height: clampDouble(h * 0.025, 12, 22)),
 
-                      SizedBox(
-                        width: clampDouble(w * 0.45, 150, 220),
-                        child: Button(
-                          label: currentScenario == 1 ? 'NEXT' : 'SUBMIT',
-                          press: () {
-                            if (currentScenario == 1) {
-                              setState(() {
-                                currentScenario = 2;
-                              });
-                            } else {
-                              debugPrint('Picture 1 Answer: $answer1');
-                              debugPrint('Picture 2 Answer: $answer2');
-                            }
-                          },
-                        ),
+                      plainButton(
+                        label: currentScenario == 1 ? 'NEXT' : 'SUBMIT',
+                        onTap: handleNextOrSubmit,
                       ),
                     ],
                   ),

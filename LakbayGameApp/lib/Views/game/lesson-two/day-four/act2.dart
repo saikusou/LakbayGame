@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lakbay_game/Views/lesson2.dart';
 import 'package:lakbay_game/models/user_model.dart';
 
 class LessonTwoDayFourActTwo extends StatefulWidget {
@@ -40,20 +41,81 @@ class _LessonTwoDayFourActTwoState extends State<LessonTwoDayFourActTwo> {
     }
   }
 
+  Widget circleButton({
+    required IconData icon,
+    required Color color,
+    required Size size,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: size.width * 0.12,
+        height: size.width * 0.12,
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.25),
+              blurRadius: 6,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Icon(icon, color: Colors.white, size: size.width * 0.065),
+      ),
+    );
+  }
+
+  Widget navButton({required String text, required VoidCallback onPressed}) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.orange,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      child: Text(text, style: const TextStyle(fontWeight: FontWeight.bold)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
+    final double sidePadding = size.width * 0.04;
+    final double iconTop = size.height * 0.05;
+
     return Scaffold(
       body: Stack(
         children: [
-          /// Background Image
           Positioned.fill(
             child: Image.asset(images[currentImage], fit: BoxFit.fill),
           ),
 
-          /// Page Indicator
           Positioned(
-            top: 50,
-            right: 20,
+            top: iconTop,
+            right: sidePadding,
+            child: circleButton(
+              icon: Icons.home,
+              color: Colors.orange,
+              size: size,
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => Lesson2Screen(user: widget.user),
+                  ),
+                );
+              },
+            ),
+          ),
+
+          Positioned(
+            top: iconTop + 55,
+            right: sidePadding,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
@@ -70,58 +132,24 @@ class _LessonTwoDayFourActTwoState extends State<LessonTwoDayFourActTwo> {
             ),
           ),
 
-          /// Floating Bottom Buttons
           Positioned(
             left: 20,
             right: 20,
-            bottom: 10,
+            bottom: 0,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 currentImage > 0
-                    ? ElevatedButton(
-                        onPressed: previousImage,
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 14,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: const Text('Previous'),
-                      )
+                    ? navButton(text: 'Previous', onPressed: previousImage)
                     : const SizedBox(width: 110),
 
                 currentImage < images.length - 1
-                    ? ElevatedButton(
-                        onPressed: nextImage,
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 14,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: const Text('Next'),
-                      )
-                    : ElevatedButton(
+                    ? navButton(text: 'Next', onPressed: nextImage)
+                    : navButton(
+                        text: 'Done',
                         onPressed: () {
                           Navigator.pop(context);
                         },
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 14,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: const Text('Done'),
                       ),
               ],
             ),

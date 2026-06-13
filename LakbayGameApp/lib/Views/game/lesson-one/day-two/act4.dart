@@ -52,25 +52,137 @@ class _LessonOneDayTwoActFourState extends State<LessonOneDayTwoActFour> {
     return choices.firstWhere((choice) => choice['id'] == id)['text']!;
   }
 
-  void checkAnswers() {
+  void placeAnswer(String rowTitle, String choiceId) {
+    setState(() {
+      answers.updateAll((key, value) => value == choiceId ? null : value);
+      answers[rowTitle] = choiceId;
+    });
+  }
+
+  void removeAnswer(String choiceId) {
+    setState(() {
+      answers.updateAll((key, value) => value == choiceId ? null : value);
+    });
+  }
+
+  int getScore() {
     int total = 0;
 
     answers.forEach((key, value) {
       if (value == correctAnswers[key]) total++;
     });
 
+    return total;
+  }
+
+  void checkAnswers() {
+    final total = getScore();
+
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Tapos na!'),
-        content: Text('Score mo: $total / 3'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+      barrierDismissible: false,
+      builder: (_) {
+        final bool perfect = total == 3;
+
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Container(
+            padding: const EdgeInsets.all(22),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFF6D8),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: Colors.brown, width: 3),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.25),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('🎉', style: TextStyle(fontSize: 54)),
+                const SizedBox(height: 8),
+                Text(
+                  perfect ? 'Congratulations!' : 'Magaling!',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.brown,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  perfect
+                      ? 'Nakuha mo lahat ng tamang sagot!'
+                      : 'Natapos mo ang gawain!',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 28,
+                    vertical: 14,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: Colors.orange, width: 2),
+                  ),
+                  child: Text(
+                    'Score: $total / 3',
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.orange,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 22),
+                SizedBox(
+                  width: 150,
+                  height: 45,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => Lesson1Screen(user: widget.user),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.brown,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        side: const BorderSide(color: Colors.white, width: 2),
+                      ),
+                    ),
+                    child: const Text(
+                      'OK',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -185,9 +297,7 @@ class _LessonOneDayTwoActFourState extends State<LessonOneDayTwoActFour> {
             child: DragTarget<String>(
               onWillAcceptWithDetails: (_) => true,
               onAcceptWithDetails: (details) {
-                setState(() {
-                  answers[title] = details.data;
-                });
+                placeAnswer(title, details.data);
               },
               builder: (context, candidateData, rejectedData) {
                 return Container(
@@ -200,21 +310,61 @@ class _LessonOneDayTwoActFourState extends State<LessonOneDayTwoActFour> {
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: dropColor, width: 1.5),
                   ),
-                  child: Text(
-                    current == null
-                        ? 'I-drag ang sagot dito'
-                        : getChoiceText(current),
-                    textAlign: TextAlign.center,
-                    maxLines: 4,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: answerFont,
-                      color: current == null ? Colors.grey[600] : Colors.black,
-                      fontWeight: current == null
-                          ? FontWeight.normal
-                          : FontWeight.bold,
-                    ),
-                  ),
+                  child: current == null
+                      ? Text(
+                          'I-drag ang sagot dito',
+                          textAlign: TextAlign.center,
+                          maxLines: 4,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: answerFont,
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.normal,
+                          ),
+                        )
+                      : Draggable<String>(
+                          data: current,
+                          feedback: Material(
+                            color: Colors.transparent,
+                            child: Container(
+                              width: 230,
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: dropColor, width: 2),
+                              ),
+                              child: Text(
+                                getChoiceText(current),
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: answerFont + 2,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          childWhenDragging: Text(
+                            'I-drag ang sagot dito',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: answerFont,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          child: Text(
+                            getChoiceText(current),
+                            textAlign: TextAlign.center,
+                            maxLines: 4,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: answerFont,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                 );
               },
             ),
@@ -336,49 +486,57 @@ class _LessonOneDayTwoActFourState extends State<LessonOneDayTwoActFour> {
   }
 
   Widget choicesBox(Size size) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: Colors.orange[100]?.withOpacity(0.95),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.brown, width: 2),
-      ),
-      child: Column(
-        children: [
-          const Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              'MGA PAGPIPILIAN',
-              style: TextStyle(
-                color: Colors.brown,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+    return DragTarget<String>(
+      onWillAcceptWithDetails: (_) => true,
+      onAcceptWithDetails: (details) {
+        removeAnswer(details.data);
+      },
+      builder: (context, candidateData, rejectedData) {
+        return Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.orange[100]?.withOpacity(0.95),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: Colors.brown, width: 2),
           ),
-          const SizedBox(height: 8),
-          ...choices.map((choice) {
-            final isUsed = answers.containsValue(choice['id']);
-
-            return Opacity(
-              opacity: isUsed ? 0.35 : 1,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 7),
-                child: Draggable<String>(
-                  data: choice['id'],
-                  maxSimultaneousDrags: isUsed ? 0 : 1,
-                  feedback: Material(
-                    color: Colors.transparent,
-                    child: choiceCard(choice, size.width * 0.70, size),
+          child: Column(
+            children: [
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'MGA PAGPIPILIAN',
+                  style: TextStyle(
+                    color: Colors.brown,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
                   ),
-                  childWhenDragging: const SizedBox(height: 42),
-                  child: choiceCard(choice, double.infinity, size),
                 ),
               ),
-            );
-          }),
-        ],
-      ),
+              const SizedBox(height: 8),
+              ...choices.map((choice) {
+                final isUsed = answers.containsValue(choice['id']);
+
+                return Opacity(
+                  opacity: isUsed ? 0.35 : 1,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 7),
+                    child: Draggable<String>(
+                      data: choice['id'],
+                      maxSimultaneousDrags: isUsed ? 0 : 1,
+                      feedback: Material(
+                        color: Colors.transparent,
+                        child: choiceCard(choice, size.width * 0.70, size),
+                      ),
+                      childWhenDragging: const SizedBox(height: 42),
+                      child: choiceCard(choice, double.infinity, size),
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+        );
+      },
     );
   }
 

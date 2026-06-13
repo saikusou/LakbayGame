@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lakbay_game/Components/popup-lessons/lesson1_popups/day4_popup.dart';
 import 'package:lakbay_game/Components/side_navigation.dart';
 import 'package:lakbay_game/Views/profile.dart';
 
@@ -9,7 +8,8 @@ import 'package:lakbay_game/Components/popup-lessons/lesson2_popups/day1_popup.d
 import 'package:lakbay_game/models/user_model.dart';
 
 import '../Components/popup-lessons/lesson2_popups/day2_popup.dart';
-import '../Components/popup-lessons/lesson3_popups/day3_popup.dart';
+import '../Components/popup-lessons/lesson2_popups/day3_popup.dart';
+import '../Components/popup-lessons/lesson2_popups/day4_popup.dart';
 
 class Lesson2Screen extends StatefulWidget {
   final UserModel user;
