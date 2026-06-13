@@ -4,10 +4,10 @@ import 'package:lakbay_game/Views/profile.dart';
 
 /// POPUPS
 import 'package:lakbay_game/Components/popup-lessons/lesson2_popups/day1_popup.dart';
-import 'package:lakbay_game/Components/popup-lessons/lesson1_popups/day2_popup.dart';
-import 'package:lakbay_game/Components/popup-lessons/lesson1_popups/day3_popup.dart';
-import 'package:lakbay_game/Components/popup-lessons/lesson1_popups/day4_popup.dart';
+
 import 'package:lakbay_game/models/user_model.dart';
+
+import '../Components/popup-lessons/lesson2_popups/day2_popup.dart';
 
 class Lesson2Screen extends StatefulWidget {
   final UserModel user;
@@ -41,9 +41,9 @@ class _Lesson2ScreenState extends State<Lesson2Screen> {
       case 2:
         return Day2Popup(title: title, user: widget.user);
       case 3:
-        return Day3Popup(title: title, user: widget.user);
+        return Day1Popup(title: title, user: widget.user);
       case 4:
-        return Day4Popup(title: title, user: widget.user);
+        return Day1Popup(title: title, user: widget.user);
       default:
         return Day1Popup(title: title, user: widget.user);
     }

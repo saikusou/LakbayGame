@@ -6,11 +6,11 @@ import 'package:lakbay_game/Views/game/lesson-two/act4.dart';
 import 'package:lakbay_game/Views/game/lesson-two/act5.dart';
 import 'package:lakbay_game/models/user_model.dart';
 
-class Day1Popup extends StatelessWidget {
+class Day2Popup extends StatelessWidget {
   final String title;
   final UserModel user;
 
-  const Day1Popup({super.key, required this.title, required this.user});
+  const Day2Popup({super.key, required this.title, required this.user});
 
   @override
   Widget build(BuildContext context) {
