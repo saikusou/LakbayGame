@@ -8,6 +8,7 @@ import 'package:lakbay_game/Components/popup-lessons/lesson2_popups/day1_popup.d
 import 'package:lakbay_game/models/user_model.dart';
 
 import '../Components/popup-lessons/lesson2_popups/day2_popup.dart';
+import '../Components/popup-lessons/lesson3_popups/day3_popup.dart';
 
 class Lesson2Screen extends StatefulWidget {
   final UserModel user;
@@ -41,7 +42,7 @@ class _Lesson2ScreenState extends State<Lesson2Screen> {
       case 2:
         return Day2Popup(title: title, user: widget.user);
       case 3:
-        return Day1Popup(title: title, user: widget.user);
+        return Day3Popup(title: title, user: widget.user);
       case 4:
         return Day1Popup(title: title, user: widget.user);
       default:
@@ -114,9 +115,9 @@ class _Lesson2ScreenState extends State<Lesson2Screen> {
         headerImage = 'assets/stone-3.png';
         contents = [
           {"icon": Icons.history_edu, "title": "1. Learning Objectives"},
-          {"icon": Icons.public, "title": "2. Tukuyin ang Ebidensya"},
-          {"icon": Icons.school, "title": "3. Group Mission"},
-          {"icon": Icons.edit, "title": "4. Pagsusuri"},
+          {"icon": Icons.public, "title": "2. Tama o Mali E-React Mo"},
+          {"icon": Icons.school, "title": "3. Guhit mo Ibahagi mo"},
+          {"icon": Icons.edit, "title": "4. Pagninilay"},
           {"icon": Icons.edit, "title": "5. Takdang Aralin"},
         ];
         break;
