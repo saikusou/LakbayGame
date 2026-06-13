@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:lakbay_game/Views/game/lesson-three/day-one/act4.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-three/act2.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-three/act3.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-three/act4.dart';
-import 'package:lakbay_game/Views/game/lesson-three/day-two/act1.dart';
+import 'package:lakbay_game/Views/game/lesson-three/game_one.dart';
+import 'package:lakbay_game/Views/game/lesson-two/day-three/act2.dart';
+import 'package:lakbay_game/Views/game/lesson-two/day-three/act3.dart';
+import 'package:lakbay_game/Views/game/lesson-two/day-three/act4.dart';
+import 'package:lakbay_game/Views/game/lesson-two/day-three/act5.dart';
 import 'package:lakbay_game/models/user_model.dart';
 
 class Day3Popup extends StatelessWidget {
@@ -19,18 +22,8 @@ class Day3Popup extends StatelessWidget {
       return _LearningObjectivesPopup(user: user);
     }
 
-    /// 2. GAWAIN
-    if (title.contains('GAWAIN 3: Kilalanin Mo Ako!')) {
-      Future.microtask(() {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => LessonThreeDayOneActTwo(user: user),
-          ),
-        );
-      });
-
-      return const SizedBox.shrink();
+    if (title.contains('Tama o Mali E-React Mo')) {
+      return _TamaOMaliPopup(user: user);
     }
 
     /// 3. KONSEPTO
@@ -47,13 +40,25 @@ class Day3Popup extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    /// 4. TAMA O MALI
-    if (title.contains('Katanungan')) {
+    if (title.contains('Guhit mo Ibahagi mo')) {
       Future.microtask(() {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => LessonThreeDayOneActFour(user: user),
+            builder: (_) => LessonTwoDayThreeActThree(user: user),
+          ),
+        );
+      });
+
+      return const SizedBox.shrink();
+    }
+
+    if (title.contains('Pagninilay')) {
+      Future.microtask(() {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => LessonTwoDayThreeActFour(user: user),
           ),
         );
       });
@@ -63,7 +68,16 @@ class Day3Popup extends StatelessWidget {
 
     /// 5. TAKDANG ARALIN
     if (title.contains('Takdang Aralin')) {
-      return _TakdangAralinPopup(user: user);
+      Future.microtask(() {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => LessonTwoDayThreeActFive(user: user),
+          ),
+        );
+      });
+
+      return const SizedBox.shrink();
     }
 
     return const SizedBox();
@@ -103,8 +117,8 @@ class _LearningObjectivesPopup extends StatelessWidget {
 
           /// BACKGROUND IMAGE
           image: const DecorationImage(
-            image: AssetImage('assets/lesson-three-day3-act1.png'),
-            fit: BoxFit.cover,
+            image: AssetImage('assets/lesson-two-day3-act1t.png'),
+            fit: BoxFit.fill,
           ),
         ),
 
@@ -150,55 +164,9 @@ class _LearningObjectivesPopup extends StatelessWidget {
   }
 }
 
-/// =========================================================
-/// 2. GAWAIN
-/// =========================================================
-
-class _GawainPopup extends StatelessWidget {
-  final UserModel user;
-  const _GawainPopup({required this.user});
-
-  @override
-  Widget build(BuildContext context) {
-    return _CustomPopupContainer(
-      borderColor: Colors.green,
-      user: user,
-      child: const Text(
-        "Dito ilalagay ang konsepto ng aralin.",
-        textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 18),
-      ),
-    );
-  }
-}
-
-/// =========================================================
-/// 3. KONSEPTO
-/// =========================================================
-class _KonseptoPopup extends StatelessWidget {
-  final UserModel user;
-  const _KonseptoPopup({required this.user});
-
-  @override
-  Widget build(BuildContext context) {
-    return _CustomPopupContainer(
-      borderColor: Colors.green,
-      user: user,
-      child: const Text(
-        "Dito ilalagay ang konsepto ng aralin.",
-        textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 18),
-      ),
-    );
-  }
-}
-
-/// =========================================================
-/// 4. TAMA O MALI
-/// =========================================================
-
 class _TamaOMaliPopup extends StatelessWidget {
   final UserModel user;
+
   const _TamaOMaliPopup({required this.user});
 
   double clampDouble(double value, double min, double max) {
@@ -215,16 +183,19 @@ class _TamaOMaliPopup extends StatelessWidget {
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.all(18),
+
       child: Container(
         width: popupWidth,
         height: popupHeight,
+
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(28),
+
           border: Border.all(color: Colors.blue, width: 5),
 
-          /// IMAGE FILLS ENTIRE POPUP
+          /// BACKGROUND IMAGE
           image: const DecorationImage(
-            image: AssetImage('assets/lesson-three-day1-act5.png'),
+            image: AssetImage('assets/lesson-two-day3-act2t.png'),
             fit: BoxFit.fill,
           ),
         ),
@@ -234,18 +205,24 @@ class _TamaOMaliPopup extends StatelessWidget {
             /// CLOSE BUTTON
             Align(
               alignment: Alignment.topRight,
+
               child: Padding(
                 padding: const EdgeInsets.all(14),
+
                 child: GestureDetector(
                   onTap: () => Navigator.pop(context),
+
                   child: Container(
                     width: 44,
                     height: 44,
+
                     decoration: BoxDecoration(
                       color: Colors.red,
                       shape: BoxShape.circle,
+
                       border: Border.all(color: Colors.white, width: 3),
                     ),
+
                     child: const Icon(
                       Icons.close,
                       color: Colors.white,
@@ -256,9 +233,47 @@ class _TamaOMaliPopup extends StatelessWidget {
               ),
             ),
 
+            /// PUSH BUTTON TO BOTTOM
             const Spacer(),
 
             /// SUBMIT BUTTON
+            Padding(
+              padding: const EdgeInsets.only(bottom: 20),
+
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          LessonThreeDayThreeActTwo(user: user),
+                    ),
+                  );
+                },
+
+                child: Container(
+                  width: 65,
+                  height: 55,
+
+                  decoration: BoxDecoration(
+                    color: Colors.green,
+                    shape: BoxShape.circle,
+
+                    border: Border.all(color: Colors.white, width: 4),
+
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 8,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+
+                  child: const Icon(Icons.send, color: Colors.white, size: 30),
+                ),
+              ),
+            ),
           ],
         ),
       ),
