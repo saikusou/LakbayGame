@@ -1,0 +1,620 @@
+import 'package:flutter/material.dart';
+import 'package:lakbay_game/Views/lesson2.dart';
+import 'package:lakbay_game/models/user_model.dart';
+import 'package:lakbay_game/Views/lesson1.dart';
+
+class LessonTwoDayFourActTwo extends StatefulWidget {
+  final UserModel user;
+
+  const LessonTwoDayFourActTwo({super.key, required this.user});
+
+  @override
+  State<LessonTwoDayFourActTwo> createState() => _LessonTwoDayFourActTwoState();
+}
+
+class _LessonTwoDayFourActTwoState extends State<LessonTwoDayFourActTwo> {
+  int currentQuestion = 0;
+
+  final List<int?> selectedAnswers = List.filled(10, null);
+
+  final List<int> correctAnswers = [1, 1, 0, 1, 0, 0, 0, 1, 0, 0];
+
+  double clampDouble(double value, double min, double max) {
+    return value.clamp(min, max).toDouble();
+  }
+
+  final List<Map<String, dynamic>> questions = [
+    {
+      'number': '1.',
+      'question': 'Ano ang tawag sa bansang\nbinubuo ng maraming pulo?',
+      'image': 'assets/island.png',
+      'options': [
+        ['A', 'Kontinente'],
+        ['B', 'Arkipelago'],
+        ['C', 'Peninsula'],
+        ['D', 'Bulkan'],
+      ],
+    },
+    {
+      'number': '2.',
+      'question': 'Ilang pangunahing pangkat\nng pulo mayroon ang Pilipinas?',
+      'image': 'assets/island.png',
+      'options': [
+        ['A', 'Dalawa'],
+        ['B', 'Tatlo'],
+        ['C', 'Apat'],
+        ['D', 'Lima'],
+      ],
+    },
+    {
+      'number': '3.',
+      'question': 'Ano ang pinakamalaking\npangkat ng pulo sa Pilipinas?',
+      'image': 'assets/island.png',
+      'options': [
+        ['A', 'Luzon'],
+        ['B', 'Visayas'],
+        ['C', 'Mindanao'],
+        ['D', 'Palawan'],
+      ],
+    },
+    {
+      'number': '4.',
+      'question': 'Ano ang tawag sa bahagi ng lupa\nna napapaligiran ng tubig?',
+      'image': 'assets/island.png',
+      'options': [
+        ['A', 'Bundok'],
+        ['B', 'Pulo'],
+        ['C', 'Ilog'],
+        ['D', 'Dagat'],
+      ],
+    },
+    {
+      'number': '5.',
+      'question': 'Saan matatagpuan ang Pilipinas?',
+      'image': 'assets/island.png',
+      'options': [
+        ['A', 'Timog-Silangang Asya'],
+        ['B', 'Europa'],
+        ['C', 'Africa'],
+        ['D', 'Hilagang Amerika'],
+      ],
+    },
+    {
+      'number': '6.',
+      'question': 'Alin ang pangunahing pangkat\nng pulo sa bansa?',
+      'image': 'assets/island.png',
+      'options': [
+        ['A', 'Luzon'],
+        ['B', 'Bohol'],
+        ['C', 'Cebu'],
+        ['D', 'Palawan'],
+      ],
+    },
+    {
+      'number': '7.',
+      'question': 'Ano ang nasa silangan\nng Pilipinas?',
+      'image': 'assets/island.png',
+      'options': [
+        ['A', 'Karagatang Pasipiko'],
+        ['B', 'Dagat Timog Tsina'],
+        ['C', 'Dagat Sulu'],
+        ['D', 'Dagat Celebes'],
+      ],
+    },
+    {
+      'number': '8.',
+      'question': 'Ano ang tawag sa lokasyon gamit\nang latitude at longitude?',
+      'image': 'assets/island.png',
+      'options': [
+        ['A', 'Relatibong Lokasyon'],
+        ['B', 'Tiyak na Lokasyon'],
+        ['C', 'Insular na Lokasyon'],
+        ['D', 'Bisinal na Lokasyon'],
+      ],
+    },
+    {
+      'number': '9.',
+      'question': 'Ano ang tawag sa lokasyon batay\nsa mga kalapit na lugar?',
+      'image': 'assets/island.png',
+      'options': [
+        ['A', 'Relatibong Lokasyon'],
+        ['B', 'Tiyak na Lokasyon'],
+        ['C', 'Latitude'],
+        ['D', 'Longitude'],
+      ],
+    },
+    {
+      'number': '10.',
+      'question': 'Bakit mahalaga ang lokasyon\nng Pilipinas?',
+      'image': 'assets/island.png',
+      'options': [
+        ['A', 'Nakakatulong sa kalakalan'],
+        ['B', 'Pinapaliit ang bansa'],
+        ['C', 'Tinatanggal ang mga pulo'],
+        ['D', 'Ginagawang kontinente'],
+      ],
+    },
+  ];
+
+  bool get canGoNext {
+    int endIndex = currentQuestion + 2;
+
+    if (endIndex > questions.length) {
+      endIndex = questions.length;
+    }
+
+    for (int i = currentQuestion; i < endIndex; i++) {
+      if (selectedAnswers[i] == null) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  void showResult() {
+    int correct = 0;
+    int wrong = 0;
+
+    for (int i = 0; i < questions.length; i++) {
+      if (selectedAnswers[i] == correctAnswers[i]) {
+        correct++;
+      } else {
+        wrong++;
+      }
+    }
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Resulta', textAlign: TextAlign.center),
+          content: Text(
+            'Correct: $correct\nWrong: $wrong',
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
+          actionsAlignment: MainAxisAlignment.center,
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text(
+                'OK',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget circleButton({
+    required IconData icon,
+    required Color color,
+    required double size,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 4,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Icon(icon, color: Colors.white, size: size * 0.55),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isSmallPhone = size.width < 380;
+
+    final titleFont = clampDouble(size.width * 0.08, 26, 54);
+    final subTitleFont = clampDouble(size.width * 0.035, 13, 24);
+    final textFont = clampDouble(size.width * 0.031, 12, 18);
+    final optionFont = clampDouble(size.width * 0.029, 11, 16);
+
+    final bool isLastPage = currentQuestion + 2 >= questions.length;
+
+    final double iconSize = isSmallPhone ? 45 : 55;
+    final double iconTop = isSmallPhone ? 10 : 15;
+    final double sidePadding = isSmallPhone ? 10 : 16;
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFFFFCF4),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.fromLTRB(
+                      isSmallPhone ? 10 : 16,
+                      12,
+                      isSmallPhone ? 10 : 16,
+                      12,
+                    ),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 2),
+                        Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.symmetric(
+                            vertical: isSmallPhone ? 8 : 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF073B8E),
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          child: Center(
+                            child: Text(
+                              'PAGSUSULIT',
+                              style: TextStyle(
+                                fontSize: titleFont,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: isSmallPhone ? 14 : 24,
+                            vertical: isSmallPhone ? 7 : 9,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF2E8B2E),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            'MULTIPLE CHOICE',
+                            style: TextStyle(
+                              fontSize: subTitleFont,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.all(isSmallPhone ? 10 : 14),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFF8DD),
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(color: Colors.orange, width: 2),
+                          ),
+                          child: Row(
+                            children: [
+                              Image.asset(
+                                'assets/clipboard.png',
+                                height: isSmallPhone ? 38 : 55,
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: RichText(
+                                  text: TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: 'Panuto:\n',
+                                        style: TextStyle(
+                                          fontSize: textFont + 2,
+                                          fontWeight: FontWeight.bold,
+                                          color: const Color(0xFF073B8E),
+                                        ),
+                                      ),
+                                      TextSpan(
+                                        text:
+                                            'Piliin ang titik ng tamang sagot.',
+                                        style: TextStyle(
+                                          fontSize: textFont,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        ...List.generate(2, (i) {
+                          final questionIndex = currentQuestion + i;
+
+                          if (questionIndex >= questions.length) {
+                            return const SizedBox.shrink();
+                          }
+
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: QuestionCard(
+                              number: questions[questionIndex]['number'],
+                              question: questions[questionIndex]['question'],
+                              imagePath: questions[questionIndex]['image'],
+                              options: questions[questionIndex]['options'],
+                              selectedIndex: selectedAnswers[questionIndex],
+                              textFont: textFont,
+                              optionFont: optionFont,
+                              onSelect: (answerIndex) {
+                                setState(() {
+                                  selectedAnswers[questionIndex] = answerIndex;
+                                });
+                              },
+                            ),
+                          );
+                        }),
+                      ],
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.fromLTRB(
+                    isSmallPhone ? 10 : 16,
+                    8,
+                    isSmallPhone ? 10 : 16,
+                    12,
+                  ),
+                  color: const Color(0xFFFFFCF4),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: currentQuestion == 0
+                              ? null
+                              : () {
+                                  setState(() {
+                                    currentQuestion -= 2;
+                                  });
+                                },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.grey,
+                            foregroundColor: Colors.white,
+                            disabledBackgroundColor: Colors.grey.shade300,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                          child: Text(
+                            'Previous',
+                            style: TextStyle(
+                              fontSize: isSmallPhone ? 13 : 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: canGoNext
+                              ? () {
+                                  if (isLastPage) {
+                                    showResult();
+                                  } else {
+                                    setState(() {
+                                      currentQuestion += 2;
+                                    });
+                                  }
+                                }
+                              : null,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF073B8E),
+                            foregroundColor: Colors.white,
+                            disabledBackgroundColor: Colors.grey.shade400,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                          child: Text(
+                            isLastPage ? 'Done' : 'Next',
+                            style: TextStyle(
+                              fontSize: isSmallPhone ? 13 : 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+
+            Positioned(
+              top: iconTop,
+              right: sidePadding,
+              child: circleButton(
+                icon: Icons.home,
+                color: Colors.orange,
+                size: iconSize,
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => Lesson2Screen(user: widget.user),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class QuestionCard extends StatelessWidget {
+  final String number;
+  final String question;
+  final String imagePath;
+  final List<List<String>> options;
+  final int? selectedIndex;
+  final double textFont;
+  final double optionFont;
+  final Function(int) onSelect;
+
+  const QuestionCard({
+    super.key,
+    required this.number,
+    required this.question,
+    required this.imagePath,
+    required this.options,
+    required this.selectedIndex,
+    required this.textFont,
+    required this.optionFont,
+    required this.onSelect,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isSmallPhone = MediaQuery.of(context).size.width < 380;
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(isSmallPhone ? 9 : 13),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: Colors.blue, width: isSmallPhone ? 2 : 3),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                radius: isSmallPhone ? 17 : 23,
+                backgroundColor: const Color(0xFF073B8E),
+                child: Text(
+                  number,
+                  style: TextStyle(
+                    fontSize: isSmallPhone ? 15 : 22,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  question,
+                  style: TextStyle(
+                    fontSize: textFont,
+                    fontWeight: FontWeight.bold,
+                    height: 1.15,
+                  ),
+                ),
+              ),
+              Image.asset(imagePath, height: isSmallPhone ? 45 : 70),
+            ],
+          ),
+          const SizedBox(height: 10),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: options.length,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisExtent: isSmallPhone ? 40 : 48,
+              crossAxisSpacing: isSmallPhone ? 7 : 10,
+              mainAxisSpacing: isSmallPhone ? 7 : 10,
+            ),
+            itemBuilder: (context, index) {
+              return OptionButton(
+                letter: options[index][0],
+                text: options[index][1],
+                fontSize: optionFont,
+                isSelected: selectedIndex == index,
+                onTap: () => onSelect(index),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class OptionButton extends StatelessWidget {
+  final String letter;
+  final String text;
+  final double fontSize;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const OptionButton({
+    super.key,
+    required this.letter,
+    required this.text,
+    required this.fontSize,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isSmallPhone = MediaQuery.of(context).size.width < 380;
+
+    return ElevatedButton(
+      onPressed: onTap,
+      style: ElevatedButton.styleFrom(
+        elevation: isSelected ? 5 : 2,
+        backgroundColor: isSelected
+            ? const Color(0xFF8EE36B)
+            : const Color(0xFFEAF7FF),
+        foregroundColor: Colors.black,
+        padding: EdgeInsets.symmetric(horizontal: isSmallPhone ? 4 : 8),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(
+            color: isSelected ? Colors.green : Colors.transparent,
+            width: 2,
+          ),
+        ),
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: isSmallPhone ? 11 : 15,
+            backgroundColor: isSelected
+                ? const Color(0xFF2E8B2E)
+                : const Color(0xFF073B8E),
+            child: Text(
+              letter,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: isSmallPhone ? 10 : 13,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          SizedBox(width: isSmallPhone ? 4 : 7),
+          Expanded(
+            child: Text(
+              text,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

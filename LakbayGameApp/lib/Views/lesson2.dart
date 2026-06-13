@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lakbay_game/Components/popup-lessons/lesson1_popups/day4_popup.dart';
 import 'package:lakbay_game/Components/side_navigation.dart';
 import 'package:lakbay_game/Views/profile.dart';
 
@@ -44,7 +45,7 @@ class _Lesson2ScreenState extends State<Lesson2Screen> {
       case 3:
         return Day3Popup(title: title, user: widget.user);
       case 4:
-        return Day1Popup(title: title, user: widget.user);
+        return Day4Popup(title: title, user: widget.user);
       default:
         return Day1Popup(title: title, user: widget.user);
     }
@@ -115,8 +116,7 @@ class _Lesson2ScreenState extends State<Lesson2Screen> {
         headerImage = 'assets/stone-3.png';
         contents = [
           {"icon": Icons.history_edu, "title": "1. Learning Objectives"},
-          {"icon": Icons.public, "title": "2. Tama o Mali E-React Mo"},
-          {"icon": Icons.school, "title": "3. Guhit mo Ibahagi mo"},
+          {"icon": Icons.public, "title": "2. Pagsusulit"},
           {"icon": Icons.edit, "title": "4. Pagninilay"},
           {"icon": Icons.edit, "title": "5. Takdang Aralin"},
         ];
@@ -127,11 +127,8 @@ class _Lesson2ScreenState extends State<Lesson2Screen> {
         headerImage = 'assets/stone-4.png';
         contents = [
           {"icon": Icons.star, "title": "1. Learning Objectives"},
-          {
-            "icon": Icons.workspace_premium,
-            "title": "2. Pagtukoy sa Pamantayan",
-          },
-          {"icon": Icons.edit, "title": "3. Pagsusulit"},
+          {"icon": Icons.workspace_premium, "title": "2. Pagsusulit"},
+          {"icon": Icons.edit, "title": "3. Pagninilay"},
           {"icon": Icons.assignment, "title": "4. Takdang Aralin"},
         ];
         break;
