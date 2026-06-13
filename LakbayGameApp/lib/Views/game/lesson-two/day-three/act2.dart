@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:lakbay_game/Views/lesson2.dart';
 import 'package:lakbay_game/models/user_model.dart';
-import 'package:lakbay_game/Views/lesson1.dart';
 
 class LessonThreeDayThreeActTwo extends StatefulWidget {
   final UserModel user;
@@ -402,7 +402,7 @@ class _LessonThreeDayThreeActTwoState extends State<LessonThreeDayThreeActTwo> {
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => Lesson1Screen(user: widget.user),
+                        builder: (_) => Lesson2Screen(user: widget.user),
                       ),
                     );
                   },

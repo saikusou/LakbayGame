@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-four/act2.dart';
-import 'package:lakbay_game/Views/game/lesson-three/day-one/act4.dart';
-import 'package:lakbay_game/Views/game/lesson-three/day-three/act2.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-three/act3.dart';
-import 'package:lakbay_game/Views/game/lesson-three/day-three/act4.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-four/act3.dart';
 import 'package:lakbay_game/models/user_model.dart';
 

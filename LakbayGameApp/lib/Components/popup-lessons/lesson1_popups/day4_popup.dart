@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-one/act4.dart';
-import 'package:lakbay_game/Views/game/lesson-three/game_one.dart';
 import 'package:lakbay_game/Views/game/lesson-three/game_two.dart';
+import 'package:lakbay_game/Views/game/lesson-two/day-four/act2.dart';
 import 'package:lakbay_game/models/user_model.dart';
 
 class Day4Popup extends StatelessWidget {
@@ -18,24 +18,12 @@ class Day4Popup extends StatelessWidget {
     }
 
     /// 2. GAWAIN
-    if (title.contains('GAWAIN 1:Hularawan')) {
+    if (title.contains('Pagsusulit')) {
       return _GawainPopup(user: user);
     }
 
-    /// 3. KONSEPTO
-    if (title.contains('Pagtukoy sa Pamantayan')) {
-      Future.microtask(() {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => LessonThreeGameTwo(user: user)),
-        );
-      });
-
-      return const SizedBox.shrink();
-    }
-
     /// 4. TAMA O MALI
-    if (title.contains('Pagsusulit')) {
+    if (title.contains('Pagninilay')) {
       return _TamaOMaliPopup(user: user);
     }
 
@@ -82,7 +70,7 @@ class _LearningObjectivesPopup extends StatelessWidget {
 
           /// BACKGROUND IMAGE
           image: const DecorationImage(
-            image: AssetImage('assets/lesson-one-day4-act1.png'),
+            image: AssetImage('assets/lesson-two-day4-act1.png'),
             fit: BoxFit.fill,
           ),
         ),
@@ -164,7 +152,7 @@ class _GawainPopup extends StatelessWidget {
 
           /// BACKGROUND IMAGE
           image: const DecorationImage(
-            image: AssetImage('assets/lesson3-day2.png'),
+            image: AssetImage('assets/lesson-two-day4-act2.png'),
             fit: BoxFit.fill,
           ),
         ),
@@ -214,7 +202,7 @@ class _GawainPopup extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => LessonThreeActFour(user: user),
+                      builder: (context) => LessonTwoDayFourActTwo(user: user),
                     ),
                   );
                 },
