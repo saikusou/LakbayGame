@@ -224,8 +224,7 @@ class _GawainPopup extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          LessonTwoDayFourActThree(user: user),
+                      builder: (context) => LessonTwoDayFourActTwo(user: user),
                     ),
                   );
                 },

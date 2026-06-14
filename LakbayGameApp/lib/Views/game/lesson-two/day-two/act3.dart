@@ -70,6 +70,94 @@ class HiddenPopup extends StatelessWidget {
   }
 }
 
+class CongratsPopup extends StatelessWidget {
+  const CongratsPopup({super.key});
+
+  double clampDouble(double value, double min, double max) {
+    return value.clamp(min, max).toDouble();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      child: Container(
+        width: clampDouble(size.width * 0.85, 280, 390),
+        padding: EdgeInsets.symmetric(
+          horizontal: clampDouble(size.width * 0.06, 18, 28),
+          vertical: clampDouble(size.height * 0.035, 22, 35),
+        ),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFF3D6),
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: Colors.orange, width: 5),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 12,
+              offset: Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.emoji_events,
+              color: Colors.amber,
+              size: clampDouble(size.width * 0.20, 70, 95),
+            ),
+            SizedBox(height: clampDouble(size.height * 0.015, 10, 18)),
+            Text(
+              "Congratulations!",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: clampDouble(size.width * 0.075, 25, 34),
+                fontWeight: FontWeight.bold,
+                color: Colors.brown,
+              ),
+            ),
+            SizedBox(height: clampDouble(size.height * 0.015, 10, 18)),
+            Text(
+              "50 points total",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: clampDouble(size.width * 0.055, 20, 26),
+                fontWeight: FontWeight.w700,
+                color: Colors.orange.shade900,
+              ),
+            ),
+            SizedBox(height: clampDouble(size.height * 0.03, 20, 30)),
+            SizedBox(
+              width: double.infinity,
+              height: clampDouble(size.height * 0.065, 48, 60),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                ),
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  "OK",
+                  style: TextStyle(
+                    fontSize: clampDouble(size.width * 0.045, 16, 22),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class LessonTwoDayTwoActThree extends StatefulWidget {
   final UserModel user;
 
@@ -81,18 +169,40 @@ class LessonTwoDayTwoActThree extends StatefulWidget {
 }
 
 class _LessonTwoDayTwoActThreeState extends State<LessonTwoDayTwoActThree> {
+  final Set<int> clickedHiddenCircles = {};
+  bool congratulationsShown = false;
+
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
   }
 
-  void showHiddenPopup(String image) {
-    showDialog(
+  Future<void> showHiddenPopup(int id, String image) async {
+    if (!clickedHiddenCircles.contains(id)) {
+      setState(() {
+        clickedHiddenCircles.add(id);
+      });
+    }
+
+    await showDialog(
       context: context,
       builder: (_) => HiddenPopup(image: image, users: widget.user),
     );
+
+    if (clickedHiddenCircles.length == 7 && !congratulationsShown) {
+      congratulationsShown = true;
+
+      if (!mounted) return;
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const CongratsPopup(),
+      );
+    }
   }
 
   Widget hiddenCircle({
+    required int id,
     required double x,
     required double y,
     required double size,
@@ -107,15 +217,13 @@ class _LessonTwoDayTwoActThreeState extends State<LessonTwoDayTwoActThree> {
       left: (x * scaleX) - (circleWidth / 2),
       top: (y * scaleY) - (circleHeight / 2),
       child: GestureDetector(
-        onTap: () => showHiddenPopup(popupImage),
+        onTap: () => showHiddenPopup(id, popupImage),
         child: Container(
           width: circleWidth,
           height: circleHeight,
           decoration: const BoxDecoration(
             shape: BoxShape.circle,
-
-            // For testing. Change to Colors.transparent later.
-            color: Color.fromARGB(0, 194, 11, 11),
+            color: Colors.transparent,
           ),
         ),
       ),
@@ -139,7 +247,6 @@ class _LessonTwoDayTwoActThreeState extends State<LessonTwoDayTwoActThree> {
 
           return Stack(
             children: [
-              /// BACKGROUND
               Positioned.fill(
                 child: Image.asset(
                   'assets/lesson-two-day1-act3m.png',
@@ -147,8 +254,8 @@ class _LessonTwoDayTwoActThreeState extends State<LessonTwoDayTwoActThree> {
                 ),
               ),
 
-              /// HIDDEN 1
               hiddenCircle(
+                id: 1,
                 x: 495,
                 y: 1238,
                 size: 190,
@@ -157,8 +264,8 @@ class _LessonTwoDayTwoActThreeState extends State<LessonTwoDayTwoActThree> {
                 popupImage: "assets/l2-d2-a3-1.png",
               ),
 
-              /// HIDDEN 2
               hiddenCircle(
+                id: 2,
                 x: 240,
                 y: 1084,
                 size: 190,
@@ -167,8 +274,8 @@ class _LessonTwoDayTwoActThreeState extends State<LessonTwoDayTwoActThree> {
                 popupImage: "assets/l2-d2-a3-2.png",
               ),
 
-              /// HIDDEN 3
               hiddenCircle(
+                id: 3,
                 x: 799,
                 y: 1138,
                 size: 190,
@@ -177,8 +284,8 @@ class _LessonTwoDayTwoActThreeState extends State<LessonTwoDayTwoActThree> {
                 popupImage: "assets/l2-d2-a3-3.png",
               ),
 
-              /// HIDDEN 4
               hiddenCircle(
+                id: 4,
                 x: 350,
                 y: 1310,
                 size: 150,
@@ -187,8 +294,8 @@ class _LessonTwoDayTwoActThreeState extends State<LessonTwoDayTwoActThree> {
                 popupImage: "assets/l2-d2-a3-4.png",
               ),
 
-              /// HIDDEN 5
               hiddenCircle(
+                id: 5,
                 x: 230,
                 y: 1550,
                 size: 160,
@@ -197,8 +304,8 @@ class _LessonTwoDayTwoActThreeState extends State<LessonTwoDayTwoActThree> {
                 popupImage: "assets/l2-d2-a3-5.png",
               ),
 
-              /// HIDDEN 5
               hiddenCircle(
+                id: 6,
                 x: 700,
                 y: 1550,
                 size: 160,
@@ -207,8 +314,8 @@ class _LessonTwoDayTwoActThreeState extends State<LessonTwoDayTwoActThree> {
                 popupImage: "assets/lesson-two-day1-act3-pic6.png",
               ),
 
-              /// HIDDEN 5
               hiddenCircle(
+                id: 7,
                 x: 880,
                 y: 1350,
                 size: 140,
@@ -217,7 +324,6 @@ class _LessonTwoDayTwoActThreeState extends State<LessonTwoDayTwoActThree> {
                 popupImage: "assets/lesson-two-day1-act3-pic7.png",
               ),
 
-              /// HOME BUTTON
               Positioned(
                 top: clampDouble(screenH * 0.025, 14, 22),
                 right: clampDouble(screenW * 0.04, 12, 20),
