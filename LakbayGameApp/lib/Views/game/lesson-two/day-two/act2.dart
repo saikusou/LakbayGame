@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:lakbay_game/Views/game/lesson-two/day-two/act2a.dart';
+import 'package:lakbay_game/Views/lesson2.dart';
 import 'package:lakbay_game/models/user_model.dart';
 
 class LessonTwoDayTwoActTwo extends StatefulWidget {
@@ -13,10 +15,10 @@ class LessonTwoDayTwoActTwo extends StatefulWidget {
 
 class _LessonTwoDayTwoActTwoState extends State<LessonTwoDayTwoActTwo> {
   final List<String> pieces = [
-    'assets/l2-d1-3.png',
-    'assets/l2-d1-4.png',
     'assets/l2-d1-1.png',
     'assets/l2-d1-2.png',
+    'assets/l2-d1-3.png',
+    'assets/l2-d1-4.png',
   ];
 
   final List<int?> placed = List.filled(4, null);
@@ -25,6 +27,12 @@ class _LessonTwoDayTwoActTwoState extends State<LessonTwoDayTwoActTwo> {
   int elapsedSeconds = 0;
   bool timerStopped = false;
   bool popupShown = false;
+
+  int get score {
+    if (elapsedSeconds <= 10) return 20;
+    if (elapsedSeconds <= 20) return 15;
+    return 10;
+  }
 
   @override
   void initState() {
@@ -58,11 +66,7 @@ class _LessonTwoDayTwoActTwoState extends State<LessonTwoDayTwoActTwo> {
       for (int i = 0; i < placed.length; i++) {
         placed[i] = null;
       }
-
-      if (timerStopped) {
-        elapsedSeconds = 0;
-      }
-
+      elapsedSeconds = 0;
       timerStopped = false;
       popupShown = false;
     });
@@ -90,10 +94,70 @@ class _LessonTwoDayTwoActTwoState extends State<LessonTwoDayTwoActTwo> {
     });
 
     Future.delayed(const Duration(milliseconds: 300), () {
-      if (mounted) {
-        showCongratulationsPopup();
-      }
+      if (mounted) showCongratulationsPopup();
     });
+  }
+
+  Widget gameButton({
+    required String text,
+    required IconData icon,
+    required VoidCallback onTap,
+    required double width,
+    required double height,
+    bool compact = false,
+  }) {
+    final bool isSmallPhone = width < 360;
+
+    final double buttonHeight = clampDouble(
+      height * (isSmallPhone ? 0.045 : 0.055),
+      35,
+      compact ? 46 : 55,
+    );
+
+    final double buttonPadding = clampDouble(
+      width * (compact ? 0.025 : 0.04),
+      8,
+      compact ? 16 : 24,
+    );
+
+    final double buttonFont = clampDouble(
+      width * (compact ? 0.032 : 0.04),
+      11,
+      compact ? 15 : 18,
+    );
+
+    final double iconSize = clampDouble(width * 0.045, 15, compact ? 20 : 25);
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: buttonHeight,
+        padding: EdgeInsets.symmetric(horizontal: buttonPadding),
+        decoration: BoxDecoration(
+          color: const Color(0xFF0D63B7),
+          borderRadius: BorderRadius.circular(buttonHeight / 2),
+          border: Border.all(
+            color: const Color(0xFFFFD84A),
+            width: clampDouble(width * 0.007, 2, 4),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              text,
+              style: TextStyle(
+                fontSize: buttonFont,
+                fontWeight: FontWeight.w900,
+                color: Colors.white,
+              ),
+            ),
+            SizedBox(width: clampDouble(width * 0.012, 4, 8)),
+            Icon(icon, color: Colors.white, size: iconSize),
+          ],
+        ),
+      ),
+    );
   }
 
   void showCongratulationsPopup() {
@@ -102,14 +166,14 @@ class _LessonTwoDayTwoActTwoState extends State<LessonTwoDayTwoActTwo> {
       barrierDismissible: false,
       builder: (context) {
         final size = MediaQuery.of(context).size;
-        final popupWidth = clampDouble(size.width * 0.86, 285, 420);
+        final popupWidth = clampDouble(size.width * 0.88, 285, 430);
 
         return Dialog(
           backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.all(18),
+          insetPadding: const EdgeInsets.all(14),
           child: Container(
             width: popupWidth,
-            padding: const EdgeInsets.all(22),
+            padding: EdgeInsets.all(clampDouble(size.width * 0.045, 14, 20)),
             decoration: BoxDecoration(
               color: const Color(0xFFFFFCF3),
               borderRadius: BorderRadius.circular(28),
@@ -125,106 +189,162 @@ class _LessonTwoDayTwoActTwoState extends State<LessonTwoDayTwoActTwo> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(
+                Icon(
                   Icons.emoji_events,
-                  size: 70,
-                  color: Color(0xFFFFC928),
+                  size: clampDouble(size.width * 0.15, 48, 65),
+                  color: const Color(0xFFFFC928),
                 ),
-                const SizedBox(height: 10),
-                const Text(
+                const SizedBox(height: 8),
+                Text(
                   'Congratulations!',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 28,
+                    fontSize: clampDouble(size.width * 0.065, 21, 28),
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF126FC0),
+                    color: const Color(0xFF126FC0),
                   ),
                 ),
-                const SizedBox(height: 8),
-                const Text(
+                const SizedBox(height: 6),
+                Text(
                   'Nabuo mo ang puzzle!',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: clampDouble(size.width * 0.04, 14, 18),
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF123B63),
+                    color: const Color(0xFF123B63),
                   ),
                 ),
-                const SizedBox(height: 18),
+                const SizedBox(height: 16),
+
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 22,
-                    vertical: 12,
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: clampDouble(size.width * 0.035, 10, 16),
+                    vertical: clampDouble(size.height * 0.012, 8, 12),
                   ),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: Colors.red, width: 3),
+                    border: Border.all(
+                      color: const Color(0xFF126FC0),
+                      width: 3,
+                    ),
                   ),
-                  child: Column(
+                  child: Row(
                     children: [
-                      const Text(
-                        'TIME RECORD',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w900,
-                          color: Color(0xFF126FC0),
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text(
+                              'TIME',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w900,
+                                color: Color(0xFF126FC0),
+                              ),
+                            ),
+                            Text(
+                              formattedTime,
+                              style: TextStyle(
+                                fontSize: clampDouble(
+                                  size.width * 0.062,
+                                  22,
+                                  28,
+                                ),
+                                fontWeight: FontWeight.w900,
+                                color: Colors.red,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      Text(
-                        formattedTime,
-                        style: const TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.red,
+                      Container(
+                        width: 2,
+                        height: 45,
+                        color: Colors.grey.shade300,
+                      ),
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  color: Color(0xFFFFC928),
+                                  size: 18,
+                                ),
+                                SizedBox(width: 3),
+                                Text(
+                                  'SCORE',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w900,
+                                    color: Color(0xFF126FC0),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Text(
+                              '$score Points',
+                              style: TextStyle(
+                                fontSize: clampDouble(
+                                  size.width * 0.055,
+                                  19,
+                                  25,
+                                ),
+                                fontWeight: FontWeight.w900,
+                                color: Colors.green,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 22),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                    setState(() {
-                      for (int i = 0; i < placed.length; i++) {
-                        placed[i] = null;
-                      }
 
-                      elapsedSeconds = 0;
-                      timerStopped = false;
-                      popupShown = false;
-                    });
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 26,
-                      vertical: 13,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF0D63B7),
-                      borderRadius: BorderRadius.circular(28),
-                      border: Border.all(
-                        color: const Color(0xFFFFD84A),
-                        width: 4,
+                const SizedBox(height: 18),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      child: gameButton(
+                        text: 'PLAY AGAIN',
+                        icon: Icons.refresh,
+                        width: size.width,
+                        height: size.height,
+                        compact: true,
+                        onTap: () {
+                          Navigator.pop(context);
+                          resetPuzzle();
+                        },
                       ),
                     ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'PLAY AGAIN',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.white,
-                          ),
-                        ),
-                        SizedBox(width: 8),
-                        Icon(Icons.refresh, color: Colors.white, size: 25),
-                      ],
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: gameButton(
+                        text: 'NEXT',
+                        icon: Icons.arrow_forward,
+                        width: size.width,
+                        height: size.height,
+                        compact: true,
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  LessonTwoDayTwoActTwoA(user: widget.user),
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),
@@ -247,7 +367,6 @@ class _LessonTwoDayTwoActTwoState extends State<LessonTwoDayTwoActTwo> {
             final bool isVerySmallPhone = height < 640;
 
             final double horizontalPadding = clampDouble(width * 0.035, 10, 18);
-
             final double titleFont = clampDouble(width * 0.068, 21, 30);
             final double instructionFont = clampDouble(width * 0.038, 12, 16);
 
@@ -265,11 +384,8 @@ class _LessonTwoDayTwoActTwoState extends State<LessonTwoDayTwoActTwo> {
             );
             final double pieceHeight = pieceWidth * 0.72;
 
-            final double timerWidth = clampDouble(width * 0.25, 78, 100);
-            final double timerHeight = clampDouble(height * 0.075, 52, 68);
-
-            final double resetHeight = clampDouble(height * 0.065, 44, 58);
-            final double resetFont = clampDouble(width * 0.047, 16, 21);
+            final double timerWidth = clampDouble(width * 0.25, 74, 100);
+            final double timerHeight = clampDouble(height * 0.08, 52, 72);
 
             return Stack(
               children: [
@@ -518,84 +634,50 @@ class _LessonTwoDayTwoActTwoState extends State<LessonTwoDayTwoActTwo> {
                                     borderRadius: BorderRadius.circular(18),
                                     border: Border.all(
                                       color: const Color(0xFF126FC0),
-                                      width: 4,
+                                      width: clampDouble(width * 0.008, 3, 4),
                                     ),
                                   ),
                                   child: Center(
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          formattedTime,
-                                          style: TextStyle(
-                                            fontSize: clampDouble(
-                                              width * 0.052,
-                                              16,
-                                              22,
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            formattedTime,
+                                            style: TextStyle(
+                                              fontSize: clampDouble(
+                                                width * 0.048,
+                                                14,
+                                                20,
+                                              ),
+                                              fontWeight: FontWeight.w900,
+                                              color: Colors.red,
                                             ),
-                                            fontWeight: FontWeight.w900,
-                                            color: Colors.red,
                                           ),
-                                        ),
-                                        const Text(
-                                          'ORAS',
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w900,
-                                            color: Color(0xFF126FC0),
+                                          const SizedBox(height: 1),
+                                          const Text(
+                                            'ORAS',
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w900,
+                                              color: Color(0xFF126FC0),
+                                            ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
 
                                 const Spacer(),
 
-                                GestureDetector(
+                                gameButton(
+                                  text: 'RESET',
+                                  icon: Icons.refresh,
+                                  width: width,
+                                  height: height,
                                   onTap: resetPuzzle,
-                                  child: Container(
-                                    height: resetHeight,
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: clampDouble(
-                                        width * 0.052,
-                                        15,
-                                        24,
-                                      ),
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF0D63B7),
-                                      borderRadius: BorderRadius.circular(28),
-                                      border: Border.all(
-                                        color: const Color(0xFFFFD84A),
-                                        width: 5,
-                                      ),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          'RESET',
-                                          style: TextStyle(
-                                            fontSize: resetFont,
-                                            fontWeight: FontWeight.w900,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Icon(
-                                          Icons.refresh,
-                                          color: Colors.white,
-                                          size: clampDouble(
-                                            width * 0.062,
-                                            21,
-                                            28,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
                                 ),
                               ],
                             ),

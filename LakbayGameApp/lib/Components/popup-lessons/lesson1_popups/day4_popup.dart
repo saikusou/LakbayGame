@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:lakbay_game/Views/game/lesson-two/day-four/act2.dart';
-import 'package:lakbay_game/Views/game/lesson-two/day-four/act3.dart';
-import 'package:lakbay_game/Views/game/lesson-two/day-four/act4.dart';
+import 'package:lakbay_game/Views/game/lesson-one/day-four/act2.dart';
+import 'package:lakbay_game/Views/game/lesson-one/day-four/act3.dart';
+import 'package:lakbay_game/Views/game/lesson-one/day-four/act4.dart';
 import 'package:lakbay_game/models/user_model.dart';
 
 class Day4Popup extends StatelessWidget {
@@ -23,7 +23,7 @@ class Day4Popup extends StatelessWidget {
 
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => LessonTwoDayFourActTwo(user: user)),
+          MaterialPageRoute(builder: (_) => LessonOneDayFourActTwo(user: user)),
         );
       });
 
@@ -42,7 +42,7 @@ class Day4Popup extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => LessonTwoDayFourActFour(user: user),
+            builder: (_) => LessonOneDayFourActFour(user: user),
           ),
         );
       });
@@ -221,7 +221,7 @@ class _GawainPopup extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                          LessonTwoDayFourActThree(user: user),
+                          LessonOneDayFourActThree(user: user),
                     ),
                   );
                 },

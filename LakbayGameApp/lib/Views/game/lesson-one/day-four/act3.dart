@@ -3,17 +3,17 @@ import 'package:lakbay_game/Views/lesson1.dart';
 import 'package:lakbay_game/Views/lesson2.dart';
 import 'package:lakbay_game/models/user_model.dart';
 
-class LessonTwoDayFourActThree extends StatefulWidget {
+class LessonOneDayFourActThree extends StatefulWidget {
   final UserModel user;
 
-  const LessonTwoDayFourActThree({super.key, required this.user});
+  const LessonOneDayFourActThree({super.key, required this.user});
 
   @override
-  State<LessonTwoDayFourActThree> createState() =>
-      _LessonTwoDayFourActThreeState();
+  State<LessonOneDayFourActThree> createState() =>
+      _LessonOneDayFourActThreeState();
 }
 
-class _LessonTwoDayFourActThreeState extends State<LessonTwoDayFourActThree> {
+class _LessonOneDayFourActThreeState extends State<LessonOneDayFourActThree> {
   int currentImage = 0;
 
   final List<String> images = [
@@ -130,7 +130,7 @@ class _LessonTwoDayFourActThreeState extends State<LessonTwoDayFourActThree> {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => Lesson2Screen(user: widget.user),
+                      builder: (_) => Lesson1Screen(user: widget.user),
                     ),
                   );
                 },

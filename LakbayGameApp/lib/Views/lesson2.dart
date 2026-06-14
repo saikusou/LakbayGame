@@ -116,7 +116,8 @@ class _Lesson2ScreenState extends State<Lesson2Screen> {
         headerImage = 'assets/stone-3.png';
         contents = [
           {"icon": Icons.history_edu, "title": "1. Learning Objectives"},
-          {"icon": Icons.public, "title": "2. Pagsusulit"},
+          {"icon": Icons.public, "title": "2. Tama o Mali E-React Mo"},
+          {"icon": Icons.public, "title": "3. Guhit mo Ibahagi mo"},
           {"icon": Icons.edit, "title": "4. Pagninilay"},
           {"icon": Icons.edit, "title": "5. Takdang Aralin"},
         ];

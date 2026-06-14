@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/lesson2.dart';
-import 'package:lakbay_game/Views/lesson3.dart';
 import 'package:lakbay_game/models/user_model.dart';
 
 class LessonTwoDayOneActTwo extends StatefulWidget {
@@ -20,6 +19,8 @@ class _LessonTwoDayOneActTwoState extends State<LessonTwoDayOneActTwo> {
   late List<String?> answers;
   late List<String?> availableLetters;
 
+  bool alreadyScored = false;
+
   @override
   void initState() {
     super.initState();
@@ -34,23 +35,110 @@ class _LessonTwoDayOneActTwoState extends State<LessonTwoDayOneActTwo> {
   void checkAnswer() {
     final userAnswer = answers.map((e) => e ?? "").join();
 
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text(userAnswer == correctWord ? "Tama!" : "Subukan muli"),
-        content: Text(
-          userAnswer == correctWord
-              ? "Magaling! Nabuo mo ang salitang LOKASYON."
-              : "Hindi pa tama ang sagot.",
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("OK"),
+    if (userAnswer == correctWord) {
+      if (!alreadyScored) {
+        setState(() {
+          alreadyScored = true;
+        });
+      }
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(25),
+            side: const BorderSide(color: Colors.orange, width: 4),
           ),
-        ],
-      ),
-    );
+          title: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(18),
+                decoration: const BoxDecoration(
+                  color: Colors.orange,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 8,
+                      offset: Offset(2, 4),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.emoji_events,
+                  color: Colors.white,
+                  size: 55,
+                ),
+              ),
+              const SizedBox(height: 15),
+              const Text(
+                "Congratulations!",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green,
+                  fontSize: 24,
+                ),
+              ),
+            ],
+          ),
+          content: const Text(
+            "Magaling! Nabuo mo ang salitang LOKASYON.\n\n🏆 +20 Points",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.brown,
+            ),
+          ),
+          actionsAlignment: MainAxisAlignment.center,
+          actions: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 35,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => Lesson2Screen(user: widget.user),
+                  ),
+                );
+              },
+              child: const Text(
+                "OK",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text("Subukan muli"),
+          content: const Text("Hindi pa tama ang sagot."),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("OK"),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   void resetAnswer() {
@@ -213,13 +301,13 @@ class _LessonTwoDayOneActTwoState extends State<LessonTwoDayOneActTwo> {
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
         foregroundColor: Colors.white,
+        minimumSize: const Size(60, 28),
         padding: EdgeInsets.symmetric(
           horizontal: horizontalPadding,
           vertical: verticalPadding,
         ),
-        minimumSize: Size.zero,
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
       onPressed: onTap,
       child: Text(
@@ -239,7 +327,7 @@ class _LessonTwoDayOneActTwoState extends State<LessonTwoDayOneActTwo> {
     final double boxWidth = clampDouble(shortestSide * 0.085, 26, 40);
     final double boxHeight = clampDouble(size.height * 0.047, 30, 43);
     final double tileSize = clampDouble(shortestSide * 0.105, 30, 47);
-    final double fontSize = clampDouble(shortestSide * 0.038, 11, 16);
+    final double buttonFontSize = clampDouble(shortestSide * 0.04, 14, 18);
 
     final double bottomPosition = smallScreen
         ? clampDouble(size.height * 0.025, 12, 25)
@@ -306,18 +394,18 @@ class _LessonTwoDayOneActTwoState extends State<LessonTwoDayOneActTwo> {
                         text: "Check",
                         onTap: checkAnswer,
                         color: Colors.green,
-                        fontSize: fontSize,
-                        horizontalPadding: smallScreen ? 12 : 18,
-                        verticalPadding: smallScreen ? 7 : 9,
+                        fontSize: buttonFontSize,
+                        horizontalPadding: smallScreen ? 18 : 26,
+                        verticalPadding: smallScreen ? 10 : 14,
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 12),
                       actionButton(
                         text: "Reset",
                         onTap: resetAnswer,
                         color: Colors.red,
-                        fontSize: fontSize,
-                        horizontalPadding: smallScreen ? 12 : 18,
-                        verticalPadding: smallScreen ? 7 : 9,
+                        fontSize: buttonFontSize,
+                        horizontalPadding: smallScreen ? 18 : 26,
+                        verticalPadding: smallScreen ? 10 : 14,
                       ),
                     ],
                   ),
