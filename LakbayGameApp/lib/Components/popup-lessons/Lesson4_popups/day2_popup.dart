@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:lakbay_game/Views/game/lesson-four/day-two/act2.dart';
+import 'package:lakbay_game/Views/game/lesson-four/day-two/act3.dart';
+import 'package:lakbay_game/Views/game/lesson-four/day-two/act4.dart';
+import 'package:lakbay_game/Views/game/lesson-four/day-two/act5.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-three/act3.dart';
 import 'package:lakbay_game/Views/game/lesson-two/day-three/act2.dart';
 import 'package:lakbay_game/Views/game/lesson-two/day-three/act3.dart';
@@ -23,13 +27,23 @@ class Day2Popup extends StatelessWidget {
       return _TamaOMaliPopup(user: user);
     }
 
-    /// 3. KONSEPTO
-    if (title.contains('Ang Aking Pamilya sa Pamayanan')) {
+    if (title.contains('Tukuyin at Itugma')) {
+      Future.microtask(() {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => LessonFourDayTwoActTwo(user: user)),
+        );
+      });
+
+      return const SizedBox.shrink();
+    }
+
+    if (title.contains('Aktibidad')) {
       Future.microtask(() {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => LessonThreeDayOneActThree(user: user),
+            builder: (_) => LessonFourDayTwoActThree(user: user),
           ),
         );
       });
@@ -37,25 +51,12 @@ class Day2Popup extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    if (title.contains('Guhit mo Ibahagi mo')) {
+    if (title.contains('Bidyong Aralin')) {
       Future.microtask(() {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => LessonTwoDayThreeActThree(user: user),
-          ),
-        );
-      });
-
-      return const SizedBox.shrink();
-    }
-
-    if (title.contains('Pagninilay')) {
-      Future.microtask(() {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => LessonTwoDayThreeActFour(user: user),
+            builder: (_) => LessonFourDayTwoActFour(user: user),
           ),
         );
       });
@@ -69,7 +70,7 @@ class Day2Popup extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => LessonTwoDayThreeActFive(user: user),
+            builder: (_) => LessonFourDayTwoActFive(user: user),
           ),
         );
       });
@@ -114,7 +115,7 @@ class _LearningObjectivesPopup extends StatelessWidget {
 
           /// BACKGROUND IMAGE
           image: const DecorationImage(
-            image: AssetImage('assets/lesson-two-day3-act1t.png'),
+            image: AssetImage('assets/lesson-four-day2-act1.jpg'),
             fit: BoxFit.fill,
           ),
         ),
