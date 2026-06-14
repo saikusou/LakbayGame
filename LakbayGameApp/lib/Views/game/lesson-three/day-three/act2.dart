@@ -19,41 +19,101 @@ class _LessonThreeDayOneActTwoState extends State<LessonThreeDayOneActTwo> {
   String? answer1;
   String? answer2;
   String? answer3;
+  String? answer4;
+  String? answer5;
+
+  final int totalScenarios = 5;
+
+  final List<String> correctAnswers = [
+    'ILAYA',
+    'ILAYA',
+    'ILAYA',
+    'ILAWUD',
+    'ILAWUD',
+  ];
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
   }
 
   String? get currentAnswer {
-    if (currentScenario == 1) return answer1;
-    if (currentScenario == 2) return answer2;
-    return answer3;
+    switch (currentScenario) {
+      case 1:
+        return answer1;
+      case 2:
+        return answer2;
+      case 3:
+        return answer3;
+      case 4:
+        return answer4;
+      case 5:
+        return answer5;
+      default:
+        return null;
+    }
+  }
+
+  List<String?> get userAnswers => [
+    answer1,
+    answer2,
+    answer3,
+    answer4,
+    answer5,
+  ];
+
+  int getScore() {
+    int score = 0;
+
+    for (int i = 0; i < correctAnswers.length; i++) {
+      if (userAnswers[i] == correctAnswers[i]) {
+        score += 2;
+      }
+    }
+
+    return score;
   }
 
   void selectAnswer(String answer) {
     setState(() {
-      if (currentScenario == 1) {
-        answer1 = answer;
-      } else if (currentScenario == 2) {
-        answer2 = answer;
-      } else {
-        answer3 = answer;
+      switch (currentScenario) {
+        case 1:
+          answer1 = answer;
+          break;
+        case 2:
+          answer2 = answer;
+          break;
+        case 3:
+          answer3 = answer;
+          break;
+        case 4:
+          answer4 = answer;
+          break;
+        case 5:
+          answer5 = answer;
+          break;
       }
     });
   }
 
   String get backgroundImage {
-    if (currentScenario == 1) {
-      return 'assets/lesson-three-day3-act2-c1.png';
-    } else if (currentScenario == 2) {
-      return 'assets/lesson-three-day3-act2-c2.png';
-    } else {
-      return 'assets/lesson-three-day3-act2-c3.png';
+    switch (currentScenario) {
+      case 1:
+        return 'assets/lesson-three-day3-act2-c1.png';
+      case 2:
+        return 'assets/lesson-three-day3-act2-c2.png';
+      case 3:
+        return 'assets/lesson-three-day3-act2-c3.png';
+      case 4:
+        return 'assets/lesson-three-day3-act2-c4.png';
+      case 5:
+        return 'assets/lesson-three-day3-act2-c5.png';
+      default:
+        return 'assets/lesson-three-day3-act2-c1.png';
     }
   }
 
   void nextScenario() {
-    if (currentScenario < 3) {
+    if (currentScenario < totalScenarios) {
       setState(() => currentScenario++);
     }
   }
@@ -65,9 +125,114 @@ class _LessonThreeDayOneActTwoState extends State<LessonThreeDayOneActTwo> {
   }
 
   void submitAnswers() {
-    debugPrint('Picture 1 Answer: $answer1');
-    debugPrint('Picture 2 Answer: $answer2');
-    debugPrint('Picture 3 Answer: $answer3');
+    showScorePopup();
+  }
+
+  void showScorePopup() {
+    final int score = getScore();
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) {
+        final size = MediaQuery.of(context).size;
+
+        final double popupWidth = clampDouble(size.width * 0.85, 280, 380);
+        final double titleFont = clampDouble(size.width * 0.055, 20, 28);
+        final double textFont = clampDouble(size.width * 0.04, 14, 18);
+
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            width: popupWidth,
+            padding: const EdgeInsets.all(22),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFF6D8),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: Colors.brown, width: 4),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black38,
+                  blurRadius: 10,
+                  offset: Offset(0, 5),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  score == 10 ? 'CONGRATULATIONS!' : 'GOOD JOB!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: titleFont,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.brown,
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                Text(
+                  'Your Score: $score / 10',
+                  style: TextStyle(
+                    fontSize: textFont + 2,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                Text(
+                  'The correct answers are:',
+                  style: TextStyle(
+                    fontSize: textFont,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                Text(
+                  '1. Ilaya\n'
+                  '2. Ilaya\n'
+                  '3. Ilaya\n'
+                  '4. Ilawud\n'
+                  '5. Ilawud',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: textFont,
+                    height: 1.5,
+                    color: Colors.black87,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+
+                const SizedBox(height: 22),
+
+                Transform.scale(
+                  scale: 0.75,
+                  child: Button(
+                    label: 'OK',
+                    press: () {
+                      Navigator.pop(context);
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => Lesson3Screen(user: widget.user),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Widget choiceButton({
@@ -87,42 +252,45 @@ class _LessonThreeDayOneActTwoState extends State<LessonThreeDayOneActTwo> {
       child: Container(
         width: width,
         height: height,
+        padding: EdgeInsets.symmetric(horizontal: width * 0.05),
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(height / 2),
           border: Border.all(
             color: isSelected ? Colors.yellowAccent : Colors.white,
-            width: isSelected ? 5 : 4,
+            width: isSelected ? 4 : 3,
           ),
           boxShadow: const [
             BoxShadow(
               color: Colors.black26,
-              blurRadius: 8,
-              offset: Offset(0, 4),
+              blurRadius: 6,
+              offset: Offset(0, 3),
             ),
           ],
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              color: label == 'ILAYA' ? Colors.yellowAccent : Colors.pinkAccent,
-              size: iconSize,
-            ),
-            SizedBox(width: width * 0.05),
-            Flexible(
-              child: Text(
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                color: label == 'ILAYA'
+                    ? Colors.yellowAccent
+                    : Colors.pinkAccent,
+                size: iconSize,
+              ),
+              SizedBox(width: width * 0.04),
+              Text(
                 label,
-                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: fontSize,
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -142,7 +310,7 @@ class _LessonThreeDayOneActTwoState extends State<LessonThreeDayOneActTwo> {
         decoration: BoxDecoration(
           color: color,
           shape: BoxShape.circle,
-          border: Border.all(color: Colors.white, width: 4),
+          border: Border.all(color: Colors.white, width: size * 0.07),
           boxShadow: const [
             BoxShadow(
               color: Colors.black26,
@@ -161,22 +329,43 @@ class _LessonThreeDayOneActTwoState extends State<LessonThreeDayOneActTwo> {
     final size = MediaQuery.of(context).size;
     final safe = MediaQuery.of(context).padding;
 
-    final bool isSmallScreen = size.height < 700;
+    final bool smallPhone = size.width < 380 || size.height < 700;
+    final bool verySmallPhone = size.height < 620;
 
-    final double sidePadding = clampDouble(size.width * 0.045, 12, 24);
-    final double topPadding = safe.top + clampDouble(size.height * 0.01, 6, 14);
+    final double sidePadding = clampDouble(size.width * 0.045, 10, 24);
+    final double topPadding =
+        safe.top + clampDouble(size.height * 0.012, 6, 16);
 
-    final double topButtonSize = clampDouble(size.width * 0.12, 42, 62);
+    final double topButtonSize = clampDouble(size.width * 0.115, 38, 58);
 
-    final double choiceWidth = clampDouble(size.width * 0.38, 120, 165);
-    final double choiceHeight = clampDouble(size.height * 0.075, 46, 66);
-    final double choiceFont = clampDouble(size.width * 0.043, 14, 21);
-    final double choiceIcon = clampDouble(size.width * 0.062, 21, 31);
+    final double choiceWidth = clampDouble(
+      size.width * (smallPhone ? 0.34 : 0.32),
+      105,
+      145,
+    );
 
-    final double choicesBottom = clampDouble(size.height * 0.105, 64, 105);
-    final double buttonBottom = clampDouble(size.height * 0.015, 8, 18);
+    final double choiceHeight = clampDouble(
+      size.height * (smallPhone ? 0.052 : 0.058),
+      36,
+      52,
+    );
 
-    final double buttonScale = isSmallScreen ? 0.78 : 0.92;
+    final double choiceFont = clampDouble(size.width * 0.034, 11, 16);
+    final double choiceIcon = clampDouble(size.width * 0.045, 15, 23);
+
+    final double choicesBottom =
+        safe.bottom +
+        clampDouble(size.height * (verySmallPhone ? 0.085 : 0.095), 58, 92);
+
+    final double buttonBottom =
+        safe.bottom +
+        clampDouble(size.height * (verySmallPhone ? 0.012 : 0.018), 8, 20);
+
+    final double buttonScale = verySmallPhone
+        ? 0.55
+        : smallPhone
+        ? 0.62
+        : 0.72;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -190,8 +379,10 @@ class _LessonThreeDayOneActTwoState extends State<LessonThreeDayOneActTwo> {
             left: sidePadding,
             right: sidePadding,
             bottom: choicesBottom,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              spacing: clampDouble(size.width * 0.06, 18, 35),
+              runSpacing: 10,
               children: [
                 choiceButton(
                   label: 'ILAYA',
@@ -220,11 +411,11 @@ class _LessonThreeDayOneActTwoState extends State<LessonThreeDayOneActTwo> {
           Positioned(
             left: 0,
             right: 0,
-            bottom: safe.bottom + buttonBottom,
+            bottom: buttonBottom,
             child: Center(
               child: Transform.scale(
                 scale: buttonScale,
-                child: currentScenario < 3
+                child: currentScenario < totalScenarios
                     ? Button(label: 'NEXT', press: nextScenario)
                     : Button(label: 'SUBMIT', press: submitAnswers),
               ),

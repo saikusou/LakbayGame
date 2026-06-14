@@ -18,8 +18,20 @@ class _LessonThreeActFourState extends State<LessonThreeActFour> {
   String? answer1;
   String? answer2;
 
+  final String correctAnswer1 = 'TAMA';
+  final String correctAnswer2 = 'MALI';
+
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
+  }
+
+  int getScore() {
+    int score = 0;
+
+    if (answer1 == correctAnswer1) score += 5;
+    if (answer2 == correctAnswer2) score += 5;
+
+    return score;
   }
 
   void selectAnswer(String answer) {
@@ -63,6 +75,86 @@ class _LessonThreeActFourState extends State<LessonThreeActFour> {
                   color: Colors.black38,
                   blurRadius: 12,
                   offset: Offset(0, 6),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void showResultPopup() {
+    final size = MediaQuery.of(context).size;
+    final int score = getScore();
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.all(20),
+          child: Container(
+            width: clampDouble(size.width * 0.85, 280, 400),
+            padding: EdgeInsets.symmetric(
+              horizontal: clampDouble(size.width * 0.06, 18, 28),
+              vertical: clampDouble(size.height * 0.04, 24, 35),
+            ),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFF3C4),
+              borderRadius: BorderRadius.circular(25),
+              border: Border.all(color: Colors.orange, width: 4),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black38,
+                  blurRadius: 12,
+                  offset: Offset(0, 6),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'CONGRATULATIONS!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: clampDouble(size.width * 0.07, 24, 34),
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orange,
+                  ),
+                ),
+
+                SizedBox(height: clampDouble(size.height * 0.025, 14, 24)),
+
+                Text(
+                  '$score / 10 POINTS',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: clampDouble(size.width * 0.08, 28, 42),
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                  ),
+                ),
+
+                SizedBox(height: clampDouble(size.height * 0.035, 20, 30)),
+
+                SizedBox(
+                  width: clampDouble(size.width * 0.42, 130, 180),
+                  height: clampDouble(size.height * 0.06, 42, 55),
+                  child: Button(
+                    label: 'OK',
+                    press: () {
+                      Navigator.pop(context);
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => Lesson3Screen(user: widget.user),
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ],
             ),
@@ -182,12 +274,10 @@ class _LessonThreeActFourState extends State<LessonThreeActFour> {
       resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
-          /// BACKGROUND
           Positioned.fill(
             child: Image.asset(backgroundImage, fit: BoxFit.fill),
           ),
 
-          /// BACK BUTTON
           if (currentScenario == 2)
             Positioned(
               top: topPadding + 8,
@@ -204,7 +294,6 @@ class _LessonThreeActFourState extends State<LessonThreeActFour> {
               ),
             ),
 
-          /// HOME BUTTON
           Positioned(
             top: topPadding + 8,
             right: sidePadding,
@@ -223,7 +312,6 @@ class _LessonThreeActFourState extends State<LessonThreeActFour> {
             ),
           ),
 
-          /// BOTTOM CONTENT
           Positioned(
             left: sidePadding,
             right: sidePadding,
@@ -233,32 +321,28 @@ class _LessonThreeActFourState extends State<LessonThreeActFour> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          choiceButton(
-                            label: 'TAMA',
-                            icon: Icons.check,
-                            color: Colors.green,
-                            selected: currentAnswer == 'TAMA',
-                            onTap: () {
-                              selectAnswer('TAMA');
-                            },
-                          ),
-                          choiceButton(
-                            label: 'MALI',
-                            icon: Icons.close,
-                            color: Colors.red,
-                            selected: currentAnswer == 'MALI',
-                            onTap: () {
-                              selectAnswer('MALI');
-                            },
-                          ),
-                        ],
-                      );
-                    },
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      choiceButton(
+                        label: 'TAMA',
+                        icon: Icons.check,
+                        color: Colors.green,
+                        selected: currentAnswer == 'TAMA',
+                        onTap: () {
+                          selectAnswer('TAMA');
+                        },
+                      ),
+                      choiceButton(
+                        label: 'MALI',
+                        icon: Icons.close,
+                        color: Colors.red,
+                        selected: currentAnswer == 'MALI',
+                        onTap: () {
+                          selectAnswer('MALI');
+                        },
+                      ),
+                    ],
                   ),
 
                   SizedBox(height: clampDouble(size.height * 0.018, 8, 18)),
@@ -274,10 +358,7 @@ class _LessonThreeActFourState extends State<LessonThreeActFour> {
                             currentScenario = 2;
                           });
                         } else {
-                          debugPrint('Picture 1 Answer: $answer1');
-                          debugPrint('Picture 2 Answer: $answer2');
-
-                          // ADD RESULT PAGE HERE
+                          showResultPopup();
                         }
                       },
                     ),

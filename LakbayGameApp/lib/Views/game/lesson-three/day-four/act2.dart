@@ -13,140 +13,42 @@ class LessonThreeDayFourActTwo extends StatefulWidget {
 }
 
 class _LessonThreeDayFourActTwoState extends State<LessonThreeDayFourActTwo> {
-  int currentPage = 0;
+  int currentImage = 0;
 
-  final List<List<String>> questions = [
-    [
-      'Ang Ilaya ay matatagpuan malapit sa dagat.',
-      'Ang pangunahing hanapbuhay sa Ilawud ay pangingisda.',
-      'Ang Ilaya ay pamayanang nasa bundok o looban.',
-      'Ang Ilawud ay walang kaugnayan sa kalakalan.',
-      'Ang mga tao sa Ilaya ay nagsasaka at nangangaso.',
-    ],
-    [
-      'Pamayanang malapit sa ilog o dagat.',
-      'Ang mga tao ay nagtatanim at nangangaso.',
-      'May mga bangka at mangingisda, nasa kabundukan o looban.',
-      'Nakikipagkalakalan gamit ang mga produkto, tulad ng bigas at kahoy.',
-      'Nakikipagkalakalan gamit ang mga produkto, tulad ng isda at iba pang yamang-dagat.',
-    ],
+  final List<String> images = [
+    'assets/lesson-three-day4-act2-p1.png',
+    'assets/lesson-three-day4-act2-p2.png',
   ];
-
-  final List<String> backgrounds = [
-    'assets/lesson-three-day4-act2.png',
-    'assets/lesson-three-day4-act2b.png',
-  ];
-
-  late final List<List<TextEditingController>> answers;
-
-  @override
-  void initState() {
-    super.initState();
-    answers = List.generate(
-      questions.length,
-      (page) =>
-          List.generate(questions[page].length, (_) => TextEditingController()),
-    );
-  }
-
-  @override
-  void dispose() {
-    for (final page in answers) {
-      for (final controller in page) {
-        controller.dispose();
-      }
-    }
-    super.dispose();
-  }
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
   }
 
-  Widget answerBox({
-    required int index,
-    required double width,
-    required double height,
-    required double fontSize,
-  }) {
-    return SizedBox(
-      width: width,
-      height: height,
-      child: TextField(
-        controller: answers[currentPage][index],
-        textAlign: TextAlign.center,
-        textCapitalization: TextCapitalization.characters,
-        style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
-        decoration: InputDecoration(
-          filled: true,
-          fillColor: Colors.white,
-          contentPadding: EdgeInsets.zero,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Colors.blue, width: 2),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Colors.blue, width: 2),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Colors.orange, width: 2),
-          ),
-        ),
-      ),
-    );
+  void nextImage() {
+    if (currentImage < images.length - 1) {
+      setState(() {
+        currentImage++;
+      });
+    }
   }
 
-  Widget questionItem({
-    required int index,
-    required double fontSize,
-    required double answerWidth,
-    required double answerHeight,
-    required double answerFontSize,
-  }) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: clampDouble(fontSize * 1.25, 14, 24)),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '${index + 1}.',
-            style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(width: 6),
-
-          Expanded(
-            child: Text(
-              questions[currentPage][index],
-              style: TextStyle(
-                fontSize: fontSize,
-                fontWeight: FontWeight.w600,
-                height: 1.25,
-              ),
-            ),
-          ),
-
-          SizedBox(width: clampDouble(answerWidth * 0.08, 5, 10)),
-
-          answerBox(
-            index: index,
-            width: answerWidth,
-            height: answerHeight,
-            fontSize: answerFontSize,
-          ),
-        ],
-      ),
-    );
+  void previousImage() {
+    if (currentImage > 0) {
+      setState(() {
+        currentImage--;
+      });
+    }
   }
 
   Widget circleButton({
     required IconData icon,
-    required VoidCallback onTap,
     required Color color,
-    required double buttonSize,
-    required double iconSize,
+    required Size size,
+    required VoidCallback onTap,
   }) {
+    final double buttonSize = clampDouble(size.width * 0.12, 42, 58);
+    final double iconSize = clampDouble(size.width * 0.06, 24, 32);
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -155,12 +57,11 @@ class _LessonThreeDayFourActTwoState extends State<LessonThreeDayFourActTwo> {
         decoration: BoxDecoration(
           color: color,
           shape: BoxShape.circle,
-          border: Border.all(color: Colors.white, width: 3),
-          boxShadow: const [
+          boxShadow: [
             BoxShadow(
-              color: Colors.black26,
-              blurRadius: 7,
-              offset: Offset(0, 4),
+              color: Colors.black.withOpacity(0.25),
+              blurRadius: 6,
+              offset: const Offset(0, 3),
             ),
           ],
         ),
@@ -169,85 +70,57 @@ class _LessonThreeDayFourActTwoState extends State<LessonThreeDayFourActTwo> {
     );
   }
 
+  Widget navButton({
+    required String text,
+    required VoidCallback onPressed,
+    required Size size,
+  }) {
+    return SizedBox(
+      width: clampDouble(size.width * 0.30, 105, 145),
+      height: clampDouble(size.height * 0.055, 40, 50),
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.orange,
+          foregroundColor: Colors.white,
+          padding: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        child: Text(
+          text,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: clampDouble(size.width * 0.035, 13, 16),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
 
-    final bool isSmallScreen = size.height < 700;
-    final bool isVerySmallWidth = size.width < 380;
-
-    final double questionTop = clampDouble(
-      size.height * (isSmallScreen ? 0.30 : 0.34),
-      isSmallScreen ? 205 : 245,
-      isSmallScreen ? 255 : 330,
-    );
-
-    final double horizontalPadding = clampDouble(
-      size.width * 0.075,
-      isVerySmallWidth ? 18 : 24,
-      55,
-    );
-
-    final double fontSize = clampDouble(
-      size.width * 0.036,
-      isVerySmallWidth ? 12.5 : 14,
-      18,
-    );
-
-    final double answerWidth = clampDouble(
-      size.width * 0.19,
-      isVerySmallWidth ? 58 : 68,
-      88,
-    );
-
-    final double answerHeight = clampDouble(size.height * 0.048, 32, 40);
-
-    final double answerFontSize = clampDouble(size.width * 0.038, 13, 16);
-
-    final double buttonSize = clampDouble(size.width * 0.13, 45, 64);
-    final double iconSize = clampDouble(size.width * 0.07, 25, 36);
+    final double sidePadding = clampDouble(size.width * 0.04, 12, 22);
+    final double iconTop = clampDouble(size.height * 0.05, 28, 45);
+    final double bottomPadding = clampDouble(size.height * 0.025, 14, 28);
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           Positioned.fill(
-            child: Image.asset(backgrounds[currentPage], fit: BoxFit.fill),
+            child: Image.asset(images[currentImage], fit: BoxFit.fill),
           ),
 
           Positioned(
-            top: questionTop,
-            left: horizontalPadding,
-            right: horizontalPadding,
-            bottom: keyboardHeight > 0
-                ? keyboardHeight + 20
-                : clampDouble(size.height * 0.12, 85, 115),
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                children: List.generate(
-                  questions[currentPage].length,
-                  (index) => questionItem(
-                    index: index,
-                    fontSize: fontSize,
-                    answerWidth: answerWidth,
-                    answerHeight: answerHeight,
-                    answerFontSize: answerFontSize,
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          Positioned(
-            top: clampDouble(size.height * 0.025, 14, 24),
-            right: clampDouble(size.width * 0.04, 12, 22),
+            top: iconTop,
+            right: sidePadding,
             child: circleButton(
               icon: Icons.home,
               color: Colors.orange,
-              buttonSize: buttonSize,
-              iconSize: iconSize,
+              size: size,
               onTap: () {
                 Navigator.pushReplacement(
                   context,
@@ -259,39 +132,57 @@ class _LessonThreeDayFourActTwoState extends State<LessonThreeDayFourActTwo> {
             ),
           ),
 
-          if (currentPage == 1)
-            Positioned(
-              bottom: clampDouble(size.height * 0.035, 18, 30),
-              left: clampDouble(size.width * 0.07, 20, 35),
-              child: circleButton(
-                icon: Icons.arrow_back,
-                color: Colors.blue,
-                buttonSize: buttonSize,
-                iconSize: iconSize,
-                onTap: () {
-                  setState(() {
-                    currentPage = 0;
-                  });
-                },
+          Positioned(
+            top: iconTop + 58,
+            right: sidePadding,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.black54,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                '${currentImage + 1}/${images.length}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
+          ),
 
-          if (currentPage == 0)
-            Positioned(
-              bottom: clampDouble(size.height * 0.035, 18, 30),
-              right: clampDouble(size.width * 0.07, 20, 35),
-              child: circleButton(
-                icon: Icons.arrow_forward,
-                color: Colors.green,
-                buttonSize: buttonSize,
-                iconSize: iconSize,
-                onTap: () {
-                  setState(() {
-                    currentPage = 1;
-                  });
-                },
-              ),
+          Positioned(
+            left: 20,
+            right: 20,
+            bottom: bottomPadding,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                currentImage > 0
+                    ? navButton(
+                        text: 'Previous',
+                        onPressed: previousImage,
+                        size: size,
+                      )
+                    : SizedBox(width: clampDouble(size.width * 0.30, 105, 145)),
+
+                currentImage < images.length - 1
+                    ? navButton(text: 'Next', onPressed: nextImage, size: size)
+                    : navButton(
+                        text: 'Done',
+                        size: size,
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => Lesson3Screen(user: widget.user),
+                            ),
+                          );
+                        },
+                      ),
+              ],
             ),
+          ),
         ],
       ),
     );
