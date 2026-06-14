@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/game/lesson-one/day-two/act1.dart';
 import 'package:lakbay_game/Views/game/lesson-one/day-two/act3.dart';
 import 'package:lakbay_game/Views/game/lesson-one/day-two/act4.dart';
-import 'package:lakbay_game/Views/game/lesson-three/day-one/act4.dart';
 import 'package:lakbay_game/models/user_model.dart';
 
 class Day2Popup extends StatelessWidget {
@@ -56,19 +55,6 @@ class Day2Popup extends StatelessWidget {
       });
 
       return const SizedBox.shrink();
-    }
-
-    if (title.contains('Tama o Mali')) {
-      return ImagePopup(
-        imagePath: 'assets/lesson-two-day2-act3.png',
-        buttonText: 'START',
-        onButtonTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => LessonThreeActFour(user: user)),
-          );
-        },
-      );
     }
 
     if (title.contains('Takdang Aralin')) {
