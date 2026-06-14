@@ -23,9 +23,7 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
     return value.clamp(min, max).toDouble();
   }
 
-  String? get currentAnswer {
-    return currentScenario == 1 ? answer1 : answer2;
-  }
+  String? get currentAnswer => currentScenario == 1 ? answer1 : answer2;
 
   void selectAnswer(String answer) {
     setState(() {
@@ -39,10 +37,8 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
 
   int getScore() {
     int score = 0;
-
     if (answer1 == correctAnswers[0]) score += 5;
     if (answer2 == correctAnswers[1]) score += 5;
-
     return score;
   }
 
@@ -75,9 +71,7 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
                     color: Colors.orange,
                   ),
                 ),
-
                 const SizedBox(height: 16),
-
                 Text(
                   '$score / 10',
                   style: const TextStyle(
@@ -86,9 +80,7 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
                     color: Colors.green,
                   ),
                 ),
-
                 const SizedBox(height: 12),
-
                 Text(
                   score == 10
                       ? 'Perfect! Magaling!'
@@ -99,9 +91,7 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-
                 const SizedBox(height: 24),
-
                 plainButton(
                   label: 'OK',
                   onTap: () {
@@ -123,14 +113,22 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
   }
 
   Widget plainButton({required String label, required VoidCallback onTap}) {
+    final size = MediaQuery.of(context).size;
+    final bool smallScreen = size.width < 400;
+
+    final double buttonWidth = smallScreen ? 140 : 180;
+    final double verticalPadding = smallScreen ? 10 : 14;
+    final double fontSize = smallScreen ? 16 : 20;
+    final double radius = smallScreen ? 14 : 18;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 180,
-        padding: const EdgeInsets.symmetric(vertical: 14),
+        width: buttonWidth,
+        padding: EdgeInsets.symmetric(vertical: verticalPadding),
         decoration: BoxDecoration(
           color: Colors.orange,
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(radius),
           border: Border.all(color: Colors.white, width: 3),
           boxShadow: const [
             BoxShadow(
@@ -143,9 +141,9 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
         child: Text(
           label,
           textAlign: TextAlign.center,
-          style: const TextStyle(
+          style: TextStyle(
             color: Colors.white,
-            fontSize: 20,
+            fontSize: fontSize,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -164,18 +162,20 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
     required double titleSize,
     required double subtitleSize,
   }) {
+    final bool smallScreen = MediaQuery.of(context).size.width < 400;
+
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         width: width,
-        height: isSelected ? height + 6 : height,
+        height: isSelected ? height + (smallScreen ? 4 : 6) : height,
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(smallScreen ? 14 : 18),
           border: Border.all(
             color: isSelected ? Colors.yellow : Colors.white,
-            width: isSelected ? 5 : 3,
+            width: isSelected ? (smallScreen ? 4 : 5) : 3,
           ),
           boxShadow: [
             BoxShadow(
@@ -184,8 +184,8 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
                   : color == const Color(0xFF007ee6)
                   ? const Color(0xFF004fa3)
                   : const Color(0xFFc78200),
-              blurRadius: isSelected ? 15 : 0,
-              spreadRadius: isSelected ? 2 : 0,
+              blurRadius: isSelected ? (smallScreen ? 10 : 15) : 0,
+              spreadRadius: isSelected ? (smallScreen ? 1 : 2) : 0,
               offset: isSelected ? const Offset(0, 2) : const Offset(0, 6),
             ),
           ],
@@ -198,14 +198,14 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
                 label,
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: isSelected ? titleSize + 2 : titleSize,
+                  fontSize: isSelected
+                      ? titleSize + (smallScreen ? 1 : 2)
+                      : titleSize,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-
-            const SizedBox(height: 4),
-
+            SizedBox(height: smallScreen ? 2 : 4),
             Text(
               subLabel,
               textAlign: TextAlign.center,
@@ -227,7 +227,10 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
     required VoidCallback onTap,
   }) {
     final size = MediaQuery.of(context).size;
-    final buttonSize = clampDouble(size.width * 0.14, 48, 66);
+    final bool smallScreen = size.width < 400;
+    final buttonSize = smallScreen
+        ? clampDouble(size.width * 0.12, 42, 52)
+        : clampDouble(size.width * 0.14, 48, 66);
 
     return GestureDetector(
       onTap: onTap,
@@ -237,7 +240,7 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
         decoration: BoxDecoration(
           color: color,
           shape: BoxShape.circle,
-          border: Border.all(color: Colors.white, width: 4),
+          border: Border.all(color: Colors.white, width: smallScreen ? 3 : 4),
           boxShadow: const [
             BoxShadow(
               color: Colors.black26,
@@ -273,17 +276,35 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
     final size = MediaQuery.of(context).size;
     final w = size.width;
     final h = size.height;
+    final bool smallScreen = w < 400;
 
     final String backgroundImage = currentScenario == 1
         ? 'assets/lesson-two-day1-act21.png'
         : 'assets/lesson-two-day1-act22.png';
 
-    final double horizontalPadding = clampDouble(w * 0.06, 16, 28);
-    final double choiceWidth = clampDouble(w * 0.38, 130, 190);
-    final double choiceHeight = clampDouble(h * 0.115, 82, 105);
-    final double titleSize = clampDouble(w * 0.055, 18, 24);
-    final double subtitleSize = clampDouble(w * 0.032, 10, 13);
-    final double bottomPadding = clampDouble(h * 0.08, 35, 75);
+    final double horizontalPadding = smallScreen
+        ? clampDouble(w * 0.04, 10, 16)
+        : clampDouble(w * 0.06, 16, 28);
+
+    final double choiceWidth = smallScreen
+        ? clampDouble(w * 0.34, 100, 140)
+        : clampDouble(w * 0.38, 120, 190);
+
+    final double choiceHeight = smallScreen
+        ? clampDouble(h * 0.09, 65, 80)
+        : clampDouble(h * 0.115, 75, 105);
+
+    final double titleSize = smallScreen
+        ? clampDouble(w * 0.045, 14, 18)
+        : clampDouble(w * 0.055, 18, 24);
+
+    final double subtitleSize = smallScreen
+        ? clampDouble(w * 0.025, 8, 10)
+        : clampDouble(w * 0.032, 10, 13);
+
+    final double bottomPadding = smallScreen
+        ? clampDouble(h * 0.045, 22, 40)
+        : clampDouble(h * 0.08, 35, 75);
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -340,8 +361,10 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
                     children: [
                       Wrap(
                         alignment: WrapAlignment.center,
-                        spacing: clampDouble(w * 0.04, 10, 18),
-                        runSpacing: 12,
+                        spacing: smallScreen
+                            ? clampDouble(w * 0.025, 6, 10)
+                            : clampDouble(w * 0.04, 10, 18),
+                        runSpacing: smallScreen ? 8 : 12,
                         children: [
                           choiceButton(
                             label: 'FACT',
@@ -354,7 +377,6 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
                             titleSize: titleSize,
                             subtitleSize: subtitleSize,
                           ),
-
                           choiceButton(
                             label: 'KUWENTO',
                             subLabel: 'Alamat o\nKaalamang Bayan',
@@ -369,7 +391,11 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
                         ],
                       ),
 
-                      SizedBox(height: clampDouble(h * 0.025, 12, 22)),
+                      SizedBox(
+                        height: smallScreen
+                            ? 10
+                            : clampDouble(h * 0.025, 12, 22),
+                      ),
 
                       plainButton(
                         label: currentScenario == 1 ? 'NEXT' : 'SUBMIT',
