@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:lakbay_game/Views/lesson1.dart';
+import 'package:lakbay_game/Views/lesson2.dart';
 import 'package:lakbay_game/models/user_model.dart';
 
-class LessonTwoDayFourActTwo extends StatelessWidget {
+class LessonTwoDayFourActThree extends StatelessWidget {
   final UserModel user;
 
-  const LessonTwoDayFourActTwo({super.key, required this.user});
+  const LessonTwoDayFourActThree({super.key, required this.user});
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
@@ -46,7 +46,7 @@ class LessonTwoDayFourActTwo extends StatelessWidget {
         children: [
           Positioned.fill(
             child: Image.asset(
-              'assets/lesson-one-day4-act2.png',
+              'assets/lesson-two-day4-act3.png',
               fit: BoxFit.fill,
             ),
           ),
@@ -61,7 +61,7 @@ class LessonTwoDayFourActTwo extends StatelessWidget {
               onTap: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (_) => Lesson1Screen(user: user)),
+                  MaterialPageRoute(builder: (_) => Lesson2Screen(user: user)),
                 );
               },
             ),

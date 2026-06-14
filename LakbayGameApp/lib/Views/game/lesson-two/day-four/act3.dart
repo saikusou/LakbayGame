@@ -1,46 +1,44 @@
 import 'package:flutter/material.dart';
-import 'package:lakbay_game/Views/lesson1.dart';
 import 'package:lakbay_game/Views/lesson2.dart';
 import 'package:lakbay_game/models/user_model.dart';
 
-class LessonTwoDayFourActThree extends StatefulWidget {
+class LessonTwoDayFourActTwo extends StatefulWidget {
   final UserModel user;
 
-  const LessonTwoDayFourActThree({super.key, required this.user});
+  const LessonTwoDayFourActTwo({super.key, required this.user});
 
   @override
-  State<LessonTwoDayFourActThree> createState() =>
-      _LessonTwoDayFourActThreeState();
+  State<LessonTwoDayFourActTwo> createState() => _LessonTwoDayFourActTwoState();
 }
 
-class _LessonTwoDayFourActThreeState extends State<LessonTwoDayFourActThree> {
+class _LessonTwoDayFourActTwoState extends State<LessonTwoDayFourActTwo> {
   int currentImage = 0;
 
   final List<String> images = [
-    'assets/lesson-two-day4-act-3-a.png',
-    'assets/lesson-two-day4-act-3-b.png',
-    'assets/lesson-two-day4-act-3-c.png',
-    'assets/lesson-two-day4-act-3-d.png',
+    'assets/lesson-two-act2-img1.png',
+    'assets/lesson-two-act2-img2.png',
+    'assets/lesson-two-act2-img3.png',
+    'assets/lesson-two-act2-img4.png',
+    'assets/lesson-two-act2-img5.png',
+    'assets/lesson-two-act2-img6.png',
+    'assets/lesson-two-act2-img7.png',
+    'assets/lesson-two-act2-img8.png',
   ];
+
+  double clampDouble(double value, double min, double max) {
+    return value.clamp(min, max).toDouble();
+  }
 
   void nextImage() {
     if (currentImage < images.length - 1) {
-      setState(() {
-        currentImage++;
-      });
+      setState(() => currentImage++);
     }
   }
 
   void previousImage() {
     if (currentImage > 0) {
-      setState(() {
-        currentImage--;
-      });
+      setState(() => currentImage--);
     }
-  }
-
-  double clampDouble(double value, double min, double max) {
-    return value.clamp(min, max).toDouble();
   }
 
   Widget circleButton({
@@ -100,23 +98,33 @@ class _LessonTwoDayFourActThreeState extends State<LessonTwoDayFourActThree> {
     final Size screenSize = MediaQuery.of(context).size;
 
     final double sidePadding = screenSize.width * 0.04;
-    final double iconTop = screenSize.height * 0.05;
-    final double homeSize = clampDouble(screenSize.width * 0.12, 42, 70);
+    final double iconTop = screenSize.height * 0.03;
+    final double homeSize = clampDouble(screenSize.width * 0.11, 38, 58);
 
-    final double buttonFont = clampDouble(screenSize.width * 0.035, 13, 18);
-    final double buttonHPadding = clampDouble(screenSize.width * 0.06, 18, 30);
-    final double buttonVPadding = clampDouble(
-      screenSize.height * 0.012,
-      10,
-      16,
-    );
+    final double buttonFont = clampDouble(screenSize.width * 0.035, 12, 17);
+    final double buttonHPadding = clampDouble(screenSize.width * 0.055, 16, 28);
+    final double buttonVPadding = clampDouble(screenSize.height * 0.01, 8, 14);
 
     return Scaffold(
       body: SafeArea(
         child: Stack(
           children: [
             Positioned.fill(
-              child: Image.asset(images[currentImage], fit: BoxFit.fill),
+              child: Image.asset(
+                images[currentImage],
+                fit: BoxFit.fill,
+                errorBuilder: (context, error, stackTrace) {
+                  return const Center(
+                    child: Text(
+                      'Image not found',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
 
             Positioned(
@@ -161,9 +169,9 @@ class _LessonTwoDayFourActThreeState extends State<LessonTwoDayFourActThree> {
             ),
 
             Positioned(
-              left: 20,
-              right: 20,
-              bottom: 5,
+              left: 16,
+              right: 16,
+              bottom: 10,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -194,7 +202,7 @@ class _LessonTwoDayFourActThreeState extends State<LessonTwoDayFourActThree> {
                               context,
                               MaterialPageRoute(
                                 builder: (_) =>
-                                    Lesson1Screen(user: widget.user),
+                                    Lesson2Screen(user: widget.user),
                               ),
                             );
                           },
