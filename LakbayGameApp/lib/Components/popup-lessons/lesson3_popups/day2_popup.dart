@@ -30,14 +30,12 @@ class Day2Popup extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    /// 3. KONSEPTO
-    if (title.contains('Presentasyon')) {
-      return _GawainPopup(user: user);
-    }
-
-    /// 4. TAMA O MALI
     if (title.contains('Katanungan')) {
       return _TamaOMaliPopup(user: user);
+    }
+
+    if (title.contains('Presentasyon')) {
+      return _GawainPopup(user: user);
     }
 
     /// 5. TAKDANG ARALIN

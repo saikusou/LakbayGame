@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lakbay_game/Views/lesson2.dart';
+import 'package:lakbay_game/Views/lesson1.dart';
 import 'package:lakbay_game/models/user_model.dart';
 
 class LessonTwoDayFourActFour extends StatelessWidget {
@@ -46,7 +46,7 @@ class LessonTwoDayFourActFour extends StatelessWidget {
         children: [
           Positioned.fill(
             child: Image.asset(
-              'assets/lesson-two-day4-act4.png',
+              'assets/lesson-one-day4-act-4.png',
               fit: BoxFit.fill,
             ),
           ),
@@ -61,7 +61,7 @@ class LessonTwoDayFourActFour extends StatelessWidget {
               onTap: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (_) => Lesson2Screen(user: user)),
+                  MaterialPageRoute(builder: (_) => Lesson1Screen(user: user)),
                 );
               },
             ),

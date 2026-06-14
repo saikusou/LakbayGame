@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-four/act2.dart';
-import 'package:lakbay_game/Views/game/lesson-three/day-three/act3.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-four/act3.dart';
 import 'package:lakbay_game/models/user_model.dart';
 
@@ -24,20 +23,6 @@ class Day4Popup extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (_) => LessonThreeDayFourActTwo(user: user),
-          ),
-        );
-      });
-
-      return const SizedBox.shrink();
-    }
-
-    /// 3. KONSEPTO
-    if (title.contains('Ang Aking Pamilya sa Pamayanan')) {
-      Future.microtask(() {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => LessonThreeDayOneActThree(user: user),
           ),
         );
       });
@@ -102,7 +87,7 @@ class _LearningObjectivesPopup extends StatelessWidget {
           /// BACKGROUND IMAGE
           image: const DecorationImage(
             image: AssetImage('assets/lesson-three-day4-act1.png'),
-            fit: BoxFit.cover,
+            fit: BoxFit.fill,
           ),
         ),
 
