@@ -3,6 +3,7 @@ import 'package:lakbay_game/Views/lesson1.dart';
 import 'package:lakbay_game/Components/side_navigation.dart';
 import 'package:lakbay_game/Views/lesson2.dart';
 import 'package:lakbay_game/Views/lesson3.dart';
+import 'package:lakbay_game/Views/lesson4.dart';
 import 'package:lakbay_game/models/user_model.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -208,7 +209,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         width: levelWidth,
                         imageHeight: imageHeight,
                         starSize: starSize,
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  Lesson4Screen(user: widget.user),
+                            ),
+                          );
+                        },
                       ),
                     ),
 
