@@ -404,7 +404,7 @@ class _Lesson2ScreenState extends State<Lesson2Screen> {
         clipBehavior: Clip.none,
         children: [
           Positioned.fill(
-            child: Image.asset('assets/lesson1.png', fit: BoxFit.fill),
+            child: Image.asset('assets/lesson2.png', fit: BoxFit.fill),
           ),
 
           SafeArea(
