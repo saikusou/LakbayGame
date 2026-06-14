@@ -30,8 +30,9 @@ class Day4Popup extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
+    /// 2. GAWAIN
     if (title.contains('Pagsusulit')) {
-      return _GawainPopup(user: user);
+      return _PagsusulitPopup(user: user);
     }
 
     /// 5. TAKDANG ARALIN
@@ -139,10 +140,10 @@ class _LearningObjectivesPopup extends StatelessWidget {
 /// 2. GAWAIN
 /// =========================================================
 
-class _GawainPopup extends StatelessWidget {
+class _PagsusulitPopup extends StatelessWidget {
   final UserModel user;
 
-  const _GawainPopup({required this.user});
+  const _PagsusulitPopup({required this.user});
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
@@ -170,7 +171,7 @@ class _GawainPopup extends StatelessWidget {
 
           /// BACKGROUND IMAGE
           image: const DecorationImage(
-            image: AssetImage('assets/lesson-one-day4-act3a.png'),
+            image: AssetImage('assets/lesson-one-day4-act3.png'),
             fit: BoxFit.fill,
           ),
         ),

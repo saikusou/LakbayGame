@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lakbay_game/Views/lesson1.dart';
 import 'package:lakbay_game/Views/lesson2.dart';
 import 'package:lakbay_game/models/user_model.dart';
 
@@ -23,6 +22,27 @@ class _LessonTwoDayOneActFourState extends State<LessonTwoDayOneActFour> {
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
+  }
+
+  void nextPage() {
+    if (currentPage < images.length - 1) {
+      setState(() {
+        currentPage++;
+      });
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => Lesson2Screen(user: widget.user)),
+      );
+    }
+  }
+
+  void previousPage() {
+    if (currentPage > 0) {
+      setState(() {
+        currentPage--;
+      });
+    }
   }
 
   Widget circleButton({
@@ -86,33 +106,18 @@ class _LessonTwoDayOneActFourState extends State<LessonTwoDayOneActFour> {
     );
   }
 
-  void nextPage() {
-    if (currentPage < images.length - 1) {
-      setState(() {
-        currentPage++;
-      });
-    } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => Lesson2Screen(user: widget.user)),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;
 
     final double sidePadding = clampDouble(screenSize.width * 0.04, 12, 24);
-
     final double iconTop = clampDouble(screenSize.height * 0.035, 20, 40);
-
     final double homeButtonSize = clampDouble(screenSize.width * 0.11, 38, 54);
 
     final double bottomButtonWidth = clampDouble(
-      screenSize.width * 0.24,
-      85,
-      125,
+      screenSize.width * 0.28,
+      95,
+      135,
     );
 
     final double bottomButtonHeight = clampDouble(
@@ -122,12 +127,14 @@ class _LessonTwoDayOneActFourState extends State<LessonTwoDayOneActFour> {
     );
 
     final double bottomButtonFontSize = clampDouble(
-      screenSize.width * 0.03,
-      12,
-      15,
+      screenSize.width * 0.028,
+      11,
+      14,
     );
 
     final double bottomSpacing = clampDouble(screenSize.height * 0.025, 14, 24);
+
+    final double buttonGap = clampDouble(screenSize.width * 0.03, 10, 20);
 
     return Scaffold(
       body: Stack(
@@ -161,14 +168,30 @@ class _LessonTwoDayOneActFourState extends State<LessonTwoDayOneActFour> {
                   bottom: bottomSpacing,
                   left: 0,
                   right: 0,
-                  child: Center(
-                    child: bottomButton(
-                      text: currentPage == images.length - 1 ? 'DONE' : 'NEXT',
-                      width: bottomButtonWidth,
-                      height: bottomButtonHeight,
-                      fontSize: bottomButtonFontSize,
-                      onTap: nextPage,
-                    ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (currentPage > 0)
+                        bottomButton(
+                          text: 'PREVIOUS',
+                          width: bottomButtonWidth,
+                          height: bottomButtonHeight,
+                          fontSize: bottomButtonFontSize,
+                          onTap: previousPage,
+                        ),
+
+                      if (currentPage > 0) SizedBox(width: buttonGap),
+
+                      bottomButton(
+                        text: currentPage == images.length - 1
+                            ? 'DONE'
+                            : 'NEXT',
+                        width: bottomButtonWidth,
+                        height: bottomButtonHeight,
+                        fontSize: bottomButtonFontSize,
+                        onTap: nextPage,
+                      ),
+                    ],
                   ),
                 ),
               ],
