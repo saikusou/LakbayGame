@@ -102,7 +102,7 @@ class _LearningObjectivesPopup extends StatelessWidget {
           /// BACKGROUND IMAGE
           image: const DecorationImage(
             image: AssetImage('assets/lesson-three-day4-act1.png'),
-            fit: BoxFit.cover,
+            fit: BoxFit.fill,
           ),
         ),
 
@@ -299,7 +299,7 @@ class _TakdangAralinPopup extends StatelessWidget {
           /// BACKGROUND IMAGE
           image: const DecorationImage(
             image: AssetImage('assets/lesson-three-day3-act5.png'),
-            fit: BoxFit.cover,
+            fit: BoxFit.fill,
           ),
         ),
 

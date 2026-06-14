@@ -12,7 +12,7 @@ class LessonThreeGameOne extends StatefulWidget {
 }
 
 class _LessonThreeGameOneState extends State<LessonThreeGameOne> {
-  final String correctWord = "MAYANAPAN";
+  final String correctWord = "PAMAYANAN";
 
   final List<String> originalLetters = [
     "M",
@@ -29,44 +29,81 @@ class _LessonThreeGameOneState extends State<LessonThreeGameOne> {
   late List<String?> answers;
   late List<String?> availableLetters;
 
+  bool isSolved = false;
+
   @override
   void initState() {
     super.initState();
-    answers = List.filled(correctWord.length, null);
-    availableLetters = List.from(originalLetters);
+    resetAnswer();
   }
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
   }
 
-  void checkAnswer() {
+  void resetAnswer() {
+    answers = List.filled(correctWord.length, null);
+    availableLetters = List.from(originalLetters);
+    isSolved = false;
+  }
+
+  void resetGame() {
+    setState(() {
+      resetAnswer();
+    });
+  }
+
+  void autoCheckAnswer() {
     final userAnswer = answers.map((e) => e ?? "").join();
 
+    if (userAnswer == correctWord && !isSolved) {
+      isSolved = true;
+
+      Future.delayed(const Duration(milliseconds: 150), () {
+        if (!mounted) return;
+
+        showCongratulationsPopup();
+      });
+    }
+  }
+
+  void showCongratulationsPopup() {
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (_) => AlertDialog(
-        title: Text(userAnswer == correctWord ? "Tama!" : "Subukan muli"),
-        content: Text(
-          userAnswer == correctWord
-              ? "Magaling! Nabuo mo ang salitang MAYANAPAN."
-              : "Hindi pa tama ang sagot.",
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        title: const Text(
+          "Congratulations!",
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
         ),
+        content: const Text(
+          "Perfect Score!\n\nNakakuha ka ng 20/20.",
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+        ),
+        actionsAlignment: MainAxisAlignment.center,
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("OK"),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => Lesson3Screen(user: widget.user),
+                ),
+              );
+            },
+            child: const Text(
+              "OK",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),
     );
-  }
-
-  void resetAnswer() {
-    setState(() {
-      answers = List.filled(correctWord.length, null);
-      availableLetters = List.from(originalLetters);
-    });
   }
 
   Widget homeButton(BuildContext context, Size screenSize) {
@@ -154,7 +191,7 @@ class _LessonThreeGameOneState extends State<LessonThreeGameOne> {
         final draggedIndex = details.data;
         final draggedLetter = availableLetters[draggedIndex];
 
-        if (draggedLetter == null) return;
+        if (draggedLetter == null || isSolved) return;
 
         setState(() {
           if (answers[index] != null) {
@@ -167,18 +204,22 @@ class _LessonThreeGameOneState extends State<LessonThreeGameOne> {
           answers[index] = draggedLetter;
           availableLetters[draggedIndex] = null;
         });
+
+        autoCheckAnswer();
       },
       builder: (context, candidateData, rejectedData) {
         return GestureDetector(
           onTap: () {
-            if (answers[index] != null) {
+            if (answers[index] != null && !isSolved) {
               setState(() {
                 final emptyIndex = availableLetters.indexWhere(
                   (e) => e == null,
                 );
+
                 if (emptyIndex != -1) {
                   availableLetters[emptyIndex] = answers[index];
                 }
+
                 answers[index] = null;
               });
             }
@@ -282,7 +323,9 @@ class _LessonThreeGameOneState extends State<LessonThreeGameOne> {
                       (index) => answerBox(index, boxWidth, boxHeight),
                     ),
                   ),
+
                   SizedBox(height: clampDouble(size.height * 0.01, 4, 10)),
+
                   SizedBox(
                     height: tileSize * 2.4,
                     child: Center(
@@ -307,28 +350,16 @@ class _LessonThreeGameOneState extends State<LessonThreeGameOne> {
                       ),
                     ),
                   ),
+
                   SizedBox(height: clampDouble(size.height * 0.008, 4, 8)),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      actionButton(
-                        text: "Check",
-                        onTap: checkAnswer,
-                        color: Colors.green,
-                        fontSize: fontSize,
-                        horizontalPadding: smallScreen ? 12 : 18,
-                        verticalPadding: smallScreen ? 7 : 9,
-                      ),
-                      const SizedBox(width: 8),
-                      actionButton(
-                        text: "Reset",
-                        onTap: resetAnswer,
-                        color: Colors.red,
-                        fontSize: fontSize,
-                        horizontalPadding: smallScreen ? 12 : 18,
-                        verticalPadding: smallScreen ? 7 : 9,
-                      ),
-                    ],
+
+                  actionButton(
+                    text: "Reset",
+                    onTap: resetGame,
+                    color: Colors.red,
+                    fontSize: fontSize,
+                    horizontalPadding: smallScreen ? 16 : 22,
+                    verticalPadding: smallScreen ? 7 : 9,
                   ),
                 ],
               ),

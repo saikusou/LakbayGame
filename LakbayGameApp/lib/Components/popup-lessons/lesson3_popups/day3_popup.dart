@@ -27,6 +27,19 @@ class Day3Popup extends StatelessWidget {
     }
 
     /// 3. KONSEPTO
+    if (title.contains('Kilalanin Mo Ako!')) {
+      Future.microtask(() {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => LessonThreeDayOneActTwo(user: user),
+          ),
+        );
+      });
+
+      return const SizedBox.shrink();
+    }
+
     if (title.contains('Ang Aking Pamilya sa Pamayanan')) {
       Future.microtask(() {
         Navigator.push(
@@ -40,25 +53,12 @@ class Day3Popup extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    if (title.contains('Guhit mo Ibahagi mo')) {
+    if (title.contains('Katanungan')) {
       Future.microtask(() {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => LessonTwoDayThreeActThree(user: user),
-          ),
-        );
-      });
-
-      return const SizedBox.shrink();
-    }
-
-    if (title.contains('Pagninilay')) {
-      Future.microtask(() {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => LessonTwoDayThreeActFour(user: user),
+            builder: (_) => LessonThreeDayOneActFour(user: user),
           ),
         );
       });
@@ -68,16 +68,7 @@ class Day3Popup extends StatelessWidget {
 
     /// 5. TAKDANG ARALIN
     if (title.contains('Takdang Aralin')) {
-      Future.microtask(() {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => LessonTwoDayThreeActFive(user: user),
-          ),
-        );
-      });
-
-      return const SizedBox.shrink();
+      return _TakdangAralinPopup(user: user);
     }
 
     return const SizedBox();
@@ -117,7 +108,7 @@ class _LearningObjectivesPopup extends StatelessWidget {
 
           /// BACKGROUND IMAGE
           image: const DecorationImage(
-            image: AssetImage('assets/lesson-two-day3-act1t.png'),
+            image: AssetImage('assets/lesson-three-day3-act1.png'),
             fit: BoxFit.fill,
           ),
         ),

@@ -80,18 +80,128 @@ class LessonThreeGameTwo extends StatefulWidget {
 }
 
 class _LessonThreeGameTwoState extends State<LessonThreeGameTwo> {
+  final Set<int> clickedHiddenImages = {};
+  bool congratulationsShown = false;
+
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
   }
 
-  void showHiddenPopup(String image) {
-    showDialog(
+  Future<void> showHiddenPopup(int id, String image) async {
+    if (!clickedHiddenImages.contains(id)) {
+      setState(() {
+        clickedHiddenImages.add(id);
+      });
+    }
+
+    await showDialog(
       context: context,
       builder: (_) => HiddenPopup(image: image, users: widget.user),
+    );
+
+    if (clickedHiddenImages.length == 4 && !congratulationsShown) {
+      congratulationsShown = true;
+      showCongratulationsPopup();
+    }
+  }
+
+  void showCongratulationsPopup() {
+    final size = MediaQuery.of(context).size;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            width: clampDouble(size.width * 0.82, 280, 380),
+            padding: EdgeInsets.all(clampDouble(size.width * 0.06, 18, 28)),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFF3D6),
+              borderRadius: BorderRadius.circular(25),
+              border: Border.all(color: Colors.orange, width: 4),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 10,
+                  offset: Offset(0, 5),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "Congratulations!",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: clampDouble(size.width * 0.075, 24, 34),
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orange,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Text(
+                  "Nahanap mo ang lahat ng hidden images!",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: clampDouble(size.width * 0.045, 16, 20),
+                    fontWeight: FontWeight.w600,
+                    color: Colors.brown,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  "+20 Points",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: clampDouble(size.width * 0.07, 24, 32),
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                  ),
+                ),
+                const SizedBox(height: 22),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => Lesson3Screen(user: widget.user),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    width: clampDouble(size.width * 0.36, 130, 170),
+                    height: clampDouble(size.height * 0.055, 42, 52),
+                    decoration: BoxDecoration(
+                      color: Colors.orange,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: Colors.white, width: 3),
+                    ),
+                    child: Center(
+                      child: Text(
+                        "OK",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: clampDouble(size.width * 0.045, 16, 20),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
   Widget hiddenCircle({
+    required int id,
     required double x,
     required double y,
     required double size,
@@ -106,14 +216,12 @@ class _LessonThreeGameTwoState extends State<LessonThreeGameTwo> {
       left: (x * scaleX) - (circleWidth / 2),
       top: (y * scaleY) - (circleHeight / 2),
       child: GestureDetector(
-        onTap: () => showHiddenPopup(popupImage),
+        onTap: () => showHiddenPopup(id, popupImage),
         child: Container(
           width: circleWidth,
           height: circleHeight,
           decoration: const BoxDecoration(
             shape: BoxShape.circle,
-
-            // For testing. Change to Colors.transparent later.
             color: Color.fromARGB(0, 90, 11, 11),
           ),
         ),
@@ -138,7 +246,6 @@ class _LessonThreeGameTwoState extends State<LessonThreeGameTwo> {
 
           return Stack(
             children: [
-              /// BACKGROUND
               Positioned.fill(
                 child: Image.asset(
                   'assets/lesson-three-game2.png',
@@ -146,8 +253,8 @@ class _LessonThreeGameTwoState extends State<LessonThreeGameTwo> {
                 ),
               ),
 
-              /// HIDDEN 1
               hiddenCircle(
+                id: 1,
                 x: 389,
                 y: 565,
                 size: 90,
@@ -156,8 +263,8 @@ class _LessonThreeGameTwoState extends State<LessonThreeGameTwo> {
                 popupImage: "assets/lesson-three-game2b.png",
               ),
 
-              /// HIDDEN 2
               hiddenCircle(
+                id: 2,
                 x: 500,
                 y: 1054,
                 size: 70,
@@ -166,8 +273,8 @@ class _LessonThreeGameTwoState extends State<LessonThreeGameTwo> {
                 popupImage: "assets/lesson-three-game2d.png",
               ),
 
-              /// HIDDEN 3
               hiddenCircle(
+                id: 3,
                 x: 599,
                 y: 1138,
                 size: 70,
@@ -176,8 +283,8 @@ class _LessonThreeGameTwoState extends State<LessonThreeGameTwo> {
                 popupImage: "assets/lesson-three-game2c.png",
               ),
 
-              /// HIDDEN 4
               hiddenCircle(
+                id: 4,
                 x: 30,
                 y: 1260,
                 size: 70,
@@ -186,7 +293,6 @@ class _LessonThreeGameTwoState extends State<LessonThreeGameTwo> {
                 popupImage: "assets/lesson-three-game2a.png",
               ),
 
-              /// HOME BUTTON
               Positioned(
                 top: clampDouble(screenH * 0.025, 14, 22),
                 right: clampDouble(screenW * 0.04, 12, 20),

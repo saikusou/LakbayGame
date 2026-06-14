@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-one/act4.dart';
-import 'package:lakbay_game/Views/game/lesson-three/day-three/act2.dart';
 import 'package:lakbay_game/Views/game/lesson-three/game_one.dart';
 import 'package:lakbay_game/Views/game/lesson-three/game_two.dart';
 import 'package:lakbay_game/models/user_model.dart';
@@ -245,27 +244,6 @@ class _GawainPopup extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-/// =========================================================
-/// 3. KONSEPTO
-/// =========================================================
-class _KonseptoPopup extends StatelessWidget {
-  final UserModel user;
-
-  const _KonseptoPopup({required this.user});
-
-  @override
-  Widget build(BuildContext context) {
-    return _CustomPopupContainer(
-      borderColor: Colors.green,
-      child: const Text(
-        "Dito ilalagay ang konsepto ng aralin.",
-        textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 18),
       ),
     );
   }
