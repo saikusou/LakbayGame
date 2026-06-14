@@ -3,11 +3,13 @@ import 'package:lakbay_game/Components/side_navigation.dart';
 import 'package:lakbay_game/Views/profile.dart';
 
 /// POPUPS
-import 'package:lakbay_game/Components/popup-lessons/lesson3_popups/day1_popup.dart';
-import 'package:lakbay_game/Components/popup-lessons/lesson3_popups/day2_popup.dart';
-import 'package:lakbay_game/Components/popup-lessons/lesson3_popups/day3_popup.dart';
-import 'package:lakbay_game/Components/popup-lessons/lesson3_popups/day4_popup.dart';
+
 import 'package:lakbay_game/models/user_model.dart';
+
+import '../Components/popup-lessons/Lesson4_popups/day1_popup.dart';
+import '../Components/popup-lessons/Lesson4_popups/day2_popup.dart';
+import '../Components/popup-lessons/Lesson4_popups/day3_popup.dart';
+import '../Components/popup-lessons/Lesson4_popups/day4_popup.dart';
 
 class Lesson4Screen extends StatefulWidget {
   final UserModel user;
@@ -100,7 +102,7 @@ class _Lesson4ScreenState extends State<Lesson4Screen> {
 
         contents = [
           {"icon": Icons.track_changes, "title": "1. Learning Objectives"},
-          {"icon": Icons.extension, "title": "2. GAWAIN 1:Hularawan"},
+          {"icon": Icons.extension, "title": "2. Ilarawan"},
           {"icon": Icons.lightbulb, "title": "3. Konsepto"},
           {"icon": Icons.check_circle, "title": "4. Tama o Mali"},
           {"icon": Icons.assignment, "title": "5. Takdang Aralin"},
@@ -113,9 +115,10 @@ class _Lesson4ScreenState extends State<Lesson4Screen> {
 
         contents = [
           {"icon": Icons.menu_book, "title": "1. Learning Objectives"},
-          {"icon": Icons.quiz, "title": "2. GAWAIN 2: Ilaya o Ilawud"},
-          {"icon": Icons.assignment, "title": "3. Katanungan"},
-          {"icon": Icons.assignment, "title": "4. Takdang Aralin"},
+          {"icon": Icons.quiz, "title": "2. Tukuyin at Itugma"},
+          {"icon": Icons.check_circle, "title": "3. Aktibidad"},
+          {"icon": Icons.lightbulb, "title": "4. Bidyong Aralin"},
+          {"icon": Icons.assignment, "title": "5. Takdang Aralin"},
         ];
         break;
 
@@ -125,9 +128,9 @@ class _Lesson4ScreenState extends State<Lesson4Screen> {
 
         contents = [
           {"icon": Icons.history_edu, "title": "1. Learning Objectives"},
-          {"icon": Icons.public, "title": "2. GAWAIN 3: Kilalanin Mo Ako!"},
-          {"icon": Icons.school, "title": "3. Ang Aking Pamilya sa Pamayanan"},
-          {"icon": Icons.edit, "title": "4. Katanungan"},
+          {"icon": Icons.public, "title": "2. Hanapin at Buuin"},
+          {"icon": Icons.school, "title": "3. Gwain"},
+          {"icon": Icons.edit, "title": "4. Pagninilay"},
           {"icon": Icons.assignment, "title": "5. Takdang Aralin"},
         ];
         break;
@@ -139,8 +142,7 @@ class _Lesson4ScreenState extends State<Lesson4Screen> {
         contents = [
           {"icon": Icons.star, "title": "1. Learning Objectives"},
           {"icon": Icons.workspace_premium, "title": "2. Pagsusulit"},
-          {"icon": Icons.edit, "title": "3. Katanungan"},
-          {"icon": Icons.assignment, "title": "4. Takdang Aralin"},
+          {"icon": Icons.assignment, "title": "3. Takdang Aralin"},
         ];
         break;
     }
@@ -437,7 +439,7 @@ class _Lesson4ScreenState extends State<Lesson4Screen> {
         clipBehavior: Clip.none,
         children: [
           Positioned.fill(
-            child: Image.asset('assets/lesson3.png', fit: BoxFit.fill),
+            child: Image.asset('assets/lesson4.png', fit: BoxFit.fill),
           ),
 
           SafeArea(

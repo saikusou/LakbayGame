@@ -13,10 +13,10 @@ class LessonTwoDayTwoActTwo extends StatefulWidget {
 
 class _LessonTwoDayTwoActTwoState extends State<LessonTwoDayTwoActTwo> {
   final List<String> pieces = [
-    'assets/l2-d1-1.png',
-    'assets/l2-d1-2.png',
     'assets/l2-d1-3.png',
     'assets/l2-d1-4.png',
+    'assets/l2-d1-1.png',
+    'assets/l2-d1-2.png',
   ];
 
   final List<int?> placed = List.filled(4, null);
@@ -59,7 +59,6 @@ class _LessonTwoDayTwoActTwoState extends State<LessonTwoDayTwoActTwo> {
         placed[i] = null;
       }
 
-      // Keep the current time if puzzle is NOT solved
       if (timerStopped) {
         elapsedSeconds = 0;
       }
@@ -103,10 +102,11 @@ class _LessonTwoDayTwoActTwoState extends State<LessonTwoDayTwoActTwo> {
       barrierDismissible: false,
       builder: (context) {
         final size = MediaQuery.of(context).size;
-        final double popupWidth = clampDouble(size.width * 0.85, 290, 420);
+        final popupWidth = clampDouble(size.width * 0.86, 285, 420);
 
         return Dialog(
           backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.all(18),
           child: Container(
             width: popupWidth,
             padding: const EdgeInsets.all(22),
@@ -130,9 +130,7 @@ class _LessonTwoDayTwoActTwoState extends State<LessonTwoDayTwoActTwo> {
                   size: 70,
                   color: Color(0xFFFFC928),
                 ),
-
                 const SizedBox(height: 10),
-
                 const Text(
                   'Congratulations!',
                   textAlign: TextAlign.center,
@@ -142,9 +140,7 @@ class _LessonTwoDayTwoActTwoState extends State<LessonTwoDayTwoActTwo> {
                     color: Color(0xFF126FC0),
                   ),
                 ),
-
                 const SizedBox(height: 8),
-
                 const Text(
                   'Nabuo mo ang puzzle!',
                   textAlign: TextAlign.center,
@@ -154,9 +150,7 @@ class _LessonTwoDayTwoActTwoState extends State<LessonTwoDayTwoActTwo> {
                     color: Color(0xFF123B63),
                   ),
                 ),
-
                 const SizedBox(height: 18),
-
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 22,
@@ -188,26 +182,23 @@ class _LessonTwoDayTwoActTwoState extends State<LessonTwoDayTwoActTwo> {
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 22),
-
                 GestureDetector(
                   onTap: () {
                     Navigator.pop(context);
-
                     setState(() {
                       for (int i = 0; i < placed.length; i++) {
                         placed[i] = null;
                       }
 
-                      elapsedSeconds = 0; // reset time only after winning
+                      elapsedSeconds = 0;
                       timerStopped = false;
                       popupShown = false;
                     });
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 28,
+                      horizontal: 26,
                       vertical: 13,
                     ),
                     decoration: BoxDecoration(
@@ -252,31 +243,33 @@ class _LessonTwoDayTwoActTwoState extends State<LessonTwoDayTwoActTwo> {
             final width = constraints.maxWidth;
             final height = constraints.maxHeight;
 
-            final bool isSmall = height < 720;
-            final bool isVerySmall = height < 640;
+            final bool isSmallPhone = height < 720;
+            final bool isVerySmallPhone = height < 640;
 
-            final double boardWidth = clampDouble(width * 0.90, 300, 460);
+            final double horizontalPadding = clampDouble(width * 0.035, 10, 18);
+
+            final double titleFont = clampDouble(width * 0.068, 21, 30);
+            final double instructionFont = clampDouble(width * 0.038, 12, 16);
+
+            final double boardWidth = clampDouble(width * 0.92, 300, 460);
             final double boardHeight = clampDouble(
-              boardWidth * 0.63,
+              boardWidth * 0.62,
               185,
-              isSmall ? 250 : 290,
+              isSmallPhone ? 245 : 285,
             );
 
-            final double titleFont = clampDouble(width * 0.07, 22, 30);
-            final double instructionFont = clampDouble(width * 0.038, 13, 17);
-
             final double pieceWidth = clampDouble(
-              width * 0.21,
-              62,
-              isSmall ? 88 : 105,
+              width * 0.205,
+              58,
+              isSmallPhone ? 84 : 100,
             );
             final double pieceHeight = pieceWidth * 0.72;
 
-            final double timerWidth = clampDouble(width * 0.23, 78, 95);
-            final double timerHeight = clampDouble(height * 0.085, 58, 72);
+            final double timerWidth = clampDouble(width * 0.25, 78, 100);
+            final double timerHeight = clampDouble(height * 0.075, 52, 68);
 
-            final double resetHeight = clampDouble(height * 0.07, 48, 58);
-            final double resetFont = clampDouble(width * 0.05, 17, 22);
+            final double resetHeight = clampDouble(height * 0.065, 44, 58);
+            final double resetFont = clampDouble(width * 0.047, 16, 21);
 
             return Stack(
               children: [
@@ -297,21 +290,22 @@ class _LessonTwoDayTwoActTwoState extends State<LessonTwoDayTwoActTwo> {
                 ),
 
                 SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(minHeight: height),
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(
-                        14,
-                        isVerySmall ? 6 : 10,
-                        14,
-                        14,
+                        horizontalPadding,
+                        isVerySmallPhone ? 6 : 10,
+                        horizontalPadding,
+                        16,
                       ),
                       child: Column(
                         children: [
                           Container(
                             padding: EdgeInsets.symmetric(
                               horizontal: 8,
-                              vertical: isVerySmall ? 5 : 8,
+                              vertical: isVerySmallPhone ? 5 : 8,
                             ),
                             decoration: BoxDecoration(
                               color: const Color(0xFF126FC0),
@@ -329,15 +323,17 @@ class _LessonTwoDayTwoActTwoState extends State<LessonTwoDayTwoActTwo> {
                               children: [
                                 IconButton(
                                   padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
+                                  constraints: const BoxConstraints(
+                                    minWidth: 34,
+                                    minHeight: 34,
+                                  ),
                                   onPressed: () => Navigator.pop(context),
                                   icon: const Icon(
                                     Icons.arrow_back,
                                     color: Colors.white,
-                                    size: 28,
+                                    size: 27,
                                   ),
                                 ),
-                                const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
                                     'I-konek Mo Ako!',
@@ -349,16 +345,19 @@ class _LessonTwoDayTwoActTwoState extends State<LessonTwoDayTwoActTwo> {
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 36),
+                                const SizedBox(width: 34),
                               ],
                             ),
                           ),
 
-                          SizedBox(height: isVerySmall ? 8 : 12),
+                          SizedBox(height: isVerySmallPhone ? 8 : 12),
 
                           Container(
                             width: boardWidth,
-                            padding: EdgeInsets.all(isVerySmall ? 8 : 12),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: isVerySmallPhone ? 8 : 11,
+                            ),
                             decoration: BoxDecoration(
                               color: const Color(0xFFFFFCF3),
                               borderRadius: BorderRadius.circular(14),
@@ -372,13 +371,14 @@ class _LessonTwoDayTwoActTwoState extends State<LessonTwoDayTwoActTwo> {
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: instructionFont,
+                                height: 1.15,
                                 fontWeight: FontWeight.w800,
                                 color: const Color(0xFF123B63),
                               ),
                             ),
                           ),
 
-                          SizedBox(height: isVerySmall ? 8 : 12),
+                          SizedBox(height: isVerySmallPhone ? 8 : 12),
 
                           Container(
                             width: boardWidth,
@@ -452,144 +452,153 @@ class _LessonTwoDayTwoActTwoState extends State<LessonTwoDayTwoActTwo> {
                             ),
                           ),
 
-                          SizedBox(height: isVerySmall ? 10 : 14),
+                          SizedBox(height: isVerySmallPhone ? 9 : 14),
 
-                          Wrap(
-                            spacing: isSmall ? 8 : 12,
-                            runSpacing: isSmall ? 8 : 12,
-                            alignment: WrapAlignment.center,
-                            children: List.generate(4, (index) {
-                              final bool alreadyPlaced = placed.contains(index);
-
-                              if (alreadyPlaced) {
-                                return SizedBox(
-                                  width: pieceWidth,
-                                  height: pieceHeight,
+                          SizedBox(
+                            width: boardWidth,
+                            child: Wrap(
+                              spacing: isSmallPhone ? 8 : 12,
+                              runSpacing: isSmallPhone ? 8 : 12,
+                              alignment: WrapAlignment.center,
+                              children: List.generate(4, (index) {
+                                final bool alreadyPlaced = placed.contains(
+                                  index,
                                 );
-                              }
 
-                              return Draggable<int>(
-                                data: index,
-                                maxSimultaneousDrags: timerStopped ? 0 : 1,
-                                feedback: Material(
-                                  color: Colors.transparent,
-                                  child: Image.asset(
-                                    pieces[index],
-                                    width: pieceWidth * 1.25,
-                                    height: pieceHeight * 1.25,
-                                    fit: BoxFit.fill,
+                                if (alreadyPlaced) {
+                                  return SizedBox(
+                                    width: pieceWidth,
+                                    height: pieceHeight,
+                                  );
+                                }
+
+                                return Draggable<int>(
+                                  data: index,
+                                  maxSimultaneousDrags: timerStopped ? 0 : 1,
+                                  feedback: Material(
+                                    color: Colors.transparent,
+                                    child: Image.asset(
+                                      pieces[index],
+                                      width: pieceWidth * 1.2,
+                                      height: pieceHeight * 1.2,
+                                      fit: BoxFit.fill,
+                                    ),
                                   ),
-                                ),
-                                childWhenDragging: Opacity(
-                                  opacity: 0.3,
+                                  childWhenDragging: Opacity(
+                                    opacity: 0.3,
+                                    child: Image.asset(
+                                      pieces[index],
+                                      width: pieceWidth,
+                                      height: pieceHeight,
+                                      fit: BoxFit.fill,
+                                    ),
+                                  ),
                                   child: Image.asset(
                                     pieces[index],
                                     width: pieceWidth,
                                     height: pieceHeight,
                                     fit: BoxFit.fill,
                                   ),
-                                ),
-                                child: Image.asset(
-                                  pieces[index],
-                                  width: pieceWidth,
-                                  height: pieceHeight,
-                                  fit: BoxFit.fill,
-                                ),
-                              );
-                            }),
+                                );
+                              }),
+                            ),
                           ),
 
-                          SizedBox(height: isVerySmall ? 12 : 18),
+                          SizedBox(height: isVerySmallPhone ? 12 : 18),
 
-                          Row(
-                            children: [
-                              Container(
-                                width: timerWidth,
-                                height: timerHeight,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(18),
-                                  border: Border.all(
-                                    color: const Color(0xFF126FC0),
-                                    width: 4,
-                                  ),
-                                ),
-                                child: Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        formattedTime,
-                                        style: TextStyle(
-                                          fontSize: clampDouble(
-                                            width * 0.052,
-                                            17,
-                                            22,
-                                          ),
-                                          fontWeight: FontWeight.w900,
-                                          color: Colors.red,
-                                        ),
-                                      ),
-                                      const Text(
-                                        'ORAS',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w900,
-                                          color: Color(0xFF126FC0),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-
-                              const Spacer(),
-
-                              GestureDetector(
-                                onTap: resetPuzzle,
-                                child: Container(
-                                  height: resetHeight,
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: clampDouble(
-                                      width * 0.055,
-                                      16,
-                                      24,
-                                    ),
-                                  ),
+                          SizedBox(
+                            width: boardWidth,
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: timerWidth,
+                                  height: timerHeight,
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF0D63B7),
-                                    borderRadius: BorderRadius.circular(28),
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(18),
                                     border: Border.all(
-                                      color: const Color(0xFFFFD84A),
-                                      width: 5,
+                                      color: const Color(0xFF126FC0),
+                                      width: 4,
                                     ),
                                   ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        'RESET',
-                                        style: TextStyle(
-                                          fontSize: resetFont,
-                                          fontWeight: FontWeight.w900,
-                                          color: Colors.white,
+                                  child: Center(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          formattedTime,
+                                          style: TextStyle(
+                                            fontSize: clampDouble(
+                                              width * 0.052,
+                                              16,
+                                              22,
+                                            ),
+                                            fontWeight: FontWeight.w900,
+                                            color: Colors.red,
+                                          ),
                                         ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Icon(
-                                        Icons.refresh,
-                                        color: Colors.white,
-                                        size: clampDouble(
-                                          width * 0.065,
-                                          22,
-                                          28,
+                                        const Text(
+                                          'ORAS',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w900,
+                                            color: Color(0xFF126FC0),
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
+
+                                const Spacer(),
+
+                                GestureDetector(
+                                  onTap: resetPuzzle,
+                                  child: Container(
+                                    height: resetHeight,
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: clampDouble(
+                                        width * 0.052,
+                                        15,
+                                        24,
+                                      ),
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF0D63B7),
+                                      borderRadius: BorderRadius.circular(28),
+                                      border: Border.all(
+                                        color: const Color(0xFFFFD84A),
+                                        width: 5,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          'RESET',
+                                          style: TextStyle(
+                                            fontSize: resetFont,
+                                            fontWeight: FontWeight.w900,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Icon(
+                                          Icons.refresh,
+                                          color: Colors.white,
+                                          size: clampDouble(
+                                            width * 0.062,
+                                            21,
+                                            28,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
