@@ -93,7 +93,7 @@ class _LearningObjectivesPopup extends StatelessWidget {
 
           /// BACKGROUND IMAGE
           image: const DecorationImage(
-            image: AssetImage('assets/lesson-two-day4-act1.png'),
+            image: AssetImage('assets/lesson-one-day4-act1.png'),
             fit: BoxFit.fill,
           ),
         ),
