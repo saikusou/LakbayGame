@@ -15,8 +15,13 @@ class LessonThreeDayTwoActThree extends StatefulWidget {
 class _LessonThreeDayTwoActThreeState extends State<LessonThreeDayTwoActThree> {
   final List<int?> selectedAnswers = List.generate(5, (_) => null);
 
+  bool popupShown = false;
+
   /// CHANGE THIS VALUE TO MOVE THE WHOLE LIST DOWN
   final double listMarginTop = 20;
+
+  /// 0 = Ilaya, 1 = Ilawud
+  final List<int> correctAnswers = [0, 0, 0, 1, 1];
 
   final List<String> questions = [
     'Isa itong pamayanan\nna nasa looban o bundok.',
@@ -35,6 +40,133 @@ class _LessonThreeDayTwoActThreeState extends State<LessonThreeDayTwoActThree> {
       context,
       MaterialPageRoute(builder: (_) => Lesson3Screen(user: widget.user)),
     );
+  }
+
+  int getScore() {
+    int score = 0;
+
+    for (int i = 0; i < correctAnswers.length; i++) {
+      if (selectedAnswers[i] == correctAnswers[i]) {
+        score += 2;
+      }
+    }
+
+    return score;
+  }
+
+  void checkIfCompleted() {
+    if (popupShown) return;
+
+    final allAnswered = selectedAnswers.every((answer) => answer != null);
+
+    if (allAnswered) {
+      popupShown = true;
+
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (mounted) {
+          showScorePopup();
+        }
+      });
+    }
+  }
+
+  void showScorePopup() {
+    final score = getScore();
+    final totalScore = correctAnswers.length * 2;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        final size = MediaQuery.of(context).size;
+
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            width: clampDouble(size.width * 0.85, 280, 380),
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: Colors.orange, width: 4),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Congratulations!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: clampDouble(size.width * 0.07, 24, 32),
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orange,
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                Text(
+                  'Score: $score / $totalScore',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: clampDouble(size.width * 0.06, 22, 28),
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue,
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                Text(
+                  'Each correct answer is 2 points.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: clampDouble(size.width * 0.038, 13, 16),
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                SizedBox(
+                  width: clampDouble(size.width * 0.38, 130, 180),
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      goHome();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                    ),
+                    child: const Text(
+                      'OK',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void selectAnswer(int index, int answer) {
+    setState(() {
+      selectedAnswers[index] = answer;
+    });
+
+    checkIfCompleted();
   }
 
   @override
@@ -148,9 +280,7 @@ class _LessonThreeDayTwoActThreeState extends State<LessonThreeDayTwoActThree> {
                               visualDensity: VisualDensity.compact,
                               value: selectedAnswers[index] == 0,
                               onChanged: (_) {
-                                setState(() {
-                                  selectedAnswers[index] = 0;
-                                });
+                                selectAnswer(index, 0);
                               },
                             ),
                           ),
@@ -163,9 +293,7 @@ class _LessonThreeDayTwoActThreeState extends State<LessonThreeDayTwoActThree> {
                               visualDensity: VisualDensity.compact,
                               value: selectedAnswers[index] == 1,
                               onChanged: (_) {
-                                setState(() {
-                                  selectedAnswers[index] = 1;
-                                });
+                                selectAnswer(index, 1);
                               },
                             ),
                           ),

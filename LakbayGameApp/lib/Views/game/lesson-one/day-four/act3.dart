@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:lakbay_game/Views/lesson2.dart';
+import 'package:lakbay_game/Views/lesson1.dart';
 import 'package:lakbay_game/models/user_model.dart';
 
-class LessonTwoDayOneActFour extends StatefulWidget {
+class LessonOneDayFourActThree extends StatefulWidget {
   final UserModel user;
 
-  const LessonTwoDayOneActFour({super.key, required this.user});
+  const LessonOneDayFourActThree({super.key, required this.user});
 
   @override
-  State<LessonTwoDayOneActFour> createState() => _LessonTwoDayOneActFourState();
+  State<LessonOneDayFourActThree> createState() =>
+      _LessonOneDayFourActThreeState();
 }
 
-class _LessonTwoDayOneActFourState extends State<LessonTwoDayOneActFour> {
+class _LessonOneDayFourActThreeState extends State<LessonOneDayFourActThree> {
   int currentPage = 0;
 
   final List<String> images = [
-    'assets/lesson-two-day1-act4a.png',
-    'assets/lesson-two-day1-act4b.png',
-    'assets/lesson-two-day1-act4c.png',
+    'assets/lesson-two-day4-act-3-a.png',
+    'assets/lesson-two-day4-act-3-b.png',
+    'assets/lesson-two-day4-act-3-c.png',
+    'assets/lesson-two-day4-act-3-d.png',
   ];
 
   double clampDouble(double value, double min, double max) {
@@ -32,7 +34,7 @@ class _LessonTwoDayOneActFourState extends State<LessonTwoDayOneActFour> {
     } else {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => Lesson2Screen(user: widget.user)),
+        MaterialPageRoute(builder: (_) => Lesson1Screen(user: widget.user)),
       );
     }
   }
@@ -132,7 +134,7 @@ class _LessonTwoDayOneActFourState extends State<LessonTwoDayOneActFour> {
       14,
     );
 
-    final double bottomSpacing = clampDouble(screenSize.height * 0.025, 14, 24);
+    final double bottomSpacing = clampDouble(screenSize.height * 0.01, 6, 14);
 
     final double buttonGap = clampDouble(screenSize.width * 0.03, 10, 20);
 
@@ -157,7 +159,7 @@ class _LessonTwoDayOneActFourState extends State<LessonTwoDayOneActFour> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => Lesson2Screen(user: widget.user),
+                          builder: (_) => Lesson1Screen(user: widget.user),
                         ),
                       );
                     },

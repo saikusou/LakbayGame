@@ -18,7 +18,12 @@ class Day3Popup extends StatelessWidget {
       return _LearningObjectivesPopup(user: user);
     }
 
-    if (title.contains('GAWAIN 3: Kilalanin Mo Ako!')) {
+    if (title.contains('Tama o Mali E-React Mo')) {
+      return _TamaOMaliPopup(user: user);
+    }
+
+    /// 3. KONSEPTO
+    if (title.contains('Kilalanin Mo Ako!')) {
       Future.microtask(() {
         Navigator.push(
           context,
@@ -99,7 +104,7 @@ class _LearningObjectivesPopup extends StatelessWidget {
 
           /// BACKGROUND IMAGE
           image: const DecorationImage(
-            image: AssetImage('assets/lesson-two-day3-act1t.png'),
+            image: AssetImage('assets/lesson-three-day3-act1.png'),
             fit: BoxFit.fill,
           ),
         ),
