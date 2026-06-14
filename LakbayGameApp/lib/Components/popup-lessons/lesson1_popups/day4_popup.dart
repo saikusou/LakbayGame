@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-
-import 'package:lakbay_game/Views/game/lesson-two/day-four/act2.dart';
-import 'package:lakbay_game/Views/game/lesson-two/day-four/act3.dart';
-import 'package:lakbay_game/Views/game/lesson-two/day-four/act4.dart';
+import 'package:lakbay_game/Views/game/lesson-one/day-four/act2.dart';
+import 'package:lakbay_game/Views/game/lesson-one/day-four/act3.dart';
+import 'package:lakbay_game/Views/game/lesson-one/day-four/act4.dart';
 import 'package:lakbay_game/models/user_model.dart';
 
 class Day4Popup extends StatelessWidget {
@@ -17,7 +16,6 @@ class Day4Popup extends StatelessWidget {
     if (title.contains('Learning Objectives')) {
       return _LearningObjectivesPopup(user: user);
     }
-
 
     if (title.contains('Pagtukoy sa Pamantayan')) {
       WidgetsBinding.instance.addPostFrameCallback((_) {

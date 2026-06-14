@@ -18,10 +18,6 @@ class Day3Popup extends StatelessWidget {
       return _LearningObjectivesPopup(user: user);
     }
 
-    if (title.contains('Tama o Mali E-React Mo')) {
-      return _TamaOMaliPopup(user: user);
-    }
-
     /// 3. KONSEPTO
     if (title.contains('Kilalanin Mo Ako!')) {
       Future.microtask(() {

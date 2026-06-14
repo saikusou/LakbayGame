@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/lesson1.dart';
+import 'package:lakbay_game/Views/lesson2.dart';
 import 'package:lakbay_game/models/user_model.dart';
 
 class LessonTwoDayFourActThree extends StatefulWidget {
@@ -129,7 +130,7 @@ class _LessonTwoDayFourActThreeState extends State<LessonTwoDayFourActThree> {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => Lesson1Screen(user: widget.user),
+                      builder: (_) => Lesson2Screen(user: widget.user),
                     ),
                   );
                 },
@@ -162,7 +163,7 @@ class _LessonTwoDayFourActThreeState extends State<LessonTwoDayFourActThree> {
             Positioned(
               left: 20,
               right: 20,
-              bottom: 20,
+              bottom: 5,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

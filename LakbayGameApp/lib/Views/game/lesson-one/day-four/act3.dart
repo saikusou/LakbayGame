@@ -13,7 +13,7 @@ class LessonOneDayFourActThree extends StatefulWidget {
 }
 
 class _LessonOneDayFourActThreeState extends State<LessonOneDayFourActThree> {
-  int currentPage = 0;
+  int currentImage = 0;
 
   final List<String> images = [
     'assets/lesson-two-day4-act-3-a.png',
@@ -22,29 +22,24 @@ class _LessonOneDayFourActThreeState extends State<LessonOneDayFourActThree> {
     'assets/lesson-two-day4-act-3-d.png',
   ];
 
+  void nextImage() {
+    if (currentImage < images.length - 1) {
+      setState(() {
+        currentImage++;
+      });
+    }
+  }
+
+  void previousImage() {
+    if (currentImage > 0) {
+      setState(() {
+        currentImage--;
+      });
+    }
+  }
+
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
-  }
-
-  void nextPage() {
-    if (currentPage < images.length - 1) {
-      setState(() {
-        currentPage++;
-      });
-    } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => Lesson1Screen(user: widget.user)),
-      );
-    }
-  }
-
-  void previousPage() {
-    if (currentPage > 0) {
-      setState(() {
-        currentPage--;
-      });
-    }
   }
 
   Widget circleButton({
@@ -53,21 +48,19 @@ class _LessonOneDayFourActThreeState extends State<LessonOneDayFourActThree> {
     required double size,
     required VoidCallback onTap,
   }) {
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(size),
       child: Container(
         width: size,
         height: size,
         decoration: BoxDecoration(
           color: color,
           shape: BoxShape.circle,
-          border: Border.all(color: Colors.white, width: 2),
-          boxShadow: const [
+          boxShadow: [
             BoxShadow(
-              color: Colors.black26,
-              blurRadius: 4,
-              offset: Offset(1, 2),
+              color: Colors.black.withOpacity(0.25),
+              blurRadius: 6,
+              offset: const Offset(0, 3),
             ),
           ],
         ),
@@ -76,34 +69,27 @@ class _LessonOneDayFourActThreeState extends State<LessonOneDayFourActThree> {
     );
   }
 
-  Widget bottomButton({
+  Widget navButton({
     required String text,
-    required double width,
-    required double height,
+    required VoidCallback onPressed,
     required double fontSize,
-    required VoidCallback onTap,
+    required double horizontalPadding,
+    required double verticalPadding,
   }) {
-    return SizedBox(
-      width: width,
-      height: height,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.orange,
-          elevation: 5,
-          padding: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(height / 2),
-          ),
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.orange,
+        foregroundColor: Colors.white,
+        padding: EdgeInsets.symmetric(
+          horizontal: horizontalPadding,
+          vertical: verticalPadding,
         ),
-        onPressed: onTap,
-        child: Text(
-          text,
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
       ),
     );
   }
@@ -112,94 +98,114 @@ class _LessonOneDayFourActThreeState extends State<LessonOneDayFourActThree> {
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;
 
-    final double sidePadding = clampDouble(screenSize.width * 0.04, 12, 24);
-    final double iconTop = clampDouble(screenSize.height * 0.035, 20, 40);
-    final double homeButtonSize = clampDouble(screenSize.width * 0.11, 38, 54);
+    final double sidePadding = screenSize.width * 0.04;
+    final double iconTop = screenSize.height * 0.05;
+    final double homeSize = clampDouble(screenSize.width * 0.12, 42, 70);
 
-    final double bottomButtonWidth = clampDouble(
-      screenSize.width * 0.28,
-      95,
-      135,
+    final double buttonFont = clampDouble(screenSize.width * 0.035, 13, 18);
+    final double buttonHPadding = clampDouble(screenSize.width * 0.06, 18, 30);
+    final double buttonVPadding = clampDouble(
+      screenSize.height * 0.012,
+      10,
+      16,
     );
-
-    final double bottomButtonHeight = clampDouble(
-      screenSize.height * 0.048,
-      35,
-      45,
-    );
-
-    final double bottomButtonFontSize = clampDouble(
-      screenSize.width * 0.028,
-      11,
-      14,
-    );
-
-    final double bottomSpacing = clampDouble(screenSize.height * 0.01, 6, 14);
-
-    final double buttonGap = clampDouble(screenSize.width * 0.03, 10, 20);
 
     return Scaffold(
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: Image.asset(images[currentPage], fit: BoxFit.fill),
-          ),
-
-          SafeArea(
-            child: Stack(
-              children: [
-                Positioned(
-                  top: iconTop,
-                  right: sidePadding,
-                  child: circleButton(
-                    icon: Icons.home,
-                    color: Colors.orange,
-                    size: homeButtonSize,
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => Lesson1Screen(user: widget.user),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-
-                Positioned(
-                  bottom: bottomSpacing,
-                  left: 0,
-                  right: 0,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (currentPage > 0)
-                        bottomButton(
-                          text: 'PREVIOUS',
-                          width: bottomButtonWidth,
-                          height: bottomButtonHeight,
-                          fontSize: bottomButtonFontSize,
-                          onTap: previousPage,
-                        ),
-
-                      if (currentPage > 0) SizedBox(width: buttonGap),
-
-                      bottomButton(
-                        text: currentPage == images.length - 1
-                            ? 'DONE'
-                            : 'NEXT',
-                        width: bottomButtonWidth,
-                        height: bottomButtonHeight,
-                        fontSize: bottomButtonFontSize,
-                        onTap: nextPage,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: Image.asset(images[currentImage], fit: BoxFit.fill),
             ),
-          ),
-        ],
+
+            Positioned(
+              top: iconTop,
+              right: sidePadding,
+              child: circleButton(
+                icon: Icons.home,
+                color: Colors.orange,
+                size: homeSize,
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => Lesson1Screen(user: widget.user),
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            Positioned(
+              top: iconTop + homeSize + 8,
+              right: sidePadding,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.black54,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  '${currentImage + 1}/${images.length}',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: buttonFont,
+                  ),
+                ),
+              ),
+            ),
+
+            Positioned(
+              left: 20,
+              right: 20,
+              bottom: 5,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  currentImage > 0
+                      ? navButton(
+                          text: 'Previous',
+                          onPressed: previousImage,
+                          fontSize: buttonFont,
+                          horizontalPadding: buttonHPadding,
+                          verticalPadding: buttonVPadding,
+                        )
+                      : SizedBox(
+                          width: clampDouble(screenSize.width * 0.28, 90, 130),
+                        ),
+
+                  currentImage < images.length - 1
+                      ? navButton(
+                          text: 'Next',
+                          onPressed: nextImage,
+                          fontSize: buttonFont,
+                          horizontalPadding: buttonHPadding,
+                          verticalPadding: buttonVPadding,
+                        )
+                      : navButton(
+                          text: 'Done',
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    Lesson1Screen(user: widget.user),
+                              ),
+                            );
+                          },
+                          fontSize: buttonFont,
+                          horizontalPadding: buttonHPadding,
+                          verticalPadding: buttonVPadding,
+                        ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

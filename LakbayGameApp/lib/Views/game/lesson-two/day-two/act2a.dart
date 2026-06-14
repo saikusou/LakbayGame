@@ -13,24 +13,23 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LessonTwoDayThreeActFour(
+      home: LessonTwoDayTwoActTwoA(
         user: UserModel(id: null, userName: '', email: '', gender: ''),
       ),
     );
   }
 }
 
-class LessonTwoDayThreeActFour extends StatefulWidget {
+class LessonTwoDayTwoActTwoA extends StatefulWidget {
   final UserModel user;
 
-  const LessonTwoDayThreeActFour({super.key, required this.user});
+  const LessonTwoDayTwoActTwoA({super.key, required this.user});
 
   @override
-  State<LessonTwoDayThreeActFour> createState() =>
-      _LessonTwoDayThreeActFourState();
+  State<LessonTwoDayTwoActTwoA> createState() => _LessonTwoDayTwoActTwoAState();
 }
 
-class _LessonTwoDayThreeActFourState extends State<LessonTwoDayThreeActFour> {
+class _LessonTwoDayTwoActTwoAState extends State<LessonTwoDayTwoActTwoA> {
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
   }
@@ -47,7 +46,7 @@ class _LessonTwoDayThreeActFourState extends State<LessonTwoDayThreeActFour> {
         children: [
           Positioned.fill(
             child: Image.asset(
-              'assets/lesson-three-day3-act4t.png',
+              'assets/lesson-two-day2-act5s.png',
               fit: BoxFit.fill,
             ),
           ),
