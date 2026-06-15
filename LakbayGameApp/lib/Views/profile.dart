@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:lakbay_game/Views/lesson1.dart';
 import 'package:lakbay_game/Components/side_navigation.dart';
 import 'package:lakbay_game/Views/lesson2.dart';
@@ -17,14 +19,145 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   bool showMenu = false;
+  bool rewardPopupShown = false;
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
   }
 
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      checkDailyReward();
+    });
+  }
+
+  Future<void> checkDailyReward() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final now = DateTime.now();
+    final today = "${now.year}-${now.month}-${now.day}";
+    final lastShownDate = prefs.getString('daily_reward_date');
+
+    if (lastShownDate != today && mounted) {
+      showDailyRewardPopup();
+    }
+  }
+
+  Future<void> claimDailyReward() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final now = DateTime.now();
+    final today = "${now.year}-${now.month}-${now.day}";
+
+    await prefs.setString('daily_reward_date', today);
+
+    if (!mounted) return;
+
+    Navigator.pop(context);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Reward Claimed!"),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
   void toggleMenu() {
     setState(() {
       showMenu = !showMenu;
+    });
+  }
+
+  void showDailyRewardPopup() {
+    if (rewardPopupShown) return;
+    rewardPopupShown = true;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black.withValues(alpha: 0.45),
+      builder: (context) {
+        final size = MediaQuery.of(context).size;
+
+        final popupWidth = clampDouble(size.width * 0.92, 300, 470);
+        final popupHeight = clampDouble(size.height * 0.86, 500, 760);
+        final closeSize = clampDouble(size.width * 0.10, 36, 48);
+
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: EdgeInsets.zero,
+          child: SizedBox(
+            width: popupWidth,
+            height: popupHeight,
+            child: Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.center,
+              children: [
+                Image.asset(
+                  'assets/floating-rewards.png',
+                  width: popupWidth,
+                  height: popupHeight,
+                  fit: BoxFit.contain,
+                ),
+
+                /// CLAIM BUTTON SAME PLACE AS IMAGE BUTTON
+                Positioned(
+                  bottom: popupHeight * 0.04,
+                  left: popupWidth * 0.30,
+                  child: SizedBox(
+                    width: popupWidth * 0.40,
+                    height: popupHeight * 0.09,
+                    child: ElevatedButton(
+                      onPressed: claimDailyReward,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(0, 0, 0, 0),
+                        shadowColor: Colors.transparent,
+                        foregroundColor: Colors.transparent,
+                        elevation: 0,
+                        padding: EdgeInsets.zero,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(40),
+                        ),
+                      ),
+                      child: const SizedBox.expand(),
+                    ),
+                  ),
+                ),
+
+                Positioned(
+                  top: popupHeight * 0.04,
+                  right: popupWidth * 0.08,
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      width: closeSize,
+                      height: closeSize,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1F5C8F),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: Colors.white, width: 3),
+                      ),
+                      child: Icon(
+                        Icons.close,
+                        color: Colors.white,
+                        size: closeSize * 0.65,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    ).then((_) {
+      rewardPopupShown = false;
     });
   }
 
@@ -39,7 +172,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          /// BACKGROUND
           SizedBox.expand(
             child: Image.asset('assets/profile.png', fit: BoxFit.cover),
           ),
@@ -53,7 +185,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 return Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    /// PROFILE BOX
                     Positioned(
                       top: height * 0.02,
                       left: width * 0.03,
@@ -76,9 +207,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 color: Colors.white,
                               ),
                             ),
-
                             SizedBox(width: width * 0.025),
-
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -93,9 +222,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                   ),
                                 ),
-
                                 const SizedBox(height: 4),
-
                                 Text(
                                   "202,000",
                                   style: TextStyle(
@@ -115,7 +242,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
 
-                    /// TOGGLE BUTTON
                     Positioned(
                       top: height * 0.02,
                       right: width * 0.04,
@@ -137,7 +263,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
 
-                    /// SHIP
                     Positioned(
                       top: height * 0.10,
                       left: width * 0.02,
@@ -158,7 +283,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
 
-                    /// ROCKS
                     Positioned(
                       top: height * 0.28,
                       right: width * 0.02,
@@ -179,7 +303,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
 
-                    /// CITIZEN
                     Positioned(
                       top: height * 0.48,
                       left: width * 0.02,
@@ -200,7 +323,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
 
-                    /// GOVERNMENT
                     Positioned(
                       top: height * 0.66,
                       right: width * 0.02,
@@ -221,7 +343,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
 
-                    /// SIDE NAVIGATION
                     SideNavigation(
                       width: width,
                       height: height,
@@ -273,12 +394,9 @@ class _LevelCardState extends State<LevelCard> {
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-
-      /// MOBILE PRESS EFFECT
       onTapDown: (_) {
         setHighlight(true);
       },
-
       onTapUp: (_) {
         Future.delayed(const Duration(milliseconds: 150), () {
           if (mounted) {
@@ -288,44 +406,33 @@ class _LevelCardState extends State<LevelCard> {
 
         widget.onTap();
       },
-
       onTapCancel: () {
         setHighlight(false);
       },
-
       child: MouseRegion(
-        /// WEB/DESKTOP HOVER EFFECT
         cursor: SystemMouseCursors.click,
-
         onEnter: (_) {
           setHighlight(true);
         },
-
         onExit: (_) {
           setHighlight(false);
         },
-
         child: AnimatedScale(
           scale: isHighlighted ? 1.07 : 1.0,
           duration: const Duration(milliseconds: 180),
-
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 180),
             width: widget.width,
             padding: const EdgeInsets.all(6),
-
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(24),
-
               color: isHighlighted
                   ? Colors.yellow.withValues(alpha: 0.18)
                   : Colors.transparent,
-
               border: Border.all(
                 color: isHighlighted ? Colors.yellow : Colors.transparent,
                 width: 4,
               ),
-
               boxShadow: isHighlighted
                   ? [
                       BoxShadow(
@@ -336,7 +443,6 @@ class _LevelCardState extends State<LevelCard> {
                     ]
                   : [],
             ),
-
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -346,7 +452,6 @@ class _LevelCardState extends State<LevelCard> {
                   height: widget.imageHeight,
                   fit: BoxFit.contain,
                 ),
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(
@@ -355,7 +460,6 @@ class _LevelCardState extends State<LevelCard> {
                       padding: EdgeInsets.symmetric(
                         horizontal: widget.starSize * 0.08,
                       ),
-
                       child: Image.asset(
                         'assets/star.png',
                         width: widget.starSize,
