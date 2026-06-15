@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:lakbay_game/Views/game/lesson-four/day-three/act2.dart';
+import 'package:lakbay_game/Views/game/lesson-four/day-three/act3.dart';
+import 'package:lakbay_game/Views/game/lesson-four/day-three/act4.dart';
+import 'package:lakbay_game/Views/game/lesson-four/day-three/act5.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-three/act3.dart';
 import 'package:lakbay_game/Views/game/lesson-two/day-three/act2.dart';
 import 'package:lakbay_game/Views/game/lesson-two/day-three/act3.dart';
@@ -24,25 +28,16 @@ class Day3Popup extends StatelessWidget {
     }
 
     /// 3. KONSEPTO
-    if (title.contains('Ang Aking Pamilya sa Pamayanan')) {
-      Future.microtask(() {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => LessonThreeDayOneActThree(user: user),
-          ),
-        );
-      });
-
-      return const SizedBox.shrink();
+    if (title.contains('Hanapin at Buuin')) {
+      return _KonseptoPopup(user: user);
     }
 
-    if (title.contains('Guhit mo Ibahagi mo')) {
+    if (title.contains('Gwain')) {
       Future.microtask(() {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => LessonTwoDayThreeActThree(user: user),
+            builder: (_) => LessonFourDayThreeActThree(user: user),
           ),
         );
       });
@@ -55,7 +50,7 @@ class Day3Popup extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => LessonTwoDayThreeActFour(user: user),
+            builder: (_) => LessonFourDayThreeActFour(user: user),
           ),
         );
       });
@@ -69,7 +64,7 @@ class Day3Popup extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => LessonTwoDayThreeActFive(user: user),
+            builder: (_) => LessonFourDayThreeActFive(user: user),
           ),
         );
       });
@@ -114,7 +109,7 @@ class _LearningObjectivesPopup extends StatelessWidget {
 
           /// BACKGROUND IMAGE
           image: const DecorationImage(
-            image: AssetImage('assets/lesson-two-day3-act1t.png'),
+            image: AssetImage('assets/lesson-four-day3-act1.jpg'),
             fit: BoxFit.fill,
           ),
         ),
@@ -154,6 +149,123 @@ class _LearningObjectivesPopup extends StatelessWidget {
 
             /// OPTIONAL SPACE
             const Spacer(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _KonseptoPopup extends StatelessWidget {
+  final UserModel user;
+
+  const _KonseptoPopup({required this.user});
+
+  double clampDouble(double value, double min, double max) {
+    return value.clamp(min, max).toDouble();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
+    final popupHeight = clampDouble(size.height * 0.75, 450, 530);
+    final popupWidth = clampDouble(size.width * 0.90, 350, 550);
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.all(18),
+
+      child: Container(
+        width: popupWidth,
+        height: popupHeight,
+
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(28),
+
+          border: Border.all(color: Colors.blue, width: 5),
+
+          /// BACKGROUND IMAGE
+          image: const DecorationImage(
+            image: AssetImage('assets/lesson-four-day3-act2.jpg'),
+            fit: BoxFit.fill,
+          ),
+        ),
+
+        child: Column(
+          children: [
+            /// CLOSE BUTTON
+            Align(
+              alignment: Alignment.topRight,
+
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(context),
+
+                  child: Container(
+                    width: 44,
+                    height: 44,
+
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+
+                      border: Border.all(color: Colors.white, width: 3),
+                    ),
+
+                    child: const Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 26,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            /// PUSH BUTTON TO BOTTOM
+            const Spacer(),
+
+            /// SUBMIT BUTTON
+            Padding(
+              padding: const EdgeInsets.only(bottom: 20),
+
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          LessonFourDayThreeActTwo(user: user),
+                    ),
+                  );
+                },
+
+                child: Container(
+                  width: 65,
+                  height: 55,
+
+                  decoration: BoxDecoration(
+                    color: Colors.green,
+                    shape: BoxShape.circle,
+
+                    border: Border.all(color: Colors.white, width: 4),
+
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 8,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+
+                  child: const Icon(Icons.send, color: Colors.white, size: 30),
+                ),
+              ),
+            ),
           ],
         ),
       ),
