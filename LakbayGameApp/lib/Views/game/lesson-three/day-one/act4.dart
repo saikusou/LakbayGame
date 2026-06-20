@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lakbay_game/Components/button.dart';
 import 'package:lakbay_game/Views/lesson3.dart';
 import 'package:lakbay_game/models/user_model.dart';
+import 'package:lakbay_game/services/api_service.dart';
 
 class LessonThreeActFour extends StatefulWidget {
   final UserModel user;
@@ -18,12 +19,16 @@ class _LessonThreeActFourState extends State<LessonThreeActFour> {
   String? answer1;
   String? answer2;
 
+  bool isSaving = false;
+
   final String correctAnswer1 = 'TAMA';
   final String correctAnswer2 = 'MALI';
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
   }
+
+  String? get currentAnswer => currentScenario == 1 ? answer1 : answer2;
 
   int getScore() {
     int score = 0;
@@ -32,6 +37,25 @@ class _LessonThreeActFourState extends State<LessonThreeActFour> {
     if (answer2 == correctAnswer2) score += 5;
 
     return score;
+  }
+
+  Future<void> handleSavePoints({required int totalScore}) async {
+    await ApiService.savePoints(
+      userId: widget.user.id,
+      countedPoints: totalScore,
+      lesson: 'Lesson 3',
+      day: 'Day 1',
+      act: 'Act 4',
+    );
+  }
+
+  void showNoAnswerMessage() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Pumili muna ng TAMA o MALI'),
+        duration: Duration(seconds: 1),
+      ),
+    );
   }
 
   void selectAnswer(String answer) {
@@ -48,6 +72,50 @@ class _LessonThreeActFourState extends State<LessonThreeActFour> {
         : 'assets/ml.png';
 
     showAnswerPopup(popupImage);
+  }
+
+  Future<void> handleNextOrSubmit() async {
+    if (currentAnswer == null) {
+      showNoAnswerMessage();
+      return;
+    }
+
+    if (currentScenario == 1) {
+      setState(() {
+        currentScenario = 2;
+      });
+      return;
+    }
+
+    if (isSaving) return;
+
+    setState(() {
+      isSaving = true;
+    });
+
+    final int score = getScore();
+
+    try {
+      await handleSavePoints(totalScore: score);
+
+      if (!mounted) return;
+      showResultPopup();
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Hindi na-save ang score. Subukan ulit.'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          isSaving = false;
+        });
+      }
+    }
   }
 
   void showAnswerPopup(String imagePath) {
@@ -125,9 +193,7 @@ class _LessonThreeActFourState extends State<LessonThreeActFour> {
                     color: Colors.orange,
                   ),
                 ),
-
                 SizedBox(height: clampDouble(size.height * 0.025, 14, 24)),
-
                 Text(
                   '$score / 10 POINTS',
                   textAlign: TextAlign.center,
@@ -137,9 +203,7 @@ class _LessonThreeActFourState extends State<LessonThreeActFour> {
                     color: Colors.green,
                   ),
                 ),
-
                 SizedBox(height: clampDouble(size.height * 0.035, 20, 30)),
-
                 SizedBox(
                   width: clampDouble(size.width * 0.42, 130, 180),
                   height: clampDouble(size.height * 0.06, 42, 55),
@@ -171,7 +235,7 @@ class _LessonThreeActFourState extends State<LessonThreeActFour> {
     required VoidCallback onTap,
   }) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: isSaving ? null : onTap,
       child: Container(
         width: size,
         height: size,
@@ -209,7 +273,7 @@ class _LessonThreeActFourState extends State<LessonThreeActFour> {
         final fontSize = clampDouble(width * 0.055, 15, 20);
 
         return GestureDetector(
-          onTap: onTap,
+          onTap: isSaving ? null : onTap,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 180),
             width: buttonWidth,
@@ -267,8 +331,6 @@ class _LessonThreeActFourState extends State<LessonThreeActFour> {
     final double bottomPosition = isSmallHeight
         ? clampDouble(size.height * 0.03, 16, 28)
         : clampDouble(size.height * 0.05, 28, 50);
-
-    final String? currentAnswer = currentScenario == 1 ? answer1 : answer2;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -351,16 +413,12 @@ class _LessonThreeActFourState extends State<LessonThreeActFour> {
                     width: clampDouble(size.width * 0.45, 130, 190),
                     height: clampDouble(size.height * 0.06, 42, 55),
                     child: Button(
-                      label: currentScenario == 1 ? 'NEXT' : 'SUBMIT',
-                      press: () {
-                        if (currentScenario == 1) {
-                          setState(() {
-                            currentScenario = 2;
-                          });
-                        } else {
-                          showResultPopup();
-                        }
-                      },
+                      label: isSaving
+                          ? 'SAVING...'
+                          : currentScenario == 1
+                          ? 'NEXT'
+                          : 'SUBMIT',
+                      press: isSaving ? () {} : handleNextOrSubmit,
                     ),
                   ),
                 ],

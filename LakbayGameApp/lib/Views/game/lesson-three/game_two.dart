@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/lesson3.dart';
 import 'package:lakbay_game/models/user_model.dart';
+import 'package:lakbay_game/services/api_service.dart';
 
 class HiddenPopup extends StatelessWidget {
   final UserModel users;
@@ -81,10 +82,39 @@ class LessonThreeGameTwo extends StatefulWidget {
 
 class _LessonThreeGameTwoState extends State<LessonThreeGameTwo> {
   final Set<int> clickedHiddenImages = {};
+
   bool congratulationsShown = false;
+  bool isSavingScore = false;
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
+  }
+
+  Future<void> handleSavePoints({required int totalScore}) async {
+    await ApiService.savePoints(
+      userId: widget.user.id,
+      countedPoints: totalScore,
+      lesson: 'Lesson 3',
+      day: 'Day 1',
+      act: 'Act 2',
+    );
+  }
+
+  void saveScoreAndGoBack() {
+    if (isSavingScore) return;
+
+    isSavingScore = true;
+
+    Navigator.pop(context);
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => Lesson3Screen(user: widget.user)),
+    );
+
+    handleSavePoints(totalScore: 20).catchError((e) {
+      debugPrint("Failed to save score: $e");
+    });
   }
 
   Future<void> showHiddenPopup(int id, String image) async {
@@ -163,15 +193,7 @@ class _LessonThreeGameTwoState extends State<LessonThreeGameTwo> {
                 ),
                 const SizedBox(height: 22),
                 GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => Lesson3Screen(user: widget.user),
-                      ),
-                    );
-                  },
+                  onTap: saveScoreAndGoBack,
                   child: Container(
                     width: clampDouble(size.width * 0.36, 130, 170),
                     height: clampDouble(size.height * 0.055, 42, 52),
