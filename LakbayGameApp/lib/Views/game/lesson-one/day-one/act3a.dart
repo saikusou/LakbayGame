@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lakbay_game/Views/lesson1.dart';
 import 'package:lakbay_game/models/user_model.dart';
-
-// import your next page here
-// import 'package:lakbay_game/Views/your_next_page.dart';
+import 'package:lakbay_game/services/api_service.dart';
 
 class LessonOneDayOneActThreeA extends StatefulWidget {
   final UserModel user;
@@ -17,12 +15,18 @@ class LessonOneDayOneActThreeA extends StatefulWidget {
 }
 
 class _LessonOneDayOneActThreeAState extends State<LessonOneDayOneActThreeA> {
+  static const String correctAnswer = 'AUSTRONESYANO';
+  static const int answerLength = correctAnswer.length;
+
   final List<TextEditingController> controllers = List.generate(
-    14,
+    answerLength,
     (_) => TextEditingController(),
   );
 
-  final List<FocusNode> focusNodes = List.generate(14, (_) => FocusNode());
+  final List<FocusNode> focusNodes = List.generate(
+    answerLength,
+    (_) => FocusNode(),
+  );
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
@@ -33,12 +37,14 @@ class _LessonOneDayOneActThreeAState extends State<LessonOneDayOneActThreeA> {
     for (final controller in controllers) {
       controller.dispose();
     }
-
     for (final focusNode in focusNodes) {
       focusNode.dispose();
     }
-
     super.dispose();
+  }
+
+  String getTypedAnswer() {
+    return controllers.map((c) => c.text.trim().toUpperCase()).join();
   }
 
   void retryAnswers() {
@@ -46,25 +52,173 @@ class _LessonOneDayOneActThreeAState extends State<LessonOneDayOneActThreeA> {
       controller.clear();
     }
 
-    focusNodes.first.requestFocus();
+    FocusScope.of(context).requestFocus(focusNodes.first);
     setState(() {});
   }
 
   void goToNextPage() {
-    Navigator.pop(context); // close modal first
+    Navigator.pop(context);
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => Lesson1Screen(user: widget.user),
+    Future.delayed(const Duration(milliseconds: 200), () {
+      if (!mounted) return;
+      showCongratulationsPopup();
+    });
+  }
 
-        // change this to your next page:
-        // builder: (_) => YourNextPage(user: widget.user),
-      ),
+  Future<void> handleSavePoints({required int totalScore}) async {
+    await ApiService.savePoints(
+      userId: widget.user.id,
+      countedPoints: totalScore,
+      lesson: 'Lesson 1',
+      day: 'Day 1',
+      act: 'Act 3',
+    );
+  }
+
+  void showCongratulationsPopup() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        final size = MediaQuery.of(dialogContext).size;
+        final w = size.width;
+        final h = size.height;
+
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: EdgeInsets.symmetric(
+            horizontal: clampDouble(w * 0.08, 20, 36),
+            vertical: clampDouble(h * 0.05, 20, 36),
+          ),
+          child: Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: clampDouble(w * 0.06, 18, 30),
+              vertical: clampDouble(h * 0.035, 20, 34),
+            ),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: Colors.green, width: 5),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black38,
+                  blurRadius: 14,
+                  offset: Offset(0, 6),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: clampDouble(w * 0.24, 80, 110),
+                  height: clampDouble(w * 0.24, 80, 110),
+                  decoration: BoxDecoration(
+                    color: Colors.green,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.yellow, width: 5),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 8,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    Icons.emoji_events,
+                    color: Colors.yellow,
+                    size: clampDouble(w * 0.14, 48, 70),
+                  ),
+                ),
+
+                const SizedBox(height: 18),
+
+                Text(
+                  'Congratulations!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: clampDouble(w * 0.07, 25, 34),
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                Text(
+                  'You got 50 points!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: clampDouble(w * 0.052, 18, 25),
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pop(dialogContext);
+
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => Lesson1Screen(user: widget.user),
+                      ),
+                    );
+                  },
+                  icon: Icon(
+                    Icons.check_circle,
+                    color: Colors.white,
+                    size: clampDouble(w * 0.055, 20, 26),
+                  ),
+                  label: Text(
+                    'Done',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: clampDouble(w * 0.045, 15, 20),
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: clampDouble(w * 0.09, 30, 48),
+                      vertical: clampDouble(h * 0.017, 11, 16),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    side: const BorderSide(color: Colors.white, width: 3),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
   void submitAnswers() {
+    final typedAnswer = getTypedAnswer();
+
+    if (typedAnswer != correctAnswer) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Maling sagot. Subukan ulit.',
+            textAlign: TextAlign.center,
+          ),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
     showDialog(
       context: context,
       barrierDismissible: true,
@@ -106,7 +260,13 @@ class _LessonOneDayOneActThreeAState extends State<LessonOneDayOneActThreeA> {
               Positioned(
                 bottom: clampDouble(size.height * 0.035, 18, 32),
                 child: ElevatedButton(
-                  onPressed: goToNextPage,
+                  onPressed: () async {
+                    final score = 50;
+
+                    await handleSavePoints(totalScore: score);
+
+                    goToNextPage();
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     padding: EdgeInsets.symmetric(
@@ -147,6 +307,7 @@ class _LessonOneDayOneActThreeAState extends State<LessonOneDayOneActThreeA> {
         textCapitalization: TextCapitalization.characters,
         keyboardType: TextInputType.text,
         inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp('[a-zA-Z]')),
           LengthLimitingTextInputFormatter(1),
           TextInputFormatter.withFunction((oldValue, newValue) {
             final upperText = newValue.text.toUpperCase();
@@ -239,7 +400,7 @@ class _LessonOneDayOneActThreeAState extends State<LessonOneDayOneActThreeA> {
     final double spacing = clampDouble(w * 0.004, 1.5, 4);
 
     final double boxSize = clampDouble(
-      (availableWidth - (spacing * 28)) / 14,
+      (availableWidth - (spacing * answerLength * 2)) / answerLength,
       20,
       38,
     );
@@ -264,7 +425,7 @@ class _LessonOneDayOneActThreeAState extends State<LessonOneDayOneActThreeA> {
             Positioned(
               left: horizontalPadding,
               right: horizontalPadding,
-              bottom: bottomPosition,
+              bottom: bottomPosition - 20,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -274,7 +435,7 @@ class _LessonOneDayOneActThreeAState extends State<LessonOneDayOneActThreeA> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(
-                        14,
+                        answerLength,
                         (index) => Padding(
                           padding: EdgeInsets.symmetric(horizontal: spacing),
                           child: inputBox(index, boxSize),
@@ -282,8 +443,6 @@ class _LessonOneDayOneActThreeAState extends State<LessonOneDayOneActThreeA> {
                       ),
                     ),
                   ),
-
-                  SizedBox(height: clampDouble(h * 0.018, 10, 18)),
 
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,

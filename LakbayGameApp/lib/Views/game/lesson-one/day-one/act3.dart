@@ -4,9 +4,6 @@ import 'package:lakbay_game/Views/game/lesson-one/day-one/act3a.dart';
 import 'package:lakbay_game/Views/lesson1.dart';
 import 'package:lakbay_game/models/user_model.dart';
 
-// import your next page here
-// import 'package:lakbay_game/Views/your_next_page.dart';
-
 class LessonOneDayOneActThree extends StatefulWidget {
   final UserModel user;
 
@@ -18,6 +15,8 @@ class LessonOneDayOneActThree extends StatefulWidget {
 }
 
 class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
+  final String correctAnswer = 'COREPOPULATION';
+
   final List<TextEditingController> controllers = List.generate(
     14,
     (_) => TextEditingController(),
@@ -52,20 +51,33 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
   }
 
   void goToNextPage() {
-    Navigator.pop(context); // close modal first
+    Navigator.pop(context);
 
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (_) => LessonOneDayOneActThreeA(user: widget.user),
-
-        // change this to your next page:
-        // builder: (_) => YourNextPage(user: widget.user),
       ),
     );
   }
 
   void submitAnswers() {
+    final userAnswer = controllers
+        .map((controller) => controller.text.trim())
+        .join()
+        .toUpperCase();
+
+    if (userAnswer != correctAnswer) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Mali ang sagot. Subukan ulit.'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
     showDialog(
       context: context,
       barrierDismissible: true,
@@ -149,6 +161,7 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
         keyboardType: TextInputType.text,
         inputFormatters: [
           LengthLimitingTextInputFormatter(1),
+          FilteringTextInputFormatter.allow(RegExp('[a-zA-Z]')),
           TextInputFormatter.withFunction((oldValue, newValue) {
             final upperText = newValue.text.toUpperCase();
 
@@ -284,7 +297,7 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
                     ),
                   ),
 
-                  SizedBox(height: clampDouble(h * 0.018, 10, 18)),
+                  SizedBox(height: clampDouble(h * 0.012, 8, 14)),
 
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,

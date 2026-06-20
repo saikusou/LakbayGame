@@ -15,7 +15,7 @@ class ApiService {
     }
   }
 
-  static Future<List<dynamic>> savePoints({
+  static Future<Map<String, dynamic>> savePoints({
     required int? userId,
     required int countedPoints,
     required String lesson,
@@ -34,10 +34,14 @@ class ApiService {
       }),
     );
 
+    final data = jsonDecode(response.body);
+
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      return data;
+    } else if (response.statusCode == 409) {
+      return data; // Activity already completed
     } else {
-      throw Exception('Failed to save points');
+      throw Exception('Failed to save points: ${response.body}');
     }
   }
 }

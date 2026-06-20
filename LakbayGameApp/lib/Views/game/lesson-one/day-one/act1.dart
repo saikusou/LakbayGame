@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lakbay_game/Components/button.dart';
 import 'package:lakbay_game/Views/lesson1.dart';
 import 'package:lakbay_game/models/user_model.dart';
 import 'package:lakbay_game/services/api_service.dart';
@@ -71,29 +70,137 @@ class _LessonOneDayOneActOneState extends State<LessonOneDayOneActOne> {
       context: context,
       barrierDismissible: false,
       builder: (context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(22),
-          ),
-          title: const Text(
-            'Resulta',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          content: Text(
-            'Nakakuha ka ng $score sa 3 tamang sagot!!!',
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          actionsAlignment: MainAxisAlignment.center,
-          actions: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('OK'),
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.all(22),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFF8E1),
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(color: const Color(0xFFF9A825), width: 5),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black38,
+                  blurRadius: 16,
+                  offset: Offset(0, 8),
+                ),
+              ],
             ),
-          ],
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 95,
+                  height: 95,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF9A825),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 5),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 10,
+                        offset: Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.emoji_events,
+                    color: Colors.white,
+                    size: 60,
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                const Text(
+                  'CONGRATULATIONS!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFFE65100),
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                const Text(
+                  'Natapos mo ang gawain!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+
+                const SizedBox(height: 14),
+
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(
+                      color: const Color(0xFFF9A825),
+                      width: 3,
+                    ),
+                  ),
+                  child: Text(
+                    '$score / 15 Points',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                      color: score >= 10 ? Colors.green : Colors.orange,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                Text(
+                  score == 15
+                      ? 'Perfect! Napakahusay mo!'
+                      : 'Magaling! Subukan pang pagbutihin.',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 15, color: Colors.black87),
+                ),
+
+                const SizedBox(height: 22),
+
+                SizedBox(
+                  width: 160,
+                  height: 50,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    icon: const Icon(Icons.check_circle),
+                    label: const Text(
+                      'CONTINUE',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFF9A825),
+                      foregroundColor: Colors.white,
+                      elevation: 6,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         );
       },
     );
@@ -212,7 +319,7 @@ class _LessonOneDayOneActOneState extends State<LessonOneDayOneActOne> {
                           width: nextButtonWidth,
                           height: nextButtonHeight,
                           child: ElevatedButton(
-                            onPressed: () {
+                            onPressed: () async {
                               if (currentAnswer == null) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
@@ -229,7 +336,12 @@ class _LessonOneDayOneActOneState extends State<LessonOneDayOneActOne> {
                                   currentScenario++;
                                 });
                               } else {
-                                handleSavePoints(totalScore: getScore());
+                                final score = getScore();
+
+                                await handleSavePoints(totalScore: score);
+
+                                if (!mounted) return;
+
                                 showScoreDialog();
                               }
                             },
@@ -241,7 +353,6 @@ class _LessonOneDayOneActOneState extends State<LessonOneDayOneActOne> {
                                 borderRadius: BorderRadius.circular(30),
                               ),
                             ),
-
                             child: Text(
                               currentScenario < 3 ? 'NEXT' : 'DONE',
                               style: const TextStyle(
