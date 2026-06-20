@@ -64,7 +64,9 @@ class AuthService {
         return UserModel.fromJson(data);
       }
 
-      throw Exception('User not found');
+      throw Exception(
+        'Failed to load user. Status: ${response.statusCode}, Body: ${response.body}',
+      );
     } catch (e) {
       throw Exception('Error fetching user');
     }

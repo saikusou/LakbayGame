@@ -18,6 +18,34 @@ class _AuthCheckState extends State<AuthCheck> {
     checkLogin();
   }
 
+  // Future<void> checkLogin() async {
+  //   final prefs = await SharedPreferences.getInstance();
+
+  //   final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+  //   final userId = prefs.getInt('userId');
+
+  //   Widget nextScreen = const AuthScreen();
+
+  //   if (isLoggedIn && userId != null) {
+  //     try {
+  //       final user = await AuthService().getUserById(userId);
+
+  //       nextScreen = ProfileScreen(user: user);
+  //     } catch (e) {
+  //       nextScreen = const AuthScreen();
+  //     }
+  //   } else {
+  //     nextScreen = const AuthScreen();
+  //   }
+
+  //   if (!mounted) return;
+
+  //   Navigator.pushReplacement(
+  //     context,
+  //     MaterialPageRoute(builder: (_) => nextScreen),
+  //   );
+  // }
+
   Future<void> checkLogin() async {
     final prefs = await SharedPreferences.getInstance();
 
@@ -29,13 +57,13 @@ class _AuthCheckState extends State<AuthCheck> {
     if (isLoggedIn && userId != null) {
       try {
         final user = await AuthService().getUserById(userId);
-
         nextScreen = ProfileScreen(user: user);
       } catch (e) {
+        await prefs.remove('isLoggedIn');
+        await prefs.remove('userId');
+
         nextScreen = const AuthScreen();
       }
-    } else {
-      nextScreen = const AuthScreen();
     }
 
     if (!mounted) return;
