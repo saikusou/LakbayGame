@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/lesson3.dart';
 import 'package:lakbay_game/models/user_model.dart';
+import 'package:lakbay_game/services/api_service.dart';
 
 class LessonThreeGameOne extends StatefulWidget {
   final UserModel user;
@@ -30,11 +31,22 @@ class _LessonThreeGameOneState extends State<LessonThreeGameOne> {
   late List<String?> availableLetters;
 
   bool isSolved = false;
+  bool isSavingScore = false;
 
   @override
   void initState() {
     super.initState();
     resetAnswer();
+  }
+
+  Future<void> handleSavePoints({required int totalScore}) async {
+    await ApiService.savePoints(
+      userId: widget.user.id,
+      countedPoints: totalScore,
+      lesson: 'Lesson 3',
+      day: 'Day 1',
+      act: 'Act 1',
+    );
   }
 
   double clampDouble(double value, double min, double max) {
@@ -45,6 +57,7 @@ class _LessonThreeGameOneState extends State<LessonThreeGameOne> {
     answers = List.filled(correctWord.length, null);
     availableLetters = List.from(originalLetters);
     isSolved = false;
+    isSavingScore = false;
   }
 
   void resetGame() {
@@ -61,10 +74,25 @@ class _LessonThreeGameOneState extends State<LessonThreeGameOne> {
 
       Future.delayed(const Duration(milliseconds: 150), () {
         if (!mounted) return;
-
         showCongratulationsPopup();
       });
     }
+  }
+
+  void saveAndGoBack() {
+    if (isSavingScore) return;
+    isSavingScore = true;
+
+    Navigator.pop(context);
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => Lesson3Screen(user: widget.user)),
+    );
+
+    handleSavePoints(totalScore: 20).catchError((e) {
+      debugPrint("Failed to save score: $e");
+    });
   }
 
   void showCongratulationsPopup() {
@@ -86,16 +114,7 @@ class _LessonThreeGameOneState extends State<LessonThreeGameOne> {
         actionsAlignment: MainAxisAlignment.center,
         actions: [
           ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => Lesson3Screen(user: widget.user),
-                ),
-              );
-            },
+            onPressed: saveAndGoBack,
             child: const Text(
               "OK",
               style: TextStyle(fontWeight: FontWeight.bold),

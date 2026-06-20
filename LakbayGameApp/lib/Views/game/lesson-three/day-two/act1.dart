@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/lesson3.dart';
 import 'package:lakbay_game/models/user_model.dart';
+import 'package:lakbay_game/services/api_service.dart';
 
 class LessonThreeDayTwoActThree extends StatefulWidget {
   final UserModel user;
@@ -16,8 +17,8 @@ class _LessonThreeDayTwoActThreeState extends State<LessonThreeDayTwoActThree> {
   final List<int?> selectedAnswers = List.generate(5, (_) => null);
 
   bool popupShown = false;
+  bool isSaving = false;
 
-  /// CHANGE THIS VALUE TO MOVE THE WHOLE LIST DOWN
   final double listMarginTop = 20;
 
   /// 0 = Ilaya, 1 = Ilawud
@@ -35,6 +36,16 @@ class _LessonThreeDayTwoActThreeState extends State<LessonThreeDayTwoActThree> {
     return value.clamp(min, max).toDouble();
   }
 
+  Future<void> handleSavePoints({required int totalScore}) async {
+    await ApiService.savePoints(
+      userId: widget.user.id,
+      countedPoints: totalScore,
+      lesson: 'Lesson 3',
+      day: 'Day 2',
+      act: 'Act 3',
+    );
+  }
+
   void goHome() {
     Navigator.pushReplacement(
       context,
@@ -47,7 +58,7 @@ class _LessonThreeDayTwoActThreeState extends State<LessonThreeDayTwoActThree> {
 
     for (int i = 0; i < correctAnswers.length; i++) {
       if (selectedAnswers[i] == correctAnswers[i]) {
-        score += 2;
+        score += 5;
       }
     }
 
@@ -72,96 +83,138 @@ class _LessonThreeDayTwoActThreeState extends State<LessonThreeDayTwoActThree> {
 
   void showScorePopup() {
     final score = getScore();
-    final totalScore = correctAnswers.length * 2;
+    final totalScore = correctAnswers.length * 5;
 
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) {
-        final size = MediaQuery.of(context).size;
+      builder: (dialogContext) {
+        final size = MediaQuery.of(dialogContext).size;
 
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          child: Container(
-            width: clampDouble(size.width * 0.85, 280, 380),
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Colors.orange, width: 4),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Congratulations!',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: clampDouble(size.width * 0.07, 24, 32),
-                    fontWeight: FontWeight.bold,
-                    color: Colors.orange,
-                  ),
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return Dialog(
+              backgroundColor: Colors.transparent,
+              child: Container(
+                width: clampDouble(size.width * 0.85, 280, 380),
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: Colors.orange, width: 4),
                 ),
-
-                const SizedBox(height: 16),
-
-                Text(
-                  'Score: $score / $totalScore',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: clampDouble(size.width * 0.06, 22, 28),
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue,
-                  ),
-                ),
-
-                const SizedBox(height: 10),
-
-                Text(
-                  'Each correct answer is 2 points.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: clampDouble(size.width * 0.038, 13, 16),
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                SizedBox(
-                  width: clampDouble(size.width * 0.38, 130, 180),
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      goHome();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                    ),
-                    child: const Text(
-                      'OK',
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Congratulations!',
+                      textAlign: TextAlign.center,
                       style: TextStyle(
+                        fontSize: clampDouble(size.width * 0.07, 24, 32),
                         fontWeight: FontWeight.bold,
-                        fontSize: 18,
+                        color: Colors.orange,
                       ),
                     ),
-                  ),
+
+                    const SizedBox(height: 16),
+
+                    Text(
+                      'Score: $score / $totalScore',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: clampDouble(size.width * 0.06, 22, 28),
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue,
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    Text(
+                      'Each correct answer is 5 points.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: clampDouble(size.width * 0.038, 13, 16),
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    SizedBox(
+                      width: clampDouble(size.width * 0.38, 130, 180),
+                      height: 48,
+                      child: ElevatedButton(
+                        onPressed: isSaving
+                            ? null
+                            : () async {
+                                setDialogState(() {
+                                  isSaving = true;
+                                });
+
+                                try {
+                                  await handleSavePoints(totalScore: score);
+
+                                  if (!mounted) return;
+
+                                  Navigator.pop(dialogContext);
+                                  goHome();
+                                } catch (e) {
+                                  if (!mounted) return;
+
+                                  setDialogState(() {
+                                    isSaving = false;
+                                  });
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Failed to save score. Please try again.',
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange,
+                          foregroundColor: Colors.white,
+                          disabledBackgroundColor: Colors.orange.shade300,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                        ),
+                        child: isSaving
+                            ? const SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 3,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Text(
+                                'OK',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
   }
 
   void selectAnswer(int index, int answer) {
+    if (popupShown) return;
+
     setState(() {
       selectedAnswers[index] = answer;
     });
@@ -279,9 +332,11 @@ class _LessonThreeDayTwoActThreeState extends State<LessonThreeDayTwoActThree> {
                                   MaterialTapTargetSize.shrinkWrap,
                               visualDensity: VisualDensity.compact,
                               value: selectedAnswers[index] == 0,
-                              onChanged: (_) {
-                                selectAnswer(index, 0);
-                              },
+                              onChanged: popupShown
+                                  ? null
+                                  : (_) {
+                                      selectAnswer(index, 0);
+                                    },
                             ),
                           ),
 
@@ -292,9 +347,11 @@ class _LessonThreeDayTwoActThreeState extends State<LessonThreeDayTwoActThree> {
                                   MaterialTapTargetSize.shrinkWrap,
                               visualDensity: VisualDensity.compact,
                               value: selectedAnswers[index] == 1,
-                              onChanged: (_) {
-                                selectAnswer(index, 1);
-                              },
+                              onChanged: popupShown
+                                  ? null
+                                  : (_) {
+                                      selectAnswer(index, 1);
+                                    },
                             ),
                           ),
                         ],

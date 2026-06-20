@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lakbay_game/Components/button.dart';
 import 'package:lakbay_game/Views/lesson3.dart';
 import 'package:lakbay_game/models/user_model.dart';
+import 'package:lakbay_game/services/api_service.dart';
 
 class LessonThreeDayOneActTwo extends StatefulWidget {
   final UserModel user;
@@ -22,6 +23,9 @@ class _LessonThreeDayOneActTwoState extends State<LessonThreeDayOneActTwo> {
   String? answer4;
   String? answer5;
 
+  bool isSaving = false;
+  bool scoreSaved = false;
+
   final int totalScenarios = 5;
 
   final List<String> correctAnswers = [
@@ -34,6 +38,16 @@ class _LessonThreeDayOneActTwoState extends State<LessonThreeDayOneActTwo> {
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
+  }
+
+  Future<void> handleSavePoints({required int totalScore}) async {
+    await ApiService.savePoints(
+      userId: widget.user.id,
+      countedPoints: totalScore,
+      lesson: 'Lesson 3',
+      day: 'Day 3',
+      act: 'Act 2',
+    );
   }
 
   String? get currentAnswer {
@@ -71,6 +85,16 @@ class _LessonThreeDayOneActTwoState extends State<LessonThreeDayOneActTwo> {
     }
 
     return score;
+  }
+
+  void showNoAnswerMessage() {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Please choose an answer first.'),
+        duration: Duration(seconds: 1),
+      ),
+    );
   }
 
   void selectAnswer(String answer) {
@@ -113,6 +137,11 @@ class _LessonThreeDayOneActTwoState extends State<LessonThreeDayOneActTwo> {
   }
 
   void nextScenario() {
+    if (currentAnswer == null) {
+      showNoAnswerMessage();
+      return;
+    }
+
     if (currentScenario < totalScenarios) {
       setState(() => currentScenario++);
     }
@@ -125,7 +154,49 @@ class _LessonThreeDayOneActTwoState extends State<LessonThreeDayOneActTwo> {
   }
 
   void submitAnswers() {
+    if (currentAnswer == null) {
+      showNoAnswerMessage();
+      return;
+    }
+
     showScorePopup();
+  }
+
+  Future<void> saveScoreAndGoHome() async {
+    if (isSaving) return;
+
+    setState(() {
+      isSaving = true;
+    });
+
+    try {
+      final int score = getScore();
+
+      if (!scoreSaved) {
+        await handleSavePoints(totalScore: score);
+        scoreSaved = true;
+      }
+
+      if (!mounted) return;
+
+      Navigator.pop(context);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => Lesson3Screen(user: widget.user)),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to save score: $e')));
+    } finally {
+      if (mounted) {
+        setState(() {
+          isSaving = false;
+        });
+      }
+    }
   }
 
   void showScorePopup() {
@@ -141,95 +212,123 @@ class _LessonThreeDayOneActTwoState extends State<LessonThreeDayOneActTwo> {
         final double titleFont = clampDouble(size.width * 0.055, 20, 28);
         final double textFont = clampDouble(size.width * 0.04, 14, 18);
 
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          child: Container(
-            width: popupWidth,
-            padding: const EdgeInsets.all(22),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFF6D8),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Colors.brown, width: 4),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black38,
-                  blurRadius: 10,
-                  offset: Offset(0, 5),
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return Dialog(
+              backgroundColor: Colors.transparent,
+              child: Container(
+                width: popupWidth,
+                padding: const EdgeInsets.all(22),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF6D8),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: Colors.brown, width: 4),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black38,
+                      blurRadius: 10,
+                      offset: Offset(0, 5),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  score == 10 ? 'CONGRATULATIONS!' : 'GOOD JOB!',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: titleFont,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.brown,
-                  ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      score == 10 ? 'CONGRATULATIONS!' : 'GOOD JOB!',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: titleFont,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.brown,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Your Score: $score / 10',
+                      style: TextStyle(
+                        fontSize: textFont + 2,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'The correct answers are:',
+                      style: TextStyle(
+                        fontSize: textFont,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '1. Ilaya\n'
+                      '2. Ilaya\n'
+                      '3. Ilaya\n'
+                      '4. Ilawud\n'
+                      '5. Ilawud',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: textFont,
+                        height: 1.5,
+                        color: Colors.black87,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 22),
+                    Transform.scale(
+                      scale: 0.75,
+                      child: Button(
+                        label: isSaving ? 'SAVING...' : 'OK',
+                        press: () async {
+                          if (isSaving) return;
+
+                          setState(() {
+                            isSaving = true;
+                          });
+                          setDialogState(() {});
+
+                          try {
+                            if (!scoreSaved) {
+                              await handleSavePoints(totalScore: score);
+                              scoreSaved = true;
+                            }
+
+                            if (!mounted) return;
+
+                            Navigator.pop(context);
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    Lesson3Screen(user: widget.user),
+                              ),
+                            );
+                          } catch (e) {
+                            if (!mounted) return;
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Failed to save score: $e'),
+                              ),
+                            );
+                          } finally {
+                            if (mounted) {
+                              setState(() {
+                                isSaving = false;
+                              });
+                              setDialogState(() {});
+                            }
+                          }
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-
-                const SizedBox(height: 12),
-
-                Text(
-                  'Your Score: $score / 10',
-                  style: TextStyle(
-                    fontSize: textFont + 2,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-                Text(
-                  'The correct answers are:',
-                  style: TextStyle(
-                    fontSize: textFont,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-
-                const SizedBox(height: 8),
-
-                Text(
-                  '1. Ilaya\n'
-                  '2. Ilaya\n'
-                  '3. Ilaya\n'
-                  '4. Ilawud\n'
-                  '5. Ilawud',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: textFont,
-                    height: 1.5,
-                    color: Colors.black87,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-
-                const SizedBox(height: 22),
-
-                Transform.scale(
-                  scale: 0.75,
-                  child: Button(
-                    label: 'OK',
-                    press: () {
-                      Navigator.pop(context);
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => Lesson3Screen(user: widget.user),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
@@ -374,7 +473,6 @@ class _LessonThreeDayOneActTwoState extends State<LessonThreeDayOneActTwo> {
           Positioned.fill(
             child: Image.asset(backgroundImage, fit: BoxFit.fill),
           ),
-
           Positioned(
             left: sidePadding,
             right: sidePadding,
@@ -407,7 +505,6 @@ class _LessonThreeDayOneActTwoState extends State<LessonThreeDayOneActTwo> {
               ],
             ),
           ),
-
           Positioned(
             left: 0,
             right: 0,
@@ -421,7 +518,6 @@ class _LessonThreeDayOneActTwoState extends State<LessonThreeDayOneActTwo> {
               ),
             ),
           ),
-
           if (currentScenario > 1)
             Positioned(
               top: topPadding,
@@ -433,7 +529,6 @@ class _LessonThreeDayOneActTwoState extends State<LessonThreeDayOneActTwo> {
                 onTap: previousScenario,
               ),
             ),
-
           Positioned(
             top: topPadding,
             right: sidePadding,
