@@ -15,7 +15,7 @@ namespace LakbayGameApi.Controllers
         [HttpPost("savePoints")]
         public async Task<ActionResult<Points>> SavePoints([FromBody]Points points)
         {
-            if(points == null)
+            if(points is null)
             {
                 return BadRequest("Data is null.");
             }
@@ -30,12 +30,36 @@ namespace LakbayGameApi.Controllers
             }
 
             _context.Points.Add(points);
-            await _context.SaveChangesAsync();
+
+            int countedPoints = points.CountedPoints;
+
+            var totalPoints = await _context.TotalPoints.FirstOrDefaultAsync(tp => tp.UserId == points.UserId);
+
+            if(totalPoints is null)
+            {
+                totalPoints = new TotalPoints
+                {
+                    UserId = points.UserId,
+                    TotalCountedPoints = countedPoints
+                };
+                _context.TotalPoints.Add(totalPoints);
+
+            }
+            else
+            {
+                int currentTotal = totalPoints.TotalCountedPoints;
+                totalPoints.TotalCountedPoints = currentTotal + countedPoints;
+                _context.TotalPoints.Update(totalPoints);
+            }
+           
+                await _context.SaveChangesAsync();
 
             return Ok(new
             {
                 message = "Points saved successfully.",
             });
         }
+
+        
     }
 }

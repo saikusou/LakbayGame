@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LakbayGameApi.Migrations
 {
     [DbContext(typeof(LakbayGameDbContext))]
-    [Migration("20260620073036_initial")]
+    [Migration("20260620075541_initial")]
     partial class initial
     {
         /// <inheritdoc />
@@ -60,9 +60,8 @@ namespace LakbayGameApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("TotalCountedPoints")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("TotalCountedPoints")
+                        .HasColumnType("int");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");

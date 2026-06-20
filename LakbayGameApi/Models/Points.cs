@@ -10,7 +10,6 @@ namespace LakbayGameApi.Models
         public string? Day { get; set; }
         public string? Lesson { get; set; }
         public string? Act { get; set; }
-
         public required int CountedPoints { get; set; }
     }
 }

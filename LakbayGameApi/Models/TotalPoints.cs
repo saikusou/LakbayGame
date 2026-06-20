@@ -7,6 +7,6 @@ namespace LakbayGameApi.Models
         [Key]
         public int Id { get; set; }
         public int UserId { get; set; }
-        public required string TotalCountedPoints { get; set; }
+        public required int TotalCountedPoints { get; set; }
     }
 }
