@@ -58,4 +58,24 @@ class ApiService {
       throw Exception('Failed to fetch total points');
     }
   }
+
+  static Future<Map<String, dynamic>> claimDailyReward({
+    required int userId,
+  }) async {
+    final response = await http.post(
+      Uri.parse('${ApiConfig.baseUrl}/points/claim-daily-reward'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'userId': userId}),
+    );
+
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      return data;
+    } else if (response.statusCode == 409) {
+      return data;
+    } else {
+      throw Exception('Failed to claim daily reward: ${response.body}');
+    }
+  }
 }

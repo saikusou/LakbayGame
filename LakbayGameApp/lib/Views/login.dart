@@ -47,6 +47,12 @@ class _LoginScreenState extends State<LoginScreen> {
       await prefs.setInt('userId', user.id!);
 
       if (!mounted) return;
+      final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+      final userId = prefs.getInt('userId');
+
+      print(
+        "isLoggedIn: ${isLoggedIn.toString()}, userId: ${userId.toString()}",
+      );
 
       Navigator.pushReplacement(
         context,

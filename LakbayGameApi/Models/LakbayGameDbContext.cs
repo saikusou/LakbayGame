@@ -12,5 +12,6 @@ namespace LakbayGameApi.Models
         public DbSet<Users> Users { get; set; }
         public DbSet<Points> Points { get; set; }
         public DbSet<TotalPoints> TotalPoints { get; set; }
+        public DbSet<DailyRewardRequest> DailyRewards { get; set; }
     }
 }

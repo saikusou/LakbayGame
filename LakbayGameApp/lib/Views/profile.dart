@@ -65,23 +65,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> claimDailyReward() async {
-    final prefs = await SharedPreferences.getInstance();
+    await ApiService.claimDailyReward(userId: widget.user.id!);
 
-    final now = DateTime.now();
-    final today = "${now.year}-${now.month}-${now.day}";
+    // final prefs = await SharedPreferences.getInstance();
+    // final now = DateTime.now();
+    // final today = "${now.year}-${now.month}-${now.day}";
+    // await prefs.setString('daily_reward_date', today);
 
-    await prefs.setString('daily_reward_date', today);
-
-    if (!mounted) return;
-
-    Navigator.pop(context);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Reward Claimed!"),
-        duration: Duration(seconds: 2),
-      ),
-    );
+    if (mounted) {
+      Navigator.pop(context);
+      loadTotalPoints();
+    }
   }
 
   void toggleMenu() {
