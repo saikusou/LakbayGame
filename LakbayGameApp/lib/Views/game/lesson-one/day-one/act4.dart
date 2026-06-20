@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/lesson1.dart';
 import 'package:lakbay_game/models/user_model.dart';
+import 'package:lakbay_game/services/api_service.dart';
 
 class LessonOneActFour extends StatefulWidget {
   final UserModel user;
@@ -16,6 +17,8 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
 
   String? answer1;
   String? answer2;
+
+  bool isSaving = false;
 
   final List<String> correctAnswers = ['MALI', 'TAMA'];
 
@@ -34,6 +37,16 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
     return score;
   }
 
+  Future<void> handleSavePoints({required int totalScore}) async {
+    await ApiService.savePoints(
+      userId: widget.user.id,
+      countedPoints: totalScore,
+      lesson: 'Lesson 1',
+      day: 'Day 1',
+      act: 'Act 4',
+    );
+  }
+
   void selectAnswer(String answer) {
     setState(() {
       if (currentScenario == 1) {
@@ -44,6 +57,16 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
     });
 
     showAnswerPopup();
+  }
+
+  void showNoAnswerMessage() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Please select TAMA or MALI first.'),
+        backgroundColor: Colors.red,
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   void goHome() {
@@ -159,91 +182,132 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
       context: context,
       barrierDismissible: false,
       builder: (_) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          child: Container(
-            width: clampDouble(w * 0.82, 280, 420),
-            padding: EdgeInsets.all(clampDouble(w * 0.06, 18, 28)),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFF4D8),
-              borderRadius: BorderRadius.circular(28),
-              border: Border.all(color: Colors.orange, width: 4),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black26,
-                  blurRadius: 10,
-                  offset: Offset(0, 5),
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return Dialog(
+              backgroundColor: Colors.transparent,
+              child: Container(
+                width: clampDouble(w * 0.82, 280, 420),
+                padding: EdgeInsets.all(clampDouble(w * 0.06, 18, 28)),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF4D8),
+                  borderRadius: BorderRadius.circular(28),
+                  border: Border.all(color: Colors.orange, width: 4),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 10,
+                      offset: Offset(0, 5),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'CONGRATULATIONS!',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.orange,
-                    fontWeight: FontWeight.bold,
-                    fontSize: clampDouble(w * 0.065, 22, 34),
-                  ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'CONGRATULATIONS!',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.orange,
+                        fontWeight: FontWeight.bold,
+                        fontSize: clampDouble(w * 0.065, 22, 34),
+                      ),
+                    ),
+                    SizedBox(height: clampDouble(h * 0.018, 10, 18)),
+                    Text(
+                      'Your Score',
+                      style: TextStyle(
+                        color: Colors.brown,
+                        fontWeight: FontWeight.bold,
+                        fontSize: clampDouble(w * 0.05, 18, 26),
+                      ),
+                    ),
+                    SizedBox(height: clampDouble(h * 0.012, 8, 14)),
+                    Text(
+                      '$score / 10',
+                      style: TextStyle(
+                        color: Colors.green,
+                        fontWeight: FontWeight.bold,
+                        fontSize: clampDouble(w * 0.09, 34, 50),
+                      ),
+                    ),
+                    SizedBox(height: clampDouble(h * 0.01, 6, 12)),
+                    Text(
+                      '$correctCount out of 2 correct answers',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.black87,
+                        fontSize: clampDouble(w * 0.04, 14, 20),
+                      ),
+                    ),
+                    SizedBox(height: clampDouble(h * 0.025, 16, 26)),
+                    isSaving
+                        ? const CircularProgressIndicator()
+                        : smallButton(
+                            label: 'OK',
+                            width: clampDouble(w * 0.32, 110, 150),
+                            height: clampDouble(h * 0.055, 40, 52),
+                            fontSize: clampDouble(w * 0.04, 14, 18),
+                            onTap: () async {
+                              setDialogState(() {
+                                isSaving = true;
+                              });
+
+                              try {
+                                await handleSavePoints(totalScore: score);
+
+                                if (!mounted) return;
+
+                                Navigator.pop(context);
+                                goHome();
+                              } catch (e) {
+                                if (!mounted) return;
+
+                                setDialogState(() {
+                                  isSaving = false;
+                                });
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Failed to save score: $e'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                  ],
                 ),
-
-                SizedBox(height: clampDouble(h * 0.018, 10, 18)),
-
-                Text(
-                  'Your Score',
-                  style: TextStyle(
-                    color: Colors.brown,
-                    fontWeight: FontWeight.bold,
-                    fontSize: clampDouble(w * 0.05, 18, 26),
-                  ),
-                ),
-
-                SizedBox(height: clampDouble(h * 0.012, 8, 14)),
-
-                Text(
-                  '$score / 10',
-                  style: TextStyle(
-                    color: Colors.green,
-                    fontWeight: FontWeight.bold,
-                    fontSize: clampDouble(w * 0.09, 34, 50),
-                  ),
-                ),
-
-                SizedBox(height: clampDouble(h * 0.01, 6, 12)),
-
-                Text(
-                  '$correctCount out of 2 correct answers',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.black87,
-                    fontSize: clampDouble(w * 0.04, 14, 20),
-                  ),
-                ),
-
-                SizedBox(height: clampDouble(h * 0.025, 16, 26)),
-
-                smallButton(
-                  label: 'OK',
-                  width: clampDouble(w * 0.32, 110, 150),
-                  height: clampDouble(h * 0.055, 40, 52),
-                  fontSize: clampDouble(w * 0.04, 14, 18),
-                  onTap: () {
-                    Navigator.pop(context);
-                    goHome();
-                  },
-                ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
   }
 
   void submitAnswers() {
+    if (answer1 == null || answer2 == null) {
+      showNoAnswerMessage();
+      return;
+    }
+
     showScorePopup();
+  }
+
+  void nextOrDone() {
+    if (currentAnswer == null) {
+      showNoAnswerMessage();
+      return;
+    }
+
+    if (currentScenario == 1) {
+      setState(() {
+        currentScenario = 2;
+      });
+    } else {
+      submitAnswers();
+    }
   }
 
   Widget circleButton({
@@ -372,7 +436,6 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
               Positioned.fill(
                 child: Image.asset(backgroundImage, fit: BoxFit.fill),
               ),
-
               SafeArea(
                 bottom: false,
                 child: Stack(
@@ -387,7 +450,6 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
                         onTap: goHome,
                       ),
                     ),
-
                     if (currentScenario == 2)
                       Positioned(
                         top: clampDouble(h * 0.005, 4, 14),
@@ -406,7 +468,6 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
                   ],
                 ),
               ),
-
               Align(
                 alignment: Alignment.bottomCenter,
                 child: SafeArea(
@@ -433,9 +494,7 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
                                 isSelected: currentAnswer == 'TAMA',
                                 onTap: () => selectAnswer('TAMA'),
                               ),
-
                               SizedBox(width: clampDouble(w * 0.06, 14, 32)),
-
                               choiceButton(
                                 size: size,
                                 label: 'MALI',
@@ -446,7 +505,6 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
                             ],
                           ),
                         ),
-
                         SizedBox(
                           height: verySmall
                               ? 5
@@ -454,21 +512,12 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
                               ? 8
                               : 13,
                         ),
-
                         smallButton(
                           label: currentScenario == 1 ? 'NEXT' : 'DONE',
                           width: bottomButtonWidth,
                           height: bottomButtonHeight,
                           fontSize: bottomButtonFont,
-                          onTap: () {
-                            if (currentScenario == 1) {
-                              setState(() {
-                                currentScenario = 2;
-                              });
-                            } else {
-                              submitAnswers();
-                            }
-                          },
+                          onTap: nextOrDone,
                         ),
                       ],
                     ),
