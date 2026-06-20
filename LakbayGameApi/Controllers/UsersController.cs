@@ -4,13 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 [Route("users")]
 [ApiController]
-public class UsersController : ControllerBase
+public class UsersController(LakbayGameDbContext context) : ControllerBase
 {
-    private readonly LakbayGameDbContext _context;
-    public UsersController(LakbayGameDbContext context)
-    {
-        _context = context;
-    }
+    private readonly LakbayGameDbContext _context = context;
 
     // GET: api/Users
     [HttpGet("getAllUsers")]

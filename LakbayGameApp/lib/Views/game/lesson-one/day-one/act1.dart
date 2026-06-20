@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lakbay_game/Components/button.dart';
 import 'package:lakbay_game/Views/lesson1.dart';
 import 'package:lakbay_game/models/user_model.dart';
+import 'package:lakbay_game/services/api_service.dart';
 
 class LessonOneDayOneActOne extends StatefulWidget {
   final UserModel user;
@@ -19,7 +20,7 @@ class _LessonOneDayOneActOneState extends State<LessonOneDayOneActOne> {
   String? answer2;
   String? answer3;
 
-  final List<String> correctAnswers = ['C', 'B', 'C'];
+  final List<String> correctAnswers = ['B', 'A', 'C'];
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
@@ -43,12 +44,22 @@ class _LessonOneDayOneActOneState extends State<LessonOneDayOneActOne> {
     });
   }
 
+  Future<void> handleSavePoints({required int totalScore}) async {
+    await ApiService.savePoints(
+      userId: widget.user.id,
+      countedPoints: totalScore,
+      lesson: 'Lesson 1',
+      day: 'Day 1',
+      act: 'Act 1',
+    );
+  }
+
   int getScore() {
     int score = 0;
 
-    if (answer1 == correctAnswers[0]) score++;
-    if (answer2 == correctAnswers[1]) score++;
-    if (answer3 == correctAnswers[2]) score++;
+    if (answer1 == correctAnswers[0]) score += 5;
+    if (answer2 == correctAnswers[1]) score += 5;
+    if (answer3 == correctAnswers[2]) score += 5;
 
     return score;
   }
@@ -70,7 +81,7 @@ class _LessonOneDayOneActOneState extends State<LessonOneDayOneActOne> {
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           content: Text(
-            'Nakakuha ka ng $score sa 3 tamang sagot!',
+            'Nakakuha ka ng $score sa 3 tamang sagot!!!',
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
@@ -218,6 +229,7 @@ class _LessonOneDayOneActOneState extends State<LessonOneDayOneActOne> {
                                   currentScenario++;
                                 });
                               } else {
+                                handleSavePoints(totalScore: getScore());
                                 showScoreDialog();
                               }
                             },
@@ -229,8 +241,9 @@ class _LessonOneDayOneActOneState extends State<LessonOneDayOneActOne> {
                                 borderRadius: BorderRadius.circular(30),
                               ),
                             ),
+
                             child: Text(
-                              currentScenario < 3 ? 'NEXT' : 'SUBMIT',
+                              currentScenario < 3 ? 'NEXT' : 'DONE',
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
