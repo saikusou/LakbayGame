@@ -44,4 +44,18 @@ class ApiService {
       throw Exception('Failed to save points: ${response.body}');
     }
   }
+
+  static Future<int> getTotalPoints(int userId) async {
+    final response = await http.get(
+      Uri.parse('${ApiConfig.baseUrl}/points/totalpoints/$userId'),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+
+      return int.parse(data['totalPoints'].toString());
+    } else {
+      throw Exception('Failed to fetch total points');
+    }
+  }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lakbay_game/services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:lakbay_game/Views/lesson1.dart';
@@ -20,6 +21,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   bool showMenu = false;
   bool rewardPopupShown = false;
+  int totalPoints = 0;
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
@@ -29,9 +31,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
 
+    loadTotalPoints();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       checkDailyReward();
     });
+  }
+
+  Future<void> loadTotalPoints() async {
+    try {
+      final points = await ApiService.getTotalPoints(widget.user.id!);
+
+      if (mounted) {
+        setState(() {
+          totalPoints = points;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading points: $e');
+    }
   }
 
   Future<void> checkDailyReward() async {
@@ -224,7 +242,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  "202,000",
+                                  totalPoints.toString(),
                                   style: TextStyle(
                                     color: Colors.orange,
                                     fontWeight: FontWeight.bold,

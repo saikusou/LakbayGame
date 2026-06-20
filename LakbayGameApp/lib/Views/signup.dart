@@ -17,7 +17,8 @@ class _SignupScreenState extends State<SignupScreen> {
   final password = TextEditingController();
   final confirmPassword = TextEditingController();
   final gender = TextEditingController();
-
+  bool obscurePassword = true;
+  bool obscureConfirmPassword = true;
   final AuthService _authService = AuthService();
 
   bool _isLoading = false;
@@ -61,6 +62,20 @@ class _SignupScreenState extends State<SignupScreen> {
         context,
       ).showSnackBar(const SnackBar(content: Text('Failed to create account')));
     }
+  }
+
+  InputDecoration modernInput(String hint, IconData icon) {
+    return InputDecoration(
+      hintText: hint,
+      prefixIcon: Icon(icon),
+      filled: true,
+      fillColor: Colors.white.withValues(alpha: 0.9),
+      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide.none,
+      ),
+    );
   }
 
   @override
@@ -167,21 +182,49 @@ class _SignupScreenState extends State<SignupScreen> {
                       ),
 
                       // Password
-                      InputField(
-                        hint: 'Password',
-                        icon: Icons.lock,
+                      TextField(
                         controller: password,
-                        passwordInvisible: true,
+                        enabled: !_isLoading,
+                        obscureText: obscurePassword,
+                        decoration: modernInput('Password', Icons.lock)
+                            .copyWith(
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  obscurePassword
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    obscurePassword = !obscurePassword;
+                                  });
+                                },
+                              ),
+                            ),
                       ),
-
+                      const SizedBox(height: 10),
                       // Confirm Password
-                      InputField(
-                        hint: 'Confirm Password',
-                        icon: Icons.lock,
+                      TextField(
                         controller: confirmPassword,
-                        passwordInvisible: true,
+                        enabled: !_isLoading,
+                        obscureText: obscureConfirmPassword,
+                        decoration: modernInput('Confirm Password', Icons.lock)
+                            .copyWith(
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  obscureConfirmPassword
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    obscureConfirmPassword =
+                                        !obscureConfirmPassword;
+                                  });
+                                },
+                              ),
+                            ),
                       ),
-
                       const SizedBox(height: 20),
 
                       _isLoading
