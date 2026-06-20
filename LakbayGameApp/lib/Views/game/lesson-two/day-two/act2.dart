@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/game/lesson-two/day-two/act2a.dart';
-import 'package:lakbay_game/Views/lesson2.dart';
 import 'package:lakbay_game/models/user_model.dart';
+import 'package:lakbay_game/services/api_service.dart';
 
 class LessonTwoDayTwoActTwo extends StatefulWidget {
   final UserModel user;
@@ -27,11 +27,22 @@ class _LessonTwoDayTwoActTwoState extends State<LessonTwoDayTwoActTwo> {
   int elapsedSeconds = 0;
   bool timerStopped = false;
   bool popupShown = false;
+  bool isSaving = false;
 
   int get score {
     if (elapsedSeconds <= 10) return 20;
     if (elapsedSeconds <= 20) return 15;
     return 10;
+  }
+
+  Future<void> handleSavePoints({required int totalScore}) async {
+    await ApiService.savePoints(
+      userId: widget.user.id,
+      countedPoints: totalScore,
+      lesson: 'Lesson 2',
+      day: 'Day 2',
+      act: 'Act 2',
+    );
   }
 
   @override
@@ -69,7 +80,9 @@ class _LessonTwoDayTwoActTwoState extends State<LessonTwoDayTwoActTwo> {
       elapsedSeconds = 0;
       timerStopped = false;
       popupShown = false;
+      isSaving = false;
     });
+    startTimer();
   }
 
   bool get isCompleted {
@@ -96,6 +109,36 @@ class _LessonTwoDayTwoActTwoState extends State<LessonTwoDayTwoActTwo> {
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) showCongratulationsPopup();
     });
+  }
+
+  Future<void> goToNextPage(BuildContext dialogContext) async {
+    if (isSaving) return;
+    isSaving = true;
+
+    try {
+      await handleSavePoints(totalScore: score);
+
+      if (!mounted) return;
+
+      Navigator.pop(dialogContext);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => LessonTwoDayTwoActTwoA(user: widget.user),
+        ),
+      );
+    } catch (e) {
+      debugPrint('Error saving score: $e');
+      isSaving = false;
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to save score. Please try again.'),
+        ),
+      );
+    }
   }
 
   Widget gameButton({
@@ -164,8 +207,8 @@ class _LessonTwoDayTwoActTwoState extends State<LessonTwoDayTwoActTwo> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) {
-        final size = MediaQuery.of(context).size;
+      builder: (dialogContext) {
+        final size = MediaQuery.of(dialogContext).size;
         final popupWidth = clampDouble(size.width * 0.88, 285, 430);
 
         return Dialog(
@@ -319,7 +362,8 @@ class _LessonTwoDayTwoActTwoState extends State<LessonTwoDayTwoActTwo> {
                         height: size.height,
                         compact: true,
                         onTap: () {
-                          Navigator.pop(context);
+                          if (isSaving) return;
+                          Navigator.pop(dialogContext);
                           resetPuzzle();
                         },
                       ),
@@ -333,14 +377,7 @@ class _LessonTwoDayTwoActTwoState extends State<LessonTwoDayTwoActTwo> {
                         height: size.height,
                         compact: true,
                         onTap: () {
-                          Navigator.pop(context);
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  LessonTwoDayTwoActTwoA(user: widget.user),
-                            ),
-                          );
+                          goToNextPage(dialogContext);
                         },
                       ),
                     ),

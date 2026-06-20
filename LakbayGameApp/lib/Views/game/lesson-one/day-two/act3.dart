@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:lakbay_game/Views/game/lesson-one/day-one/act3a.dart';
 import 'package:lakbay_game/Views/game/lesson-one/day-two/act3a.dart';
 import 'package:lakbay_game/Views/lesson1.dart';
 import 'package:lakbay_game/models/user_model.dart';
-
-// import your next page here
-// import 'package:lakbay_game/Views/your_next_page.dart';
 
 class LessonOneDayTwoActThree extends StatefulWidget {
   final UserModel user;
@@ -19,12 +15,18 @@ class LessonOneDayTwoActThree extends StatefulWidget {
 }
 
 class _LessonOneDayTwoActThreeState extends State<LessonOneDayTwoActThree> {
+  static const String correctAnswer = 'BANGKA';
+  static const int answerLength = correctAnswer.length;
+
   final List<TextEditingController> controllers = List.generate(
-    14,
+    answerLength,
     (_) => TextEditingController(),
   );
 
-  final List<FocusNode> focusNodes = List.generate(14, (_) => FocusNode());
+  final List<FocusNode> focusNodes = List.generate(
+    answerLength,
+    (_) => FocusNode(),
+  );
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
@@ -35,12 +37,14 @@ class _LessonOneDayTwoActThreeState extends State<LessonOneDayTwoActThree> {
     for (final controller in controllers) {
       controller.dispose();
     }
-
     for (final focusNode in focusNodes) {
       focusNode.dispose();
     }
-
     super.dispose();
+  }
+
+  String get userAnswer {
+    return controllers.map((c) => c.text.trim().toUpperCase()).join();
   }
 
   void retryAnswers() {
@@ -52,21 +56,37 @@ class _LessonOneDayTwoActThreeState extends State<LessonOneDayTwoActThree> {
     setState(() {});
   }
 
+  void showWrongAnswerMessage() {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Maling sagot. Subukan muli.',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Colors.red,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
   void goToNextPage() {
-    Navigator.pop(context); // close modal first
+    Navigator.pop(context);
 
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (_) => LessonOneDayTwoActThreeA(user: widget.user),
-
-        // change this to your next page:
-        // builder: (_) => YourNextPage(user: widget.user),
       ),
     );
   }
 
   void submitAnswers() {
+    if (userAnswer != correctAnswer) {
+      showWrongAnswerMessage();
+      return;
+    }
+
     showDialog(
       context: context,
       barrierDismissible: true,
@@ -153,6 +173,7 @@ class _LessonOneDayTwoActThreeState extends State<LessonOneDayTwoActThree> {
         keyboardType: TextInputType.text,
         inputFormatters: [
           LengthLimitingTextInputFormatter(1),
+          FilteringTextInputFormatter.allow(RegExp('[a-zA-Z]')),
           TextInputFormatter.withFunction((oldValue, newValue) {
             final upperText = newValue.text.toUpperCase();
 
@@ -244,9 +265,9 @@ class _LessonOneDayTwoActThreeState extends State<LessonOneDayTwoActThree> {
     final double spacing = clampDouble(w * 0.004, 1.5, 4);
 
     final double boxSize = clampDouble(
-      (availableWidth - (spacing * 28)) / 14,
-      20,
-      38,
+      (availableWidth - (spacing * 12)) / answerLength,
+      15,
+      35,
     );
 
     final double buttonWidth = clampDouble(w * 0.32, 105, 155);
@@ -269,7 +290,7 @@ class _LessonOneDayTwoActThreeState extends State<LessonOneDayTwoActThree> {
             Positioned(
               left: horizontalPadding,
               right: horizontalPadding,
-              bottom: bottomPosition - 30, // move UP
+              bottom: bottomPosition - 30,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -279,7 +300,7 @@ class _LessonOneDayTwoActThreeState extends State<LessonOneDayTwoActThree> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(
-                        14,
+                        answerLength,
                         (index) => Padding(
                           padding: EdgeInsets.symmetric(horizontal: spacing),
                           child: inputBox(index, boxSize),

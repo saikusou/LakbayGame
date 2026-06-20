@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lakbay_game/Components/button.dart';
 import 'package:lakbay_game/Views/lesson1.dart';
 import 'package:lakbay_game/models/user_model.dart';
+import 'package:lakbay_game/services/api_service.dart';
 
 class LessonOneDayThreeActTwo extends StatefulWidget {
   final UserModel user;
@@ -26,6 +27,16 @@ class _LessonOneDayThreeActTwoState extends State<LessonOneDayThreeActTwo> {
     if (answer1 == correctAnswers[0]) score += 5;
     if (answer2 == correctAnswers[1]) score += 5;
     return score;
+  }
+
+  Future<void> handleSavePoints({required int totalScore}) async {
+    await ApiService.savePoints(
+      userId: widget.user.id,
+      countedPoints: totalScore,
+      lesson: 'Lesson 1',
+      day: 'Day 3',
+      act: 'Act 2',
+    );
   }
 
   double clampDouble(double value, double min, double max) {
@@ -85,8 +96,8 @@ class _LessonOneDayThreeActTwoState extends State<LessonOneDayThreeActTwo> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) {
-        final Size size = MediaQuery.of(context).size;
+      builder: (dialogContext) {
+        final Size size = MediaQuery.of(dialogContext).size;
         final bool shortScreen = size.height < 700;
 
         return Dialog(
@@ -133,7 +144,7 @@ class _LessonOneDayThreeActTwoState extends State<LessonOneDayThreeActTwo> {
                 right: 10,
                 top: 10,
                 child: GestureDetector(
-                  onTap: () => Navigator.pop(context),
+                  onTap: () => Navigator.pop(dialogContext),
                   child: Container(
                     width: clampDouble(size.width * 0.10, 34, 44),
                     height: clampDouble(size.width * 0.10, 34, 44),
@@ -156,8 +167,14 @@ class _LessonOneDayThreeActTwoState extends State<LessonOneDayThreeActTwo> {
                   width: clampDouble(size.width * 0.34, 120, 170),
                   height: shortScreen ? 38 : 45,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
+                    onPressed: () async {
+                      final int totalScore = getScore();
+
+                      await handleSavePoints(totalScore: totalScore);
+
+                      if (!mounted) return;
+
+                      Navigator.pop(dialogContext);
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(

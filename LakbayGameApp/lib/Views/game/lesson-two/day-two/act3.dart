@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/lesson2.dart';
 import 'package:lakbay_game/models/user_model.dart';
+import 'package:lakbay_game/services/api_service.dart';
 
 class HiddenPopup extends StatelessWidget {
   final UserModel users;
@@ -70,11 +71,43 @@ class HiddenPopup extends StatelessWidget {
   }
 }
 
-class CongratsPopup extends StatelessWidget {
-  const CongratsPopup({super.key});
+class CongratsPopup extends StatefulWidget {
+  final Future<void> Function() onOk;
+
+  const CongratsPopup({super.key, required this.onOk});
+
+  @override
+  State<CongratsPopup> createState() => _CongratsPopupState();
+}
+
+class _CongratsPopupState extends State<CongratsPopup> {
+  bool isSaving = false;
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
+  }
+
+  Future<void> handleOk() async {
+    if (isSaving) return;
+
+    setState(() => isSaving = true);
+
+    try {
+      await widget.onOk();
+
+      if (!mounted) return;
+      Navigator.pop(context);
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() => isSaving = false);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to save score. Please try again.'),
+        ),
+      );
+    }
   }
 
   @override
@@ -141,14 +174,23 @@ class CongratsPopup extends StatelessWidget {
                     borderRadius: BorderRadius.circular(18),
                   ),
                 ),
-                onPressed: () => Navigator.pop(context),
-                child: Text(
-                  "OK",
-                  style: TextStyle(
-                    fontSize: clampDouble(size.width * 0.045, 16, 22),
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                onPressed: isSaving ? null : handleOk,
+                child: isSaving
+                    ? const SizedBox(
+                        width: 26,
+                        height: 26,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 3,
+                        ),
+                      )
+                    : Text(
+                        "OK",
+                        style: TextStyle(
+                          fontSize: clampDouble(size.width * 0.045, 16, 22),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
               ),
             ),
           ],
@@ -171,9 +213,24 @@ class LessonTwoDayTwoActThree extends StatefulWidget {
 class _LessonTwoDayTwoActThreeState extends State<LessonTwoDayTwoActThree> {
   final Set<int> clickedHiddenCircles = {};
   bool congratulationsShown = false;
+  bool scoreSaved = false;
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
+  }
+
+  Future<void> handleSavePoints({required int totalScore}) async {
+    if (scoreSaved) return;
+
+    await ApiService.savePoints(
+      userId: widget.user.id,
+      countedPoints: totalScore,
+      lesson: 'Lesson 1',
+      day: 'Day 1',
+      act: 'Act 1',
+    );
+
+    scoreSaved = true;
   }
 
   Future<void> showHiddenPopup(int id, String image) async {
@@ -188,15 +245,30 @@ class _LessonTwoDayTwoActThreeState extends State<LessonTwoDayTwoActThree> {
       builder: (_) => HiddenPopup(image: image, users: widget.user),
     );
 
+    if (!mounted) return;
+
     if (clickedHiddenCircles.length == 7 && !congratulationsShown) {
-      congratulationsShown = true;
+      setState(() {
+        congratulationsShown = true;
+      });
 
-      if (!mounted) return;
-
-      showDialog(
+      await showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (_) => const CongratsPopup(),
+        builder: (_) => CongratsPopup(
+          onOk: () async {
+            await handleSavePoints(totalScore: 50);
+
+            if (!mounted) return;
+
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => Lesson2Screen(user: widget.user),
+              ),
+            );
+          },
+        ),
       );
     }
   }
@@ -263,7 +335,6 @@ class _LessonTwoDayTwoActThreeState extends State<LessonTwoDayTwoActThree> {
                 scaleY: scaleY,
                 popupImage: "assets/l2-d2-a3-1.png",
               ),
-
               hiddenCircle(
                 id: 2,
                 x: 240,
@@ -273,7 +344,6 @@ class _LessonTwoDayTwoActThreeState extends State<LessonTwoDayTwoActThree> {
                 scaleY: scaleY,
                 popupImage: "assets/l2-d2-a3-2.png",
               ),
-
               hiddenCircle(
                 id: 3,
                 x: 799,
@@ -283,7 +353,6 @@ class _LessonTwoDayTwoActThreeState extends State<LessonTwoDayTwoActThree> {
                 scaleY: scaleY,
                 popupImage: "assets/l2-d2-a3-3.png",
               ),
-
               hiddenCircle(
                 id: 4,
                 x: 350,
@@ -293,7 +362,6 @@ class _LessonTwoDayTwoActThreeState extends State<LessonTwoDayTwoActThree> {
                 scaleY: scaleY,
                 popupImage: "assets/l2-d2-a3-4.png",
               ),
-
               hiddenCircle(
                 id: 5,
                 x: 230,
@@ -303,7 +371,6 @@ class _LessonTwoDayTwoActThreeState extends State<LessonTwoDayTwoActThree> {
                 scaleY: scaleY,
                 popupImage: "assets/l2-d2-a3-5.png",
               ),
-
               hiddenCircle(
                 id: 6,
                 x: 700,
@@ -313,7 +380,6 @@ class _LessonTwoDayTwoActThreeState extends State<LessonTwoDayTwoActThree> {
                 scaleY: scaleY,
                 popupImage: "assets/lesson-two-day1-act3-pic6.png",
               ),
-
               hiddenCircle(
                 id: 7,
                 x: 880,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/lesson1.dart';
 import 'package:lakbay_game/models/user_model.dart';
+import 'package:lakbay_game/services/api_service.dart';
 
 class LessonOneDayTwoActTwo extends StatefulWidget {
   final UserModel user;
@@ -25,6 +26,16 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
 
   String? get currentAnswer => currentScenario == 1 ? answer1 : answer2;
 
+  Future<void> handleSavePoints({required int totalScore}) async {
+    await ApiService.savePoints(
+      userId: widget.user.id,
+      countedPoints: totalScore,
+      lesson: 'Lesson 1',
+      day: 'Day 2',
+      act: 'Act 2',
+    );
+  }
+
   void selectAnswer(String answer) {
     setState(() {
       if (currentScenario == 1) {
@@ -37,8 +48,10 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
 
   int getScore() {
     int score = 0;
+
     if (answer1 == correctAnswers[0]) score += 5;
     if (answer2 == correctAnswers[1]) score += 5;
+
     return score;
   }
 
@@ -94,14 +107,26 @@ class _LessonOneDayTwoActTwoState extends State<LessonOneDayTwoActTwo> {
                 const SizedBox(height: 24),
                 plainButton(
                   label: 'OK',
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => Lesson1Screen(user: widget.user),
-                      ),
-                    );
+                  onTap: () async {
+                    try {
+                      await handleSavePoints(totalScore: score);
+
+                      if (!mounted) return;
+
+                      Navigator.pop(context);
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => Lesson1Screen(user: widget.user),
+                        ),
+                      );
+                    } catch (e) {
+                      if (!mounted) return;
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Failed to save score: $e')),
+                      );
+                    }
                   },
                 ),
               ],

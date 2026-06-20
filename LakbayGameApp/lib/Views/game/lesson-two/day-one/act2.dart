@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/lesson2.dart';
 import 'package:lakbay_game/models/user_model.dart';
+import 'package:lakbay_game/services/api_service.dart';
 
 class LessonTwoDayOneActTwo extends StatefulWidget {
   final UserModel user;
@@ -20,6 +21,7 @@ class _LessonTwoDayOneActTwoState extends State<LessonTwoDayOneActTwo> {
   late List<String?> availableLetters;
 
   bool alreadyScored = false;
+  bool isSaving = false;
 
   @override
   void initState() {
@@ -30,6 +32,59 @@ class _LessonTwoDayOneActTwoState extends State<LessonTwoDayOneActTwo> {
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
+  }
+
+  Future<void> handleSavePoints({required int totalScore}) async {
+    await ApiService.savePoints(
+      userId: widget.user.id,
+      countedPoints: totalScore,
+      lesson: 'Lesson 2',
+      day: 'Day 1',
+      act: 'Act 2',
+    );
+  }
+
+  Future<void> saveThenGoBack() async {
+    if (isSaving) return;
+
+    setState(() {
+      isSaving = true;
+    });
+
+    try {
+      await handleSavePoints(totalScore: 20);
+
+      if (!mounted) return;
+
+      Navigator.of(context, rootNavigator: true).pop();
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => Lesson2Screen(user: widget.user)),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        isSaving = false;
+      });
+
+      Navigator.of(context, rootNavigator: true).pop();
+
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text("Score not saved"),
+          content: Text("Please check your backend/API.\n\n$e"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("OK"),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   void checkAnswer() {
@@ -107,15 +162,7 @@ class _LessonTwoDayOneActTwoState extends State<LessonTwoDayOneActTwo> {
                   borderRadius: BorderRadius.circular(18),
                 ),
               ),
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => Lesson2Screen(user: widget.user),
-                  ),
-                );
-              },
+              onPressed: isSaving ? null : saveThenGoBack,
               child: const Text(
                 "OK",
                 style: TextStyle(fontWeight: FontWeight.bold),
@@ -145,6 +192,8 @@ class _LessonTwoDayOneActTwoState extends State<LessonTwoDayOneActTwo> {
     setState(() {
       answers = List.filled(correctWord.length, null);
       availableLetters = List.from(originalLetters);
+      alreadyScored = false;
+      isSaving = false;
     });
   }
 
@@ -255,9 +304,11 @@ class _LessonTwoDayOneActTwoState extends State<LessonTwoDayOneActTwo> {
                 final emptyIndex = availableLetters.indexWhere(
                   (e) => e == null,
                 );
+
                 if (emptyIndex != -1) {
                   availableLetters[emptyIndex] = answers[index];
                 }
+
                 answers[index] = null;
               });
             }
@@ -361,7 +412,9 @@ class _LessonTwoDayOneActTwoState extends State<LessonTwoDayOneActTwo> {
                       (index) => answerBox(index, boxWidth, boxHeight),
                     ),
                   ),
+
                   SizedBox(height: clampDouble(size.height * 0.01, 4, 10)),
+
                   SizedBox(
                     height: tileSize * 2.4,
                     child: Center(
@@ -386,7 +439,9 @@ class _LessonTwoDayOneActTwoState extends State<LessonTwoDayOneActTwo> {
                       ),
                     ),
                   ),
+
                   SizedBox(height: clampDouble(size.height * 0.008, 4, 8)),
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

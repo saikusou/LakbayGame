@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/lesson1.dart';
 import 'package:lakbay_game/models/user_model.dart';
+import 'package:lakbay_game/services/api_service.dart';
 
 class LessonOneDayTwoActFour extends StatefulWidget {
   final UserModel user;
@@ -48,6 +49,16 @@ class _LessonOneDayTwoActFourState extends State<LessonOneDayTwoActFour> {
     return value.clamp(min, max).toDouble();
   }
 
+  Future<void> handleSavePoints({required int totalScore}) async {
+    await ApiService.savePoints(
+      userId: widget.user.id,
+      countedPoints: totalScore,
+      lesson: 'Lesson 1',
+      day: 'Day 2',
+      act: 'Act 4',
+    );
+  }
+
   String getChoiceText(String id) {
     return choices.firstWhere((choice) => choice['id'] == id)['text']!;
   }
@@ -69,7 +80,9 @@ class _LessonOneDayTwoActFourState extends State<LessonOneDayTwoActFour> {
     int total = 0;
 
     answers.forEach((key, value) {
-      if (value == correctAnswers[key]) total++;
+      if (value == correctAnswers[key]) {
+        total += 5;
+      }
     });
 
     return total;
@@ -82,7 +95,7 @@ class _LessonOneDayTwoActFourState extends State<LessonOneDayTwoActFour> {
       context: context,
       barrierDismissible: false,
       builder: (_) {
-        final bool perfect = total == 3;
+        final bool perfect = total == 15;
 
         return Dialog(
           backgroundColor: Colors.transparent,
@@ -118,7 +131,7 @@ class _LessonOneDayTwoActFourState extends State<LessonOneDayTwoActFour> {
                 const SizedBox(height: 10),
                 Text(
                   perfect
-                      ? 'Nakuha mo lahat ng tamang sagot!'
+                      ? 'Nakuha mo ang lahat ng 15 puntos!'
                       : 'Natapos mo ang gawain!',
                   textAlign: TextAlign.center,
                   style: const TextStyle(
@@ -139,7 +152,7 @@ class _LessonOneDayTwoActFourState extends State<LessonOneDayTwoActFour> {
                     border: Border.all(color: Colors.orange, width: 2),
                   ),
                   child: Text(
-                    'Score: $total / 3',
+                    'Score: $total / 15',
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w900,
@@ -152,14 +165,26 @@ class _LessonOneDayTwoActFourState extends State<LessonOneDayTwoActFour> {
                   width: 150,
                   height: 45,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => Lesson1Screen(user: widget.user),
-                        ),
-                      );
+                    onPressed: () async {
+                      try {
+                        await handleSavePoints(totalScore: total);
+
+                        if (!mounted) return;
+
+                        Navigator.pop(context);
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => Lesson1Screen(user: widget.user),
+                          ),
+                        );
+                      } catch (e) {
+                        if (!mounted) return;
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Failed to save score: $e')),
+                        );
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.brown,
@@ -319,7 +344,6 @@ class _LessonOneDayTwoActFourState extends State<LessonOneDayTwoActFour> {
                           style: TextStyle(
                             fontSize: answerFont,
                             color: Colors.grey[600],
-                            fontWeight: FontWeight.normal,
                           ),
                         )
                       : Draggable<String>(

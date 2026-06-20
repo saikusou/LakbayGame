@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/lesson2.dart';
 import 'package:lakbay_game/models/user_model.dart';
+import 'package:lakbay_game/services/api_service.dart';
 
 class LessonThreeDayThreeActTwo extends StatefulWidget {
   final UserModel user;
@@ -15,6 +16,9 @@ class LessonThreeDayThreeActTwo extends StatefulWidget {
 class _LessonThreeDayThreeActTwoState extends State<LessonThreeDayThreeActTwo> {
   int currentQuestion = 0;
   final List<int?> answers = List.filled(10, null);
+
+  bool isSaving = false;
+  bool alreadySaved = false;
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
@@ -33,18 +37,137 @@ class _LessonThreeDayThreeActTwoState extends State<LessonThreeDayThreeActTwo> {
     'Ang konsepto ng global citizenship ay nagpapakita ng ugnayan ng mga tao sa buong mundo',
   ];
 
-  final List<int> correctAnswers = [
-    1, // TAMA
-    1, // TAMA
-    1, // TAMA
-    0, // Mali
-    1, // Tama
-    1, // TAMA
-    1, // TAMA
-    1, // Tama
-    1, // TAMA
-    1, // TAMA
-  ];
+  final List<int> correctAnswers = [1, 1, 1, 0, 1, 1, 1, 1, 1, 1];
+
+  Future<void> handleSavePoints({required int totalScore}) async {
+    await ApiService.savePoints(
+      userId: widget.user.id,
+      countedPoints: totalScore,
+      lesson: 'Lesson 2',
+      day: 'Day 3',
+      act: 'Act 2',
+    );
+  }
+
+  int getScore() {
+    int score = 0;
+
+    for (int i = 0; i < questions.length; i++) {
+      if (answers[i] == correctAnswers[i]) {
+        score++;
+      }
+    }
+
+    return score;
+  }
+
+  Future<void> finishQuiz() async {
+    if (answers[currentQuestion] == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Pumili muna ng sagot.')));
+      return;
+    }
+
+    if (isSaving) return;
+
+    final int score = getScore();
+
+    setState(() {
+      isSaving = true;
+    });
+
+    try {
+      if (!alreadySaved) {
+        await handleSavePoints(totalScore: score);
+        alreadySaved = true;
+      }
+
+      if (!mounted) return;
+
+      showResultDialog(score);
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Hindi na-save ang score: $e')));
+    } finally {
+      if (mounted) {
+        setState(() {
+          isSaving = false;
+        });
+      }
+    }
+  }
+
+  void nextQuestion() {
+    if (answers[currentQuestion] == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Pumili muna ng sagot.')));
+      return;
+    }
+
+    if (currentQuestion == questions.length - 1) {
+      finishQuiz();
+    } else {
+      setState(() {
+        currentQuestion++;
+      });
+    }
+  }
+
+  void previousQuestion() {
+    if (currentQuestion > 0) {
+      setState(() {
+        currentQuestion--;
+      });
+    }
+  }
+
+  void showResultDialog(int score) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        title: const Text(
+          'RESULT',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontWeight: FontWeight.w900),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.emoji_events, color: Colors.amber, size: 75),
+            const SizedBox(height: 12),
+            Text(
+              '$score / ${questions.length}',
+              style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Nakakuha ka ng $score tamang sagot.',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pop(context);
+            },
+            child: const Text(
+              'OK',
+              style: TextStyle(fontWeight: FontWeight.w900),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget circleButton({
     required IconData icon,
@@ -68,90 +191,6 @@ class _LessonThreeDayThreeActTwoState extends State<LessonThreeDayThreeActTwo> {
     );
   }
 
-  int getScore() {
-    int score = 0;
-
-    for (int i = 0; i < questions.length; i++) {
-      if (answers[i] == correctAnswers[i]) {
-        score++;
-      }
-    }
-
-    return score;
-  }
-
-  void nextQuestion() {
-    if (answers[currentQuestion] == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Pumili muna ng sagot.')));
-      return;
-    }
-
-    if (currentQuestion == questions.length - 1) {
-      final int score = getScore();
-
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) => AlertDialog(
-          title: const Text(
-            'RESULT',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontWeight: FontWeight.w900),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.emoji_events, color: Colors.amber, size: 75),
-              const SizedBox(height: 12),
-              Text(
-                '$score / ${questions.length}',
-                style: const TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                'Nakakuha ka ng $score tamang sagot.',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.pop(context);
-              },
-              child: const Text(
-                'OK',
-                style: TextStyle(fontWeight: FontWeight.w900),
-              ),
-            ),
-          ],
-        ),
-      );
-    } else {
-      setState(() {
-        currentQuestion++;
-      });
-    }
-  }
-
-  void previousQuestion() {
-    if (currentQuestion > 0) {
-      setState(() {
-        currentQuestion--;
-      });
-    }
-  }
-
   Widget questionContainer({required Size size, required double questionFont}) {
     return Expanded(
       child: Center(
@@ -163,7 +202,7 @@ class _LessonThreeDayThreeActTwoState extends State<LessonThreeDayThreeActTwo> {
             vertical: clampDouble(size.height * 0.01, 6, 14),
           ),
           padding: EdgeInsets.all(clampDouble(size.width * 0.05, 16, 30)),
-          decoration: const BoxDecoration(color: Colors.transparent),
+          color: Colors.transparent,
           child: Center(
             child: SingleChildScrollView(
               child: Text(
@@ -201,11 +240,13 @@ class _LessonThreeDayThreeActTwoState extends State<LessonThreeDayThreeActTwo> {
 
     return Expanded(
       child: GestureDetector(
-        onTap: () {
-          setState(() {
-            answers[currentQuestion] = value;
-          });
-        },
+        onTap: isSaving
+            ? null
+            : () {
+                setState(() {
+                  answers[currentQuestion] = value;
+                });
+              },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
           height: clampDouble(
@@ -261,7 +302,7 @@ class _LessonThreeDayThreeActTwoState extends State<LessonThreeDayThreeActTwo> {
   }) {
     return Expanded(
       child: ElevatedButton(
-        onPressed: onPressed,
+        onPressed: isSaving ? null : onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
           disabledBackgroundColor: Colors.grey,
@@ -279,7 +320,7 @@ class _LessonThreeDayThreeActTwoState extends State<LessonThreeDayThreeActTwo> {
         child: FittedBox(
           fit: BoxFit.scaleDown,
           child: Text(
-            text,
+            isSaving && text == 'DONE' ? 'SAVING...' : text,
             style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w900,

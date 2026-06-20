@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/lesson2.dart';
 import 'package:lakbay_game/models/user_model.dart';
+import 'package:lakbay_game/services/api_service.dart';
 
 class HiddenPopup extends StatelessWidget {
   final UserModel users;
@@ -70,11 +71,45 @@ class HiddenPopup extends StatelessWidget {
   }
 }
 
-class CongratsPopup extends StatelessWidget {
-  const CongratsPopup({super.key});
+class CongratsPopup extends StatefulWidget {
+  final Future<void> Function() onOk;
+
+  const CongratsPopup({super.key, required this.onOk});
+
+  @override
+  State<CongratsPopup> createState() => _CongratsPopupState();
+}
+
+class _CongratsPopupState extends State<CongratsPopup> {
+  bool isSaving = false;
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
+  }
+
+  Future<void> handleOk() async {
+    if (isSaving) return;
+
+    setState(() {
+      isSaving = true;
+    });
+
+    try {
+      await widget.onOk();
+
+      if (!mounted) return;
+      Navigator.pop(context);
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        isSaving = false;
+      });
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Failed to save score: $e")));
+    }
   }
 
   @override
@@ -141,9 +176,9 @@ class CongratsPopup extends StatelessWidget {
                     borderRadius: BorderRadius.circular(18),
                   ),
                 ),
-                onPressed: () => Navigator.pop(context),
+                onPressed: isSaving ? null : handleOk,
                 child: Text(
-                  "OK",
+                  isSaving ? "Saving..." : "OK",
                   style: TextStyle(
                     fontSize: clampDouble(size.width * 0.045, 16, 22),
                     fontWeight: FontWeight.bold,
@@ -171,9 +206,24 @@ class LessonTwoDayOneActThree extends StatefulWidget {
 class _LessonTwoDayOneActThreeState extends State<LessonTwoDayOneActThree> {
   final Set<int> clickedHiddenCircles = {};
   bool congratulationsShown = false;
+  bool alreadyScored = false;
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
+  }
+
+  Future<void> handleSavePoints({required int totalScore}) async {
+    if (alreadyScored) return;
+
+    alreadyScored = true;
+
+    await ApiService.savePoints(
+      userId: widget.user.id,
+      countedPoints: totalScore,
+      lesson: 'Lesson 2',
+      day: 'Day 1',
+      act: 'Act 3',
+    );
   }
 
   Future<void> showHiddenPopup(int id, String image) async {
@@ -196,7 +246,11 @@ class _LessonTwoDayOneActThreeState extends State<LessonTwoDayOneActThree> {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (_) => const CongratsPopup(),
+        builder: (_) => CongratsPopup(
+          onOk: () async {
+            await handleSavePoints(totalScore: 50);
+          },
+        ),
       );
     }
   }

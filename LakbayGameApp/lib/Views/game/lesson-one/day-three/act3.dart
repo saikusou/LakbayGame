@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/lesson1.dart';
 import 'package:lakbay_game/models/user_model.dart';
+import 'package:lakbay_game/services/api_service.dart';
 
 class LessonOneDayThreeActThree extends StatefulWidget {
   final UserModel user;
@@ -18,6 +19,8 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
   int? answer1;
   int? answer2;
   int? answer3;
+
+  bool isSaving = false;
 
   final List<String> images = [
     'assets/lesson-one-day3-act3a.png',
@@ -51,7 +54,28 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
     });
   }
 
+  Future<void> handleSavePoints({required int totalScore}) async {
+    await ApiService.savePoints(
+      userId: widget.user.id,
+      countedPoints: totalScore,
+      lesson: 'Lesson 1',
+      day: 'Day 3',
+      act: 'Act 3',
+    );
+  }
+
   void nextRound() {
+    if (currentAnswer == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Pumili muna ng sagot bago magpatuloy.'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
     if (currentRound < 3) {
       setState(() => currentRound++);
     } else {
@@ -76,9 +100,11 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
 
   int getScore() {
     int score = 0;
-    if (answer1 == 1) score++;
-    if (answer2 == 0) score++;
-    if (answer3 == 0) score++;
+
+    if (answer1 == 1) score += 5;
+    if (answer2 == 0) score += 5;
+    if (answer3 == 0) score += 5;
+
     return score;
   }
 
@@ -88,52 +114,85 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) {
-        final size = MediaQuery.of(context).size;
+      builder: (dialogContext) {
+        final size = MediaQuery.of(dialogContext).size;
         final popupWidth = clampDouble(size.width * 0.82, 260, 360);
 
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.all(18),
-          child: Container(
-            width: popupWidth,
-            padding: EdgeInsets.all(clampDouble(size.width * 0.045, 14, 20)),
-            decoration: BoxDecoration(
-              color: const Color(0xfffff1b8),
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: const Color(0xff8b4b12), width: 3),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Tapos Na!',
-                  style: TextStyle(
-                    fontSize: clampDouble(size.width * 0.065, 22, 28),
-                    fontWeight: FontWeight.w900,
-                    color: const Color(0xff5a310b),
-                  ),
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return Dialog(
+              backgroundColor: Colors.transparent,
+              insetPadding: const EdgeInsets.all(18),
+              child: Container(
+                width: popupWidth,
+                padding: EdgeInsets.all(
+                  clampDouble(size.width * 0.045, 14, 20),
                 ),
-                const SizedBox(height: 12),
-                Text(
-                  'Tamang Sagot: $score / 3',
-                  style: TextStyle(
-                    fontSize: clampDouble(size.width * 0.048, 17, 22),
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xff5a310b),
-                  ),
+                decoration: BoxDecoration(
+                  color: const Color(0xfffff1b8),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: const Color(0xff8b4b12), width: 3),
                 ),
-                const SizedBox(height: 18),
-                SizedBox(
-                  width: 130,
-                  child: bottomButton('OK', 14, () {
-                    Navigator.pop(context);
-                    goHome();
-                  }),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Tapos Na!',
+                      style: TextStyle(
+                        fontSize: clampDouble(size.width * 0.065, 22, 28),
+                        fontWeight: FontWeight.w900,
+                        color: const Color(0xff5a310b),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Iskor: $score / 15',
+                      style: TextStyle(
+                        fontSize: clampDouble(size.width * 0.048, 17, 22),
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xff5a310b),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    SizedBox(
+                      width: 130,
+                      child: bottomButton(
+                        isSaving ? 'Saving...' : 'OK',
+                        14,
+                        isSaving
+                            ? () {}
+                            : () async {
+                                setDialogState(() => isSaving = true);
+
+                                try {
+                                  await handleSavePoints(totalScore: score);
+
+                                  if (!mounted) return;
+
+                                  Navigator.pop(dialogContext);
+                                  goHome();
+                                } catch (e) {
+                                  setDialogState(() => isSaving = false);
+
+                                  if (!mounted) return;
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Hindi na-save ang score: $e',
+                                      ),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
+                              },
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
@@ -392,7 +451,6 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
               Positioned.fill(
                 child: Image.asset(currentImage, fit: BoxFit.fill),
               ),
-
               SafeArea(
                 child: Stack(
                   children: [
@@ -405,7 +463,6 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
                         onTap: backRound,
                       ),
                     ),
-
                     Positioned(
                       top: clampDouble(screenH * 0.015, 8, 16),
                       right: horizontalPadding,
@@ -415,7 +472,6 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
                         onTap: goHome,
                       ),
                     ),
-
                     Positioned(
                       left: horizontalPadding,
                       right: horizontalPadding,
@@ -428,11 +484,9 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               currentQuestionCard(screenW),
-
                               SizedBox(
                                 height: clampDouble(screenH * 0.014, 7, 14),
                               ),
-
                               Row(
                                 children: [
                                   Expanded(

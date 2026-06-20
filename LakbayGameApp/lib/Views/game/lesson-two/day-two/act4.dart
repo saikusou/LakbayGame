@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/lesson2.dart';
 import 'package:lakbay_game/models/user_model.dart';
+import 'package:lakbay_game/services/api_service.dart';
 
 class LessonTwoDayTwoActFour extends StatefulWidget {
   final UserModel user;
@@ -14,6 +15,8 @@ class LessonTwoDayTwoActFour extends StatefulWidget {
 class _LessonTwoDayTwoActFourState extends State<LessonTwoDayTwoActFour> {
   int currentQuestion = 0;
   late List<int?> selectedAnswers;
+
+  bool alreadySaved = false;
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
@@ -69,11 +72,49 @@ class _LessonTwoDayTwoActFourState extends State<LessonTwoDayTwoActFour> {
 
     for (int i = 0; i < questions.length; i++) {
       if (selectedAnswers[i] == questions[i]['answer']) {
-        score++;
+        score += 5;
       }
     }
 
     return score;
+  }
+
+  Future<void> handleSavePoints({required int totalScore}) async {
+    await ApiService.savePoints(
+      userId: widget.user.id,
+      countedPoints: totalScore,
+      lesson: 'Lesson 2',
+      day: 'Day 2',
+      act: 'Act 4',
+    );
+  }
+
+  Future<bool> saveScoreOnly(int totalScore) async {
+    if (alreadySaved) return true;
+
+    try {
+      await handleSavePoints(totalScore: totalScore);
+      alreadySaved = true;
+      return true;
+    } catch (e) {
+      if (!mounted) return false;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Hindi na-save ang score: $e'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+
+      return false;
+    }
+  }
+
+  void goToLesson2() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => Lesson2Screen(user: widget.user)),
+    );
   }
 
   void nextQuestion() {
@@ -112,91 +153,118 @@ class _LessonTwoDayTwoActFourState extends State<LessonTwoDayTwoActFour> {
 
   void showScoreModal() {
     final int score = getScore();
+    bool dialogSaving = false;
 
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-          ),
-          backgroundColor: const Color(0xfffff1bd),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(22, 26, 22, 22),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'CONGRATULATIONS!',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w900,
-                    color: Color(0xff092f52),
-                  ),
-                ),
-                const SizedBox(height: 18),
-                Text(
-                  'Your Score',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.grey.shade800,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '$score / ${questions.length}',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 38,
-                    fontWeight: FontWeight.w900,
-                    color: Color(0xff188b2c),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => Lesson2Screen(user: widget.user),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    width: 150,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: const Color(0xff188b2c),
-                      borderRadius: BorderRadius.circular(40),
-                      border: Border.all(color: Colors.yellow, width: 3),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black45,
-                          offset: Offset(2, 4),
-                          blurRadius: 5,
-                        ),
-                      ],
-                    ),
-                    child: const Center(
-                      child: Text(
-                        'OK',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white,
-                        ),
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (dialogContext, setDialogState) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+              backgroundColor: const Color(0xfffff1bd),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(22, 26, 22, 22),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'CONGRATULATIONS!',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xff092f52),
                       ),
                     ),
-                  ),
+                    const SizedBox(height: 18),
+                    Text(
+                      'Your Score',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.grey.shade800,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '$score / ${questions.length * 5}',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 38,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xff188b2c),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    GestureDetector(
+                      onTap: dialogSaving
+                          ? null
+                          : () async {
+                              setDialogState(() {
+                                dialogSaving = true;
+                              });
+
+                              final bool saved = await saveScoreOnly(score);
+
+                              if (!mounted) return;
+
+                              if (saved) {
+                                Navigator.pop(dialogContext);
+                                goToLesson2();
+                              } else {
+                                setDialogState(() {
+                                  dialogSaving = false;
+                                });
+                              }
+                            },
+                      child: Container(
+                        width: 150,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: dialogSaving
+                              ? Colors.grey
+                              : const Color(0xff188b2c),
+                          borderRadius: BorderRadius.circular(40),
+                          border: Border.all(color: Colors.yellow, width: 3),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black45,
+                              offset: Offset(2, 4),
+                              blurRadius: 5,
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: dialogSaving
+                              ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 3,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Text(
+                                  'OK',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w900,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
@@ -226,6 +294,55 @@ class _LessonTwoDayTwoActFourState extends State<LessonTwoDayTwoActFour> {
           ],
         ),
         child: Icon(icon, color: Colors.white, size: size * 0.55),
+      ),
+    );
+  }
+
+  Widget answerCard({
+    required double width,
+    required double height,
+    required Color color,
+    required String image,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isSelected ? Colors.yellow : Colors.transparent,
+            width: isSelected ? 4 : 0,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: isSelected
+                  ? Colors.yellow.withOpacity(0.9)
+                  : Colors.black45,
+              offset: const Offset(2, 4),
+              blurRadius: isSelected ? 14 : 4,
+              spreadRadius: isSelected ? 3 : 0,
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              image: DecorationImage(
+                image: AssetImage(image),
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -278,7 +395,6 @@ class _LessonTwoDayTwoActFourState extends State<LessonTwoDayTwoActFour> {
                   ),
                 ),
               ),
-
               Positioned(
                 top: size.height * 0.50,
                 left: 0,
@@ -300,7 +416,6 @@ class _LessonTwoDayTwoActFourState extends State<LessonTwoDayTwoActFour> {
                   }),
                 ),
               ),
-
               Positioned(
                 bottom: size.height * 0.035,
                 left: size.width * 0.05,
@@ -379,7 +494,6 @@ class _LessonTwoDayTwoActFourState extends State<LessonTwoDayTwoActFour> {
                   ],
                 ),
               ),
-
               Positioned(
                 top: iconTop,
                 right: sidePadding,
@@ -387,66 +501,10 @@ class _LessonTwoDayTwoActFourState extends State<LessonTwoDayTwoActFour> {
                   icon: Icons.home,
                   color: Colors.orange,
                   size: iconSize,
-                  onTap: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => Lesson2Screen(user: widget.user),
-                      ),
-                    );
-                  },
+                  onTap: goToLesson2,
                 ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget answerCard({
-    required double width,
-    required double height,
-    required Color color,
-    required String image,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        width: width,
-        height: height,
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: isSelected ? Colors.yellow : Colors.transparent,
-            width: isSelected ? 4 : 0,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: isSelected
-                  ? Colors.yellow.withOpacity(0.9)
-                  : Colors.black45,
-              offset: const Offset(2, 4),
-              blurRadius: isSelected ? 14 : 4,
-              spreadRadius: isSelected ? 3 : 0,
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              image: DecorationImage(
-                image: AssetImage(image),
-                fit: BoxFit.contain,
-              ),
-            ),
           ),
         ),
       ),
