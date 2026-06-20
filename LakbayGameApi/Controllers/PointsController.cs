@@ -60,6 +60,26 @@ namespace LakbayGameApi.Controllers
             });
         }
 
-        
+        [HttpGet("totalpoints/{userId}")]
+        public async Task<IActionResult> GetTotalPoints(int userId)
+        {
+            var totalPoints = await _context.TotalPoints
+                .FirstOrDefaultAsync(t => t.UserId == userId);
+
+            if (totalPoints == null)
+            {
+                return Ok(new
+                {
+                    userId,
+                    totalPoints = 0
+                });
+            }
+
+            return Ok(new
+            {
+                userId,
+                totalPoints = totalPoints.TotalCountedPoints
+            });
+        }
     }
 }
