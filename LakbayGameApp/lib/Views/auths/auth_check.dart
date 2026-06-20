@@ -24,41 +24,26 @@ class _AuthCheckState extends State<AuthCheck> {
     final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
     final userId = prefs.getInt('userId');
 
-    if (!mounted) return;
+    Widget nextScreen = const AuthScreen();
 
     if (isLoggedIn && userId != null) {
       try {
         final user = await AuthService().getUserById(userId);
 
-        if (!mounted) return;
-
-        if (user != null) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => ProfileScreen(user: user)),
-          );
-        } else {
-          await prefs.clear();
-
-          if (!mounted) return;
-
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const AuthScreen()),
-          );
-        }
-      } catch (_) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const AuthScreen()),
-        );
+        nextScreen = ProfileScreen(user: user);
+      } catch (e) {
+        nextScreen = const AuthScreen();
       }
     } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const AuthScreen()),
-      );
+      nextScreen = const AuthScreen();
     }
+
+    if (!mounted) return;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => nextScreen),
+    );
   }
 
   @override

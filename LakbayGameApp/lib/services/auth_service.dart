@@ -21,9 +21,9 @@ class AuthService {
         return UserModel.fromJson(data);
       }
 
-      return null;
+      throw Exception('Invalid credentials');
     } catch (e) {
-      return null;
+      throw Exception('Error during login');
     }
   }
 
@@ -47,14 +47,14 @@ class AuthService {
 
       return response.statusCode == 201 || response.statusCode == 200;
     } catch (e) {
-      return false;
+      throw Exception('Error creating account');
     }
   }
 
-  Future<UserModel?> getUserById(int userId) async {
+  Future<UserModel> getUserById(int userId) async {
     try {
       final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/getUserById/$userId'),
+        Uri.parse('${ApiConfig.baseUrl}/users/getUserById/$userId'),
         headers: {'Content-Type': 'application/json'},
       );
 
@@ -64,9 +64,9 @@ class AuthService {
         return UserModel.fromJson(data);
       }
 
-      return null;
+      throw Exception('User not found');
     } catch (e) {
-      return null;
+      throw Exception('Error fetching user');
     }
   }
 }
