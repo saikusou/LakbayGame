@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/game/lesson-four/act3a.dart';
 import 'package:lakbay_game/models/user_model.dart';
-import 'package:lakbay_game/Views/lesson4.dart'; // change if your page name/path is different
+import 'package:lakbay_game/services/api_service.dart';
 
 class LessonFourDayOneActThree extends StatefulWidget {
   final UserModel user;
@@ -24,10 +24,13 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
 
   final List<int?> placed = List.filled(4, null);
 
+  static const int totalPoints = 20;
+
   Timer? _timer;
   int elapsedSeconds = 0;
   bool timerStopped = false;
   bool popupShown = false;
+  bool alreadySaved = false;
 
   @override
   void initState() {
@@ -45,14 +48,34 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
     return value.clamp(min, max).toDouble();
   }
 
+  Future<void> handleSavePoints({required int totalScore}) async {
+    if (alreadySaved) return;
+
+    alreadySaved = true;
+
+    try {
+      await ApiService.savePoints(
+        userId: widget.user.id,
+        countedPoints: totalScore,
+        lesson: 'Lesson 4',
+        day: 'Day 1',
+        act: 'Act 3',
+      );
+    } catch (e) {
+      alreadySaved = false;
+      debugPrint('Save points error: $e');
+    }
+  }
+
   void startTimer() {
     _timer?.cancel();
+
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (!timerStopped && mounted) {
-        setState(() {
-          elapsedSeconds++;
-        });
-      }
+      if (!mounted || timerStopped) return;
+
+      setState(() {
+        elapsedSeconds++;
+      });
     });
   }
 
@@ -62,13 +85,13 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
         placed[i] = null;
       }
 
-      if (timerStopped) {
-        elapsedSeconds = 0;
-      }
-
+      elapsedSeconds = 0;
       timerStopped = false;
       popupShown = false;
+      alreadySaved = false;
     });
+
+    startTimer();
   }
 
   bool get isCompleted {
@@ -84,7 +107,7 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
     return '$minutes:${seconds.toString().padLeft(2, '0')}';
   }
 
-  void completePuzzle() {
+  Future<void> completePuzzle() async {
     if (popupShown) return;
 
     setState(() {
@@ -92,23 +115,20 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
       popupShown = true;
     });
 
-    Future.delayed(const Duration(milliseconds: 300), () {
-      if (mounted) showCongratulationsPopup();
+    await handleSavePoints(totalScore: totalPoints);
+
+    if (!mounted) return;
+
+    Future.delayed(const Duration(milliseconds: 250), () {
+      if (mounted) {
+        showCongratulationsPopup();
+      }
     });
   }
 
   void playAgain() {
     Navigator.pop(context);
-
-    setState(() {
-      for (int i = 0; i < placed.length; i++) {
-        placed[i] = null;
-      }
-
-      elapsedSeconds = 0;
-      timerStopped = false;
-      popupShown = false;
-    });
+    resetPuzzle();
   }
 
   void goToAnswerPage() {
@@ -117,7 +137,7 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => LessonFourDayOneActThreeA(user: widget.user),
+        builder: (_) => LessonFourDayOneActThreeA(user: widget.user),
       ),
     );
   }
@@ -128,14 +148,17 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
       barrierDismissible: false,
       builder: (context) {
         final size = MediaQuery.of(context).size;
-        final popupWidth = clampDouble(size.width * 0.85, 285, 420);
+        final width = size.width;
+
+        final popupWidth = clampDouble(width * 0.88, 285, 420);
+        final iconSize = clampDouble(width * 0.16, 50, 70);
 
         return Dialog(
           backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.symmetric(horizontal: 18),
+          insetPadding: const EdgeInsets.symmetric(horizontal: 16),
           child: Container(
             width: popupWidth,
-            padding: EdgeInsets.all(clampDouble(size.width * 0.05, 16, 22)),
+            padding: EdgeInsets.all(clampDouble(width * 0.045, 14, 22)),
             decoration: BoxDecoration(
               color: const Color(0xFFFFFCF3),
               borderRadius: BorderRadius.circular(28),
@@ -148,145 +171,154 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
                 ),
               ],
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.emoji_events,
-                  size: clampDouble(size.width * 0.16, 55, 70),
-                  color: const Color(0xFFFFC928),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Congratulations!',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: clampDouble(size.width * 0.07, 23, 28),
-                    fontWeight: FontWeight.w900,
-                    color: const Color(0xFF126FC0),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.emoji_events,
+                    size: iconSize,
+                    color: const Color(0xFFFFC928),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Nabuo mo ang puzzle!',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: clampDouble(size.width * 0.045, 15, 18),
-                    fontWeight: FontWeight.w800,
-                    color: const Color(0xFF123B63),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Congratulations!',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: clampDouble(width * 0.07, 22, 28),
+                      fontWeight: FontWeight.w900,
+                      color: const Color(0xFF126FC0),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 22,
-                    vertical: 12,
+                  const SizedBox(height: 8),
+                  Text(
+                    'Nabuo mo ang puzzle!',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: clampDouble(width * 0.043, 14, 18),
+                      fontWeight: FontWeight.w800,
+                      color: const Color(0xFF123B63),
+                    ),
                   ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: Colors.red, width: 3),
-                  ),
-                  child: Column(
+                  const SizedBox(height: 14),
+                  Row(
                     children: [
-                      const Text(
-                        'TIME RECORD',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w900,
-                          color: Color(0xFF126FC0),
+                      Expanded(
+                        child: resultBox(
+                          title: 'TIME',
+                          value: formattedTime,
+                          color: Colors.red,
+                          width: width,
                         ),
                       ),
-                      Text(
-                        formattedTime,
-                        style: TextStyle(
-                          fontSize: clampDouble(size.width * 0.085, 26, 32),
-                          fontWeight: FontWeight.w900,
-                          color: Colors.red,
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: resultBox(
+                          title: 'POINTS',
+                          value: '$totalPoints',
+                          color: Colors.green,
+                          width: width,
                         ),
                       ),
                     ],
                   ),
-                ),
-
-                const SizedBox(height: 20),
-
-                GestureDetector(
-                  onTap: goToAnswerPage,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 28,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF0D63B7),
-                      borderRadius: BorderRadius.circular(28),
-                      border: Border.all(
-                        color: const Color(0xFFFFD84A),
-                        width: 4,
-                      ),
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'ANSWER',
-                          style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.white,
-                          ),
-                        ),
-                        SizedBox(width: 8),
-                        Icon(
-                          Icons.arrow_forward,
-                          color: Colors.white,
-                          size: 24,
-                        ),
-                      ],
-                    ),
+                  const SizedBox(height: 18),
+                  popupButton(
+                    label: 'ANSWER',
+                    icon: Icons.arrow_forward,
+                    color: const Color(0xFF0D63B7),
+                    width: width,
+                    onTap: goToAnswerPage,
                   ),
-                ),
-
-                const SizedBox(height: 12),
-
-                GestureDetector(
-                  onTap: playAgain,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(28),
-                      border: Border.all(
-                        color: const Color(0xFFFFD84A),
-                        width: 4,
-                      ),
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'PLAY AGAIN',
-                          style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.white,
-                          ),
-                        ),
-                        SizedBox(width: 8),
-                        Icon(Icons.refresh, color: Colors.white, size: 24),
-                      ],
-                    ),
+                  const SizedBox(height: 10),
+                  popupButton(
+                    label: 'PLAY AGAIN',
+                    icon: Icons.refresh,
+                    color: Colors.red,
+                    width: width,
+                    onTap: playAgain,
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
       },
+    );
+  }
+
+  Widget resultBox({
+    required String title,
+    required String value,
+    required Color color,
+    required double width,
+  }) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: clampDouble(width * 0.02, 8, 16),
+        vertical: 12,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: color, width: 3),
+      ),
+      child: Column(
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+              color: Color(0xFF126FC0),
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: clampDouble(width * 0.065, 22, 30),
+              fontWeight: FontWeight.w900,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget popupButton({
+    required String label,
+    required IconData icon,
+    required Color color,
+    required double width,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: clampDouble(width * 0.58, 210, 270),
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: const Color(0xFFFFD84A), width: 4),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: clampDouble(width * 0.043, 15, 18),
+                fontWeight: FontWeight.w900,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Icon(icon, color: Colors.white),
+          ],
+        ),
+      ),
     );
   }
 
@@ -297,7 +329,7 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
     return Container(
       width: boardWidth,
       height: boardHeight,
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(7),
       decoration: BoxDecoration(
         color: const Color(0xFFFFFCF3),
         borderRadius: BorderRadius.circular(16),
@@ -342,7 +374,7 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
                         child: Text(
                           '?',
                           style: TextStyle(
-                            fontSize: 32,
+                            fontSize: 30,
                             fontWeight: FontWeight.bold,
                             color: Colors.blueGrey,
                           ),
@@ -363,8 +395,8 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
     required bool isSmall,
   }) {
     return Wrap(
-      spacing: isSmall ? 8 : 12,
-      runSpacing: isSmall ? 8 : 12,
+      spacing: isSmall ? 7 : 12,
+      runSpacing: isSmall ? 7 : 12,
       alignment: WrapAlignment.center,
       children: List.generate(4, (index) {
         final alreadyPlaced = placed.contains(index);
@@ -380,13 +412,13 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
             color: Colors.transparent,
             child: Image.asset(
               pieces[index],
-              width: pieceWidth * 1.18,
-              height: pieceHeight * 1.18,
+              width: pieceWidth * 1.12,
+              height: pieceHeight * 1.12,
               fit: BoxFit.fill,
             ),
           ),
           childWhenDragging: Opacity(
-            opacity: 0.3,
+            opacity: 0.25,
             child: Image.asset(
               pieces[index],
               width: pieceWidth,
@@ -406,24 +438,27 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
   }
 
   Widget buildBottomControls({required double width, required bool isNarrow}) {
-    final timerWidth = clampDouble(width * 0.27, 82, 105);
-    final timerHeight = clampDouble(width * 0.16, 54, 68);
+    final timerWidth = clampDouble(width * 0.28, 86, 115);
+    final timerHeight = clampDouble(width * 0.15, 50, 66);
 
-    return isNarrow
-        ? Column(
-            children: [
-              buildTimerBox(timerWidth, timerHeight, width),
-              const SizedBox(height: 12),
-              buildResetButton(width),
-            ],
-          )
-        : Row(
-            children: [
-              buildTimerBox(timerWidth, timerHeight, width),
-              const Spacer(),
-              buildResetButton(width),
-            ],
-          );
+    if (isNarrow) {
+      return Column(
+        children: [
+          buildTimerBox(timerWidth, timerHeight, width),
+          const SizedBox(height: 10),
+          buildResetButton(width),
+        ],
+      );
+    }
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        buildTimerBox(timerWidth, timerHeight, width),
+        const SizedBox(width: 18),
+        buildResetButton(width),
+      ],
+    );
   }
 
   Widget buildTimerBox(double timerWidth, double timerHeight, double width) {
@@ -442,7 +477,7 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
             Text(
               formattedTime,
               style: TextStyle(
-                fontSize: clampDouble(width * 0.05, 17, 22),
+                fontSize: clampDouble(width * 0.048, 16, 22),
                 fontWeight: FontWeight.w900,
                 color: Colors.red,
               ),
@@ -450,7 +485,7 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
             const Text(
               'ORAS',
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 10,
                 fontWeight: FontWeight.w900,
                 color: Color(0xFF126FC0),
               ),
@@ -463,9 +498,9 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
 
   Widget buildResetButton(double width) {
     return GestureDetector(
-      onTap: resetPuzzle,
+      onTap: timerStopped ? null : resetPuzzle,
       child: Container(
-        height: clampDouble(width * 0.14, 48, 58),
+        height: clampDouble(width * 0.13, 46, 56),
         padding: EdgeInsets.symmetric(
           horizontal: clampDouble(width * 0.055, 16, 24),
         ),
@@ -480,7 +515,7 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
             Text(
               'RESET',
               style: TextStyle(
-                fontSize: clampDouble(width * 0.048, 17, 22),
+                fontSize: clampDouble(width * 0.045, 16, 21),
                 fontWeight: FontWeight.w900,
                 color: Colors.white,
               ),
@@ -489,7 +524,7 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
             Icon(
               Icons.refresh,
               color: Colors.white,
-              size: clampDouble(width * 0.06, 22, 28),
+              size: clampDouble(width * 0.055, 21, 27),
             ),
           ],
         ),
@@ -506,149 +541,147 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
             final width = constraints.maxWidth;
             final height = constraints.maxHeight;
 
+            final isNarrow = width < 370;
             final isSmallHeight = height < 720;
-            final isVerySmallHeight = height < 640;
-            final isNarrow = width < 360;
+            final isVerySmallHeight = height < 650;
 
-            final horizontalPadding = clampDouble(width * 0.035, 10, 16);
+            final horizontalPadding = clampDouble(width * 0.035, 10, 18);
 
-            final boardWidth = clampDouble(width * 0.90, 285, 460);
+            final boardWidth = clampDouble(width * 0.92, 285, 470);
             final boardHeight = clampDouble(
-              boardWidth * 0.63,
-              178,
-              isSmallHeight ? 245 : 290,
+              boardWidth * 0.62,
+              170,
+              isVerySmallHeight ? 220 : 285,
             );
 
             final pieceWidth = clampDouble(
-              width * 0.205,
+              width * 0.215,
               58,
               isSmallHeight ? 82 : 105,
             );
+
             final pieceHeight = pieceWidth * 0.72;
 
-            final titleFont = clampDouble(width * 0.065, 21, 30);
-            final instructionFont = clampDouble(width * 0.037, 12.5, 17);
+            final titleFont = clampDouble(width * 0.062, 20, 30);
+            final instructionFont = clampDouble(width * 0.037, 12, 17);
 
-            return Stack(
-              children: [
-                Positioned.fill(
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Color(0xFFBDEEFF),
-                          Color(0xFFFFFFFF),
-                          Color(0xFFC9F6B8),
-                        ],
-                      ),
+            return Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0xFFBDEEFF),
+                    Color(0xFFFFFFFF),
+                    Color(0xFFC9F6B8),
+                  ],
+                ),
+              ),
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: height),
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      horizontalPadding,
+                      isVerySmallHeight ? 6 : 10,
+                      horizontalPadding,
+                      18,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: isVerySmallHeight ? 5 : 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF126FC0),
+                            borderRadius: BorderRadius.circular(28),
+                            border: Border.all(color: Colors.white, width: 4),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black26,
+                                blurRadius: 5,
+                                offset: Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              IconButton(
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(
+                                  minWidth: 34,
+                                  minHeight: 34,
+                                ),
+                                onPressed: () => Navigator.pop(context),
+                                icon: const Icon(
+                                  Icons.arrow_back,
+                                  color: Colors.white,
+                                  size: 27,
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  'I-konek Mo Ako!',
+                                  textAlign: TextAlign.center,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: titleFont,
+                                    fontWeight: FontWeight.w900,
+                                    color: const Color(0xFFFFD84A),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 34),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: isVerySmallHeight ? 7 : 11),
+                        Container(
+                          width: boardWidth,
+                          padding: EdgeInsets.all(isVerySmallHeight ? 8 : 12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFFCF3),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: const Color(0xFF1781D3),
+                              width: 3,
+                            ),
+                          ),
+                          child: Text(
+                            'Ayusin ang apat na bahagi upang mabuo ang larawan.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: instructionFont,
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFF123B63),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: isVerySmallHeight ? 7 : 11),
+                        buildPuzzleBoard(
+                          boardWidth: boardWidth,
+                          boardHeight: boardHeight,
+                        ),
+                        SizedBox(height: isVerySmallHeight ? 8 : 13),
+                        buildPieces(
+                          pieceWidth: pieceWidth,
+                          pieceHeight: pieceHeight,
+                          isSmall: isSmallHeight,
+                        ),
+                        SizedBox(height: isVerySmallHeight ? 10 : 16),
+                        buildBottomControls(width: width, isNarrow: isNarrow),
+                      ],
                     ),
                   ),
                 ),
-                SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(minHeight: height),
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        horizontalPadding,
-                        isVerySmallHeight ? 6 : 10,
-                        horizontalPadding,
-                        18,
-                      ),
-                      child: Column(
-                        children: [
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: isVerySmallHeight ? 5 : 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF126FC0),
-                              borderRadius: BorderRadius.circular(28),
-                              border: Border.all(color: Colors.white, width: 4),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black26,
-                                  blurRadius: 5,
-                                  offset: Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              children: [
-                                IconButton(
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(
-                                    minWidth: 34,
-                                    minHeight: 34,
-                                  ),
-                                  onPressed: () => Navigator.pop(context),
-                                  icon: const Icon(
-                                    Icons.arrow_back,
-                                    color: Colors.white,
-                                    size: 28,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    'I-konek Mo Ako!',
-                                    textAlign: TextAlign.center,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontSize: titleFont,
-                                      fontWeight: FontWeight.w900,
-                                      color: const Color(0xFFFFD84A),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 34),
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: isVerySmallHeight ? 7 : 11),
-                          Container(
-                            width: boardWidth,
-                            padding: EdgeInsets.all(isVerySmallHeight ? 8 : 12),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFFFCF3),
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(
-                                color: const Color(0xFF1781D3),
-                                width: 3,
-                              ),
-                            ),
-                            child: Text(
-                              'Ayusin ang apat na bahagi upang mabuo ang larawan.',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: instructionFont,
-                                fontWeight: FontWeight.w800,
-                                color: const Color(0xFF123B63),
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: isVerySmallHeight ? 7 : 11),
-                          buildPuzzleBoard(
-                            boardWidth: boardWidth,
-                            boardHeight: boardHeight,
-                          ),
-                          SizedBox(height: isVerySmallHeight ? 8 : 13),
-                          buildPieces(
-                            pieceWidth: pieceWidth,
-                            pieceHeight: pieceHeight,
-                            isSmall: isSmallHeight,
-                          ),
-                          SizedBox(height: isVerySmallHeight ? 10 : 16),
-                          buildBottomControls(width: width, isNarrow: isNarrow),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             );
           },
         ),
