@@ -1,11 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/game/lesson-four/day-three/act2a.dart';
-import 'package:lakbay_game/Views/game/lesson-four/day-two/act4.dart';
-import 'package:lakbay_game/Views/game/lesson-two/day-two/act2a.dart';
-import 'package:lakbay_game/Views/lesson2.dart';
-import 'package:lakbay_game/Views/lesson4.dart';
 import 'package:lakbay_game/models/user_model.dart';
+import 'package:lakbay_game/services/api_service.dart';
 
 class LessonFourDayThreeActTwo extends StatefulWidget {
   final UserModel user;
@@ -31,6 +28,7 @@ class _LessonFourDayThreeActTwoState extends State<LessonFourDayThreeActTwo> {
   int elapsedSeconds = 0;
   bool timerStopped = false;
   bool popupShown = false;
+  bool alreadySaved = false;
 
   int get score {
     if (elapsedSeconds <= 10) return 20;
@@ -54,6 +52,16 @@ class _LessonFourDayThreeActTwoState extends State<LessonFourDayThreeActTwo> {
     return value.clamp(min, max).toDouble();
   }
 
+  Future<void> handleSavePoints({required int totalScore}) async {
+    await ApiService.savePoints(
+      userId: widget.user.id,
+      countedPoints: totalScore,
+      lesson: 'Lesson 4',
+      day: 'Day 3',
+      act: 'Act 2',
+    );
+  }
+
   void startTimer() {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
@@ -73,7 +81,10 @@ class _LessonFourDayThreeActTwoState extends State<LessonFourDayThreeActTwo> {
       elapsedSeconds = 0;
       timerStopped = false;
       popupShown = false;
+      alreadySaved = false;
     });
+
+    startTimer();
   }
 
   bool get isCompleted {
@@ -89,13 +100,23 @@ class _LessonFourDayThreeActTwoState extends State<LessonFourDayThreeActTwo> {
     return '$minutes:${seconds.toString().padLeft(2, '0')}';
   }
 
-  void completePuzzle() {
+  Future<void> completePuzzle() async {
     if (popupShown) return;
 
     setState(() {
       timerStopped = true;
       popupShown = true;
     });
+
+    if (!alreadySaved) {
+      alreadySaved = true;
+
+      try {
+        await handleSavePoints(totalScore: score);
+      } catch (e) {
+        debugPrint('Save score error: $e');
+      }
+    }
 
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) showCongratulationsPopup();
@@ -219,7 +240,6 @@ class _LessonFourDayThreeActTwoState extends State<LessonFourDayThreeActTwo> {
                   ),
                 ),
                 const SizedBox(height: 16),
-
                 Container(
                   width: double.infinity,
                   padding: EdgeInsets.symmetric(
@@ -309,9 +329,7 @@ class _LessonFourDayThreeActTwoState extends State<LessonFourDayThreeActTwo> {
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 18),
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -408,7 +426,6 @@ class _LessonFourDayThreeActTwoState extends State<LessonFourDayThreeActTwo> {
                     ),
                   ),
                 ),
-
                 SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
                   child: ConstrainedBox(
@@ -469,9 +486,7 @@ class _LessonFourDayThreeActTwoState extends State<LessonFourDayThreeActTwo> {
                               ],
                             ),
                           ),
-
                           SizedBox(height: isVerySmallPhone ? 8 : 12),
-
                           Container(
                             width: boardWidth,
                             padding: EdgeInsets.symmetric(
@@ -497,9 +512,7 @@ class _LessonFourDayThreeActTwoState extends State<LessonFourDayThreeActTwo> {
                               ),
                             ),
                           ),
-
                           SizedBox(height: isVerySmallPhone ? 8 : 12),
-
                           Container(
                             width: boardWidth,
                             height: boardHeight,
@@ -571,9 +584,7 @@ class _LessonFourDayThreeActTwoState extends State<LessonFourDayThreeActTwo> {
                               },
                             ),
                           ),
-
                           SizedBox(height: isVerySmallPhone ? 9 : 14),
-
                           SizedBox(
                             width: boardWidth,
                             child: Wrap(
@@ -623,9 +634,7 @@ class _LessonFourDayThreeActTwoState extends State<LessonFourDayThreeActTwo> {
                               }),
                             ),
                           ),
-
                           SizedBox(height: isVerySmallPhone ? 12 : 18),
-
                           SizedBox(
                             width: boardWidth,
                             child: Row(
@@ -673,9 +682,7 @@ class _LessonFourDayThreeActTwoState extends State<LessonFourDayThreeActTwo> {
                                     ),
                                   ),
                                 ),
-
                                 const Spacer(),
-
                                 gameButton(
                                   text: 'RESET',
                                   icon: Icons.refresh,

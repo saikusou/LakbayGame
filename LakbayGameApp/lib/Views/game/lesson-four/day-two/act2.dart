@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:lakbay_game/Views/lesson1.dart';
 import 'package:lakbay_game/Views/lesson4.dart';
 import 'package:lakbay_game/models/user_model.dart';
+import 'package:lakbay_game/services/api_service.dart';
 
 class LessonFourDayTwoActTwo extends StatefulWidget {
   final UserModel user;
@@ -42,6 +42,8 @@ class _LessonFourDayTwoActTwoState extends State<LessonFourDayTwoActTwo> {
   late List<String> availableRoles;
 
   bool submitted = false;
+  bool alreadySaved = false;
+  bool isSaving = false;
 
   @override
   void initState() {
@@ -63,7 +65,28 @@ class _LessonFourDayTwoActTwoState extends State<LessonFourDayTwoActTwo> {
     setState(() {
       resetLists();
       submitted = false;
+      alreadySaved = false;
+      isSaving = false;
     });
+  }
+
+  Future<void> handleSavePoints({required int totalScore}) async {
+    if (alreadySaved) return;
+
+    try {
+      await ApiService.savePoints(
+        userId: widget.user.id,
+        countedPoints: totalScore,
+        lesson: 'Lesson 4',
+        day: 'Day 2',
+        act: 'Act 2',
+      );
+
+      alreadySaved = true;
+      debugPrint('Score saved successfully: $totalScore');
+    } catch (e) {
+      debugPrint('Save points error: $e');
+    }
   }
 
   double clampDouble(double value, double min, double max) {
@@ -74,7 +97,7 @@ class _LessonFourDayTwoActTwoState extends State<LessonFourDayTwoActTwo> {
       placedImages.every((e) => e != null) &&
       placedRoles.every((e) => e != null);
 
-  void checkAnswers() {
+  int calculateScore() {
     int score = 0;
 
     for (int i = 0; i < correctAnswers.length; i++) {
@@ -87,39 +110,69 @@ class _LessonFourDayTwoActTwoState extends State<LessonFourDayTwoActTwo> {
       }
     }
 
+    return score;
+  }
+
+  void checkAnswers() {
+    final int score = calculateScore();
+
     setState(() => submitted = true);
 
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        title: const Text(
-          'Resulta',
-          textAlign: TextAlign.center,
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        content: Text(
-          score == 40
-              ? 'Mahusay! Tama lahat ang sagot mo.\n\nIskor: $score / 40'
-              : 'Natapos mo ang gawain.\n\nIskor: $score / 40',
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        actionsAlignment: MainAxisAlignment.center,
-        actions: [
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              resetGame();
-            },
-            child: const Text('Ulitin'),
-          ),
-        ],
+      builder: (_) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18),
+            ),
+            title: const Text(
+              'Resulta',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            content: Text(
+              score == 40
+                  ? 'Mahusay! Tama lahat ang sagot mo.\n\nIskor: $score / 40'
+                  : 'Natapos mo ang gawain.\n\nIskor: $score / 40',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            actionsAlignment: MainAxisAlignment.center,
+            actions: [
+              ElevatedButton(
+                onPressed: isSaving
+                    ? null
+                    : () async {
+                        setDialogState(() {
+                          isSaving = true;
+                        });
+
+                        await handleSavePoints(totalScore: score);
+
+                        setDialogState(() {
+                          isSaving = false;
+                        });
+
+                        if (mounted) {
+                          Navigator.pop(context);
+                        }
+                      },
+                child: Text(isSaving ? 'Saving...' : 'OK'),
+              ),
+              ElevatedButton(
+                onPressed: isSaving
+                    ? null
+                    : () {
+                        Navigator.pop(context);
+                        resetGame();
+                      },
+                child: const Text('Ulitin'),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

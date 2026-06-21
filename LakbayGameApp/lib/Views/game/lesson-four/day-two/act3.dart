@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/lesson4.dart';
 import 'package:lakbay_game/models/user_model.dart';
+import 'package:lakbay_game/services/api_service.dart';
 
 class LessonFourDayTwoActThree extends StatefulWidget {
   final UserModel user;
@@ -14,6 +15,8 @@ class LessonFourDayTwoActThree extends StatefulWidget {
 
 class _LessonFourDayTwoActThreeState extends State<LessonFourDayTwoActThree> {
   int score = 0;
+  bool isSaving = false;
+  bool alreadySubmitted = false;
 
   static const double designW = 690;
   static const double designH = 1034;
@@ -32,17 +35,34 @@ class _LessonFourDayTwoActThreeState extends State<LessonFourDayTwoActThree> {
     'Alipin': null,
   };
 
+  Future<void> handleSavePoints({required int totalScore}) async {
+    await ApiService.savePoints(
+      userId: widget.user.id,
+      countedPoints: totalScore,
+      lesson: 'Lesson 4',
+      day: 'Day 2',
+      act: 'Act 3',
+    );
+  }
+
   void placeCard(String house, String image) {
+    if (isSaving) return;
+
     setState(() {
+      alreadySubmitted = false;
+
       placedCards.updateAll((key, value) {
         if (value == image) return null;
         return value;
       });
+
       placedCards[house] = image;
     });
   }
 
-  void submitAnswers() {
+  Future<void> submitAnswers() async {
+    if (isSaving || alreadySubmitted) return;
+
     int total = 0;
 
     placedCards.forEach((house, image) {
@@ -51,26 +71,64 @@ class _LessonFourDayTwoActThreeState extends State<LessonFourDayTwoActThree> {
       }
     });
 
-    setState(() => score = total);
+    setState(() {
+      score = total;
+      isSaving = true;
+    });
 
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Resulta'),
-        content: Text('Nakakuha ka ng $total puntos!'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
+    try {
+      await handleSavePoints(totalScore: total);
+
+      if (!mounted) return;
+
+      setState(() {
+        isSaving = false;
+        alreadySubmitted = true;
+      });
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => AlertDialog(
+          title: const Text('Resulta'),
+          content: Text('Nakakuha ka ng $total puntos!\nNa-save na ang score.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        isSaving = false;
+      });
+
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text('Error'),
+          content: Text('Hindi na-save ang score.\n$e'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   void resetGame() {
+    if (isSaving) return;
+
     setState(() {
       score = 0;
+      alreadySubmitted = false;
       placedCards.updateAll((key, value) => null);
     });
   }
@@ -82,7 +140,7 @@ class _LessonFourDayTwoActThreeState extends State<LessonFourDayTwoActThree> {
     required VoidCallback onTap,
   }) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: isSaving ? null : onTap,
       child: Container(
         width: size,
         height: size,
@@ -174,19 +232,32 @@ class _LessonFourDayTwoActThreeState extends State<LessonFourDayTwoActThree> {
       width: 95,
       height: 38,
       child: ElevatedButton(
-        onPressed: onPressed,
+        onPressed: isSaving ? null : onPressed,
         style: ElevatedButton.styleFrom(
           padding: EdgeInsets.zero,
           backgroundColor: Colors.orange,
           foregroundColor: Colors.white,
+          disabledBackgroundColor: Colors.orange.withOpacity(0.5),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
         ),
-        child: Text(
-          text,
-          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-        ),
+        child: isSaving && text == 'Isumite'
+            ? const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
+              )
+            : Text(
+                text,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
       ),
     );
   }
@@ -227,7 +298,6 @@ class _LessonFourDayTwoActThreeState extends State<LessonFourDayTwoActThree> {
           ),
 
           dropBox(house: 'Maginoo', left: 42, top: 560, width: 176, height: 94),
-
           dropBox(
             house: 'Maharlika',
             left: 470,
@@ -235,9 +305,7 @@ class _LessonFourDayTwoActThreeState extends State<LessonFourDayTwoActThree> {
             width: 176,
             height: 94,
           ),
-
           dropBox(house: 'Timawa', left: 43, top: 846, width: 176, height: 92),
-
           dropBox(house: 'Alipin', left: 470, top: 846, width: 176, height: 92),
 
           Positioned(
