@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Components/side_navigation.dart';
+import 'package:lakbay_game/User/data/points_provider.dart';
 import 'package:lakbay_game/Views/profile.dart';
 
 /// POPUPS
@@ -7,7 +8,8 @@ import 'package:lakbay_game/Components/popup-lessons/lesson1_popups/day1_popup.d
 import 'package:lakbay_game/Components/popup-lessons/lesson1_popups/day2_popup.dart';
 import 'package:lakbay_game/Components/popup-lessons/lesson1_popups/day3_popup.dart';
 import 'package:lakbay_game/Components/popup-lessons/lesson1_popups/day4_popup.dart';
-import 'package:lakbay_game/models/user_model.dart';
+import 'package:lakbay_game/User/models/user_model.dart';
+import 'package:provider/provider.dart';
 
 class Lesson1Screen extends StatefulWidget {
   final UserModel user;
@@ -309,7 +311,7 @@ class _Lesson1ScreenState extends State<Lesson1Screen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      "202,000",
+                      context.watch<PointsProvider>().totalPoints.toString(),
                       style: TextStyle(
                         color: Colors.orange,
                         fontWeight: FontWeight.bold,

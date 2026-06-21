@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:lakbay_game/User/data/points_provider.dart';
 import 'package:lakbay_game/services/api_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:lakbay_game/services/user_service.dart';
+import 'package:provider/provider.dart';
 
 import 'package:lakbay_game/Views/lesson1.dart';
 import 'package:lakbay_game/Components/side_navigation.dart';
 import 'package:lakbay_game/Views/lesson2.dart';
 import 'package:lakbay_game/Views/lesson3.dart';
 import 'package:lakbay_game/Views/lesson4.dart';
-import 'package:lakbay_game/models/user_model.dart';
+import 'package:lakbay_game/User/models/user_model.dart';
 
 class ProfileScreen extends StatefulWidget {
   final UserModel user;
@@ -21,7 +23,6 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   bool showMenu = false;
   bool rewardPopupShown = false;
-  int totalPoints = 0;
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
@@ -31,25 +32,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
 
-    loadTotalPoints();
+    Future.microtask(() {
+      context.read<PointsProvider>().loadPoints(widget.user.id!);
+    });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       checkDailyReward();
     });
-  }
-
-  Future<void> loadTotalPoints() async {
-    try {
-      final points = await ApiService.getTotalPoints(widget.user.id!);
-
-      if (mounted) {
-        setState(() {
-          totalPoints = points;
-        });
-      }
-    } catch (e) {
-      debugPrint('Error loading points: $e');
-    }
   }
 
   Future<void> checkDailyReward() async {
@@ -59,7 +48,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (!alreadyClaimed && mounted) {
         showDailyRewardPopup();
       }
-      print("USER: " + widget.user.id.toString());
     } catch (e) {
       debugPrint('Error checking daily reward: $e');
     }
@@ -70,7 +58,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     if (mounted) {
       Navigator.pop(context);
-      loadTotalPoints();
+      await context.read<PointsProvider>().loadPoints(widget.user.id!);
     }
   }
 
@@ -232,7 +220,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  totalPoints.toString(),
+                                  context
+                                      .watch<PointsProvider>()
+                                      .totalPoints
+                                      .toString(),
                                   style: TextStyle(
                                     color: Colors.orange,
                                     fontWeight: FontWeight.bold,

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/game/lesson-one/day-two/act1.dart';
 import 'package:lakbay_game/Views/game/lesson-one/day-two/act3.dart';
 import 'package:lakbay_game/Views/game/lesson-one/day-two/act4.dart';
-import 'package:lakbay_game/models/user_model.dart';
+import 'package:lakbay_game/User/models/user_model.dart';
 
 class Day2Popup extends StatelessWidget {
   final String title;

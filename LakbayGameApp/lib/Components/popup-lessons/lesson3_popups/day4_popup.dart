@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-four/act2.dart';
 import 'package:lakbay_game/Views/game/lesson-three/day-four/act3.dart';
-import 'package:lakbay_game/models/user_model.dart';
+import 'package:lakbay_game/User/models/user_model.dart';
 
 class Day4Popup extends StatelessWidget {
   final UserModel user;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/login.dart';
-import 'package:lakbay_game/models/user_model.dart';
+import 'package:lakbay_game/User/models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SideNavigation extends StatelessWidget {

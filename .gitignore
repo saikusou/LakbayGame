@@ -275,3 +275,4 @@ LakbayGameApp/.dart_tool/chrome-device/Default/AutofillStrikeDatabase/LOCK
 LakbayGameApp/.dart_tool/chrome-device/Default/arbitration_service_config.json
 LakbayGameApp/.dart_tool/chrome-device/Default/Affiliation Database-journal
 LakbayGameApp/.dart_tool/chrome-device/Default/Affiliation Database
+LakbayGameApp/lib/config/api_config.dart

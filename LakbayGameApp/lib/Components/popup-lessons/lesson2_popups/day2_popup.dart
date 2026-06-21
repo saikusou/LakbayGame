@@ -4,7 +4,7 @@ import 'package:lakbay_game/Views/game/lesson-two/day-two/act2.dart';
 import 'package:lakbay_game/Views/game/lesson-two/day-two/act3.dart';
 import 'package:lakbay_game/Views/game/lesson-two/day-two/act4.dart';
 import 'package:lakbay_game/Views/game/lesson-two/day-two/act5.dart';
-import 'package:lakbay_game/models/user_model.dart';
+import 'package:lakbay_game/User/models/user_model.dart';
 
 class Day2Popup extends StatelessWidget {
   final String title;

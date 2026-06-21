@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:lakbay_game/User/data/points_provider.dart';
 import 'package:lakbay_game/Views/auths/auth_check.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => PointsProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

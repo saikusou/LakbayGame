@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Components/side_navigation.dart';
+import 'package:lakbay_game/User/data/points_provider.dart';
 import 'package:lakbay_game/Views/profile.dart';
 
 /// POPUPS
 
-import 'package:lakbay_game/models/user_model.dart';
+import 'package:lakbay_game/User/models/user_model.dart';
+import 'package:provider/provider.dart';
 
 import '../Components/popup-lessons/Lesson4_popups/day1_popup.dart';
 import '../Components/popup-lessons/Lesson4_popups/day2_popup.dart';
@@ -335,7 +337,7 @@ class _Lesson4ScreenState extends State<Lesson4Screen> {
                     const SizedBox(height: 4),
 
                     Text(
-                      "202,000",
+                      context.watch<PointsProvider>().totalPoints.toString(),
                       style: TextStyle(
                         color: Colors.orange,
                         fontWeight: FontWeight.bold,

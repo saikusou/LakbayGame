@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lakbay_game/models/user_model.dart';
+import 'package:lakbay_game/User/models/user_model.dart';
 
 class LessonOneDayThreeActThreeD extends StatelessWidget {
   final UserModel user;
