@@ -53,24 +53,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> checkDailyReward() async {
-    final prefs = await SharedPreferences.getInstance();
+    try {
+      final alreadyClaimed = await ApiService.hasClaimedToday(widget.user.id!);
 
-    final now = DateTime.now();
-    final today = "${now.year}-${now.month}-${now.day}";
-    final lastShownDate = prefs.getString('daily_reward_date');
-
-    if (lastShownDate != today && mounted) {
-      showDailyRewardPopup();
+      if (!alreadyClaimed && mounted) {
+        showDailyRewardPopup();
+      }
+      print("USER: " + widget.user.id.toString());
+    } catch (e) {
+      debugPrint('Error checking daily reward: $e');
     }
   }
 
   Future<void> claimDailyReward() async {
-    await ApiService.claimDailyReward(userId: widget.user.id!);
-
-    // final prefs = await SharedPreferences.getInstance();
-    // final now = DateTime.now();
-    // final today = "${now.year}-${now.month}-${now.day}";
-    // await prefs.setString('daily_reward_date', today);
+    await ApiService.claimDailyReward(widget.user.id!);
 
     if (mounted) {
       Navigator.pop(context);

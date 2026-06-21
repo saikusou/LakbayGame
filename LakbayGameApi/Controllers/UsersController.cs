@@ -65,12 +65,32 @@ public class UsersController(LakbayGameDbContext context) : ControllerBase
     [HttpPost("signUp")]
     public async Task<ActionResult<Users>> PostUsers(Users users)
     {
+        var existingUser = await _context.Users
+            .FirstOrDefaultAsync(u => u.UserName == users.UserName || u.Email == users.Email);
+
+        if (existingUser != null)
+        {
+            if (existingUser.UserName == users.UserName)
+            {
+                return BadRequest(new { message = "Username already exists." });
+            }
+
+            if (existingUser.Email == users.Email)
+            {
+                return BadRequest(new { message = "Email already exists." });
+            }
+        }
+
         _context.Users.Add(users);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction("GetUsers", new { userid = users.UserId }, users);
+        return CreatedAtAction(
+            "GetUsers",
+            new { userid = users.UserId },
+            users
+        );
     }
-
+    
     // DELETE: api/Users/5
     [HttpDelete("{userid}")]
     public async Task<IActionResult> DeleteUsers(int? userid)

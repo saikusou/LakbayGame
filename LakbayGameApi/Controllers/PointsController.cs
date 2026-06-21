@@ -1,4 +1,5 @@
-﻿using LakbayGameApi.Models;
+﻿using LakbayGameApi.Dto;
+using LakbayGameApi.Models;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -83,14 +84,14 @@ namespace LakbayGameApi.Controllers
         }
 
         [HttpPost("claim-daily-reward")]
-        public async Task<IActionResult> ClaimDailyReward([FromBody] int userId)
+        public async Task<IActionResult> ClaimDailyReward([FromBody] ClaimDailyRewardDto dto)
         {
             var today = DateTime.Today;
 
             // Check if already claimed today
             bool alreadyClaimed = await _context.DailyRewards
                 .AnyAsync(x =>
-                    x.UserId == userId &&
+                    x.UserId == dto.UserId &&
                     x.RewardDate == today);
 
             if (alreadyClaimed)
@@ -104,7 +105,7 @@ namespace LakbayGameApi.Controllers
 
             // Get latest reward record
             var lastReward = await _context.DailyRewards
-                .Where(x => x.UserId == userId)
+                .Where(x => x.UserId == dto.UserId)
                 .OrderByDescending(x => x.RewardDate)
                 .FirstOrDefaultAsync();
 
@@ -128,7 +129,7 @@ namespace LakbayGameApi.Controllers
 
             var reward = new DailyRewardRequest
             {
-                UserId = userId,
+                UserId = dto.UserId,
                 RewardDate = today,
                 PointsAwarded = pointsToAward
             };
@@ -136,13 +137,13 @@ namespace LakbayGameApi.Controllers
             _context.DailyRewards.Add(reward);
 
             var totalPoints = await _context.TotalPoints
-                .FirstOrDefaultAsync(tp => tp.UserId == userId);
+                .FirstOrDefaultAsync(tp => tp.UserId == dto.UserId);
 
             if (totalPoints == null)
             {
                 totalPoints = new TotalPoints
                 {
-                    UserId = userId,
+                    UserId = dto.UserId,
                     TotalCountedPoints = pointsToAward
                 };
 
@@ -160,6 +161,22 @@ namespace LakbayGameApi.Controllers
                 success = true,
                 streakDay,
                 pointsAwarded = pointsToAward
+            });
+        }
+
+        [HttpGet("daily-reward-status/{userId}")]
+        public async Task<IActionResult> GetDailyRewardStatus(int userId)
+        {
+            var today = DateTime.Today;
+
+            bool alreadyClaimed = await _context.DailyRewards
+                .AnyAsync(x =>
+                    x.UserId == userId &&
+                    x.RewardDate == today);
+
+            return Ok(new
+            {
+                alreadyClaimed
             });
         }
     }
