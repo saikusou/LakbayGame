@@ -94,7 +94,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               alignment: Alignment.center,
               children: [
                 Image.asset(
-                  'assets/floating-rewards.png',
+                  'assets/active_star1.png',
                   width: popupWidth,
                   height: popupHeight,
                   fit: BoxFit.contain,
