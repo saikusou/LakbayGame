@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:lakbay_game/User/models/leaderboard.dart';
 import 'package:lakbay_game/User/models/user_model.dart';
+import 'package:lakbay_game/services/api_service.dart';
 
 class LeaderboardScreen extends StatefulWidget {
   final UserModel user;
@@ -12,44 +14,21 @@ class LeaderboardScreen extends StatefulWidget {
 
 class _LeaderboardScreenState extends State<LeaderboardScreen> {
   final TextEditingController searchController = TextEditingController();
+
   String searchText = '';
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
   }
 
-  late final List<Map<String, dynamic>> leaders = [
-    {'name': 'Juan Dela Cruz', 'points': 500},
-    {'name': 'Maria Santos', 'points': 480},
-    {'name': 'Pedro Reyes', 'points': 460},
-    {'name': 'Ana Garcia', 'points': 440},
-    {'name': 'Mark Lopez', 'points': 420},
-    {'name': 'Carlo Mendoza', 'points': 400},
-    {'name': 'Jane Cruz', 'points': 390},
-    {'name': 'Paul Ramos', 'points': 380},
-    {'name': 'Rose Villanueva', 'points': 370},
-    {'name': 'Kevin Flores', 'points': 360},
-    {'name': 'Joshua Lim', 'points': 350},
-    {'name': 'Angela Torres', 'points': 340},
-    {'name': 'Bryan Perez', 'points': 330},
-    {'name': 'Nicole Castro', 'points': 320},
-    {'name': 'Patrick Gomez', 'points': 310},
-    {'name': 'Kim Rodriguez', 'points': 300},
-    {'name': 'John David', 'points': 290},
-    {'name': 'Princess Lee', 'points': 280},
-    {'name': 'Christian Yap', 'points': 270},
-    {'name': 'Louise Tan', 'points': 260},
-    {'name': 'Aaron Bautista', 'points': 250},
-    {'name': 'Faith Aquino', 'points': 240},
-    {'name': 'Renz Mercado', 'points': 230},
-    {'name': 'Trisha Ong', 'points': 220},
-    {'name': 'Jerome Sy', 'points': 210},
-    {'name': 'Ella Fernandez', 'points': 200},
-    {'name': 'Noel Chavez', 'points': 190},
-    {'name': 'Grace Morales', 'points': 180},
-    {'name': 'Miguel Navarro', 'points': 170},
-    {'name': widget.user.userName, 'points': 160},
-  ];
+  List<LeaderboardModel> leaders = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    loadLeaderboard();
+  }
 
   @override
   void dispose() {
@@ -57,20 +36,31 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
     super.dispose();
   }
 
-  List<Map<String, dynamic>> get filteredLeaders {
+  List<LeaderboardModel> get filteredLeaders {
     final sorted = [...leaders]
-      ..sort((a, b) => (b['points'] as int).compareTo(a['points'] as int));
-
-    for (int i = 0; i < sorted.length; i++) {
-      sorted[i] = {...sorted[i], 'rank': i + 1};
-    }
+      ..sort((a, b) => (b.totalPoints).compareTo(a.totalPoints));
 
     if (searchText.trim().isEmpty) return sorted;
 
     return sorted.where((player) {
-      final name = player['name'].toString().toLowerCase();
+      final name = player.userName.toLowerCase();
       return name.contains(searchText.toLowerCase());
     }).toList();
+  }
+
+  Future<void> loadLeaderboard() async {
+    try {
+      final fetchedLeaders = await ApiService.getUsersLeaderboard();
+      setState(() {
+        leaders = fetchedLeaders;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      // Handle error, e.g., show a snackbar or dialog
+    }
   }
 
   @override
@@ -128,7 +118,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                       clampDouble(size.width * 0.03, 10, 16),
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.75),
+                      color: Colors.white.withValues(alpha: 0.75),
                       borderRadius: BorderRadius.circular(28),
                       border: Border.all(
                         color: const Color(0xFF7A4A1D),
@@ -142,7 +132,9 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                         ),
                       ],
                     ),
-                    child: displayedLeaders.isEmpty
+                    child: isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : displayedLeaders.isEmpty
                         ? Center(
                             child: Text(
                               "No student found",
@@ -164,9 +156,9 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
 
                               return _leaderCard(
                                 size: size,
-                                rank: player['rank'],
-                                name: player['name'],
-                                points: player['points'],
+                                rank: index + 1,
+                                name: player.userName,
+                                points: player.totalPoints,
                               );
                             },
                           ),

@@ -135,4 +135,22 @@ public class UsersController(LakbayGameDbContext context) : ControllerBase
             gender = user.Gender
         });
     }
+
+    [HttpGet("getAllUsersLeaderboard")]
+    public async Task<ActionResult<IEnumerable<Users>>> GetUsersLeaderBoard()
+    {
+        var leaderBoard = await (from user in _context.Users
+                                 join points 
+                                 in _context.TotalPoints 
+                                 on user.UserId equals points.UserId
+                                 orderby points.TotalCountedPoints descending
+                                 select new
+                                 {
+                                     user.UserId,
+                                     user.UserName,
+                                     points.TotalCountedPoints
+                                 }).ToListAsync();
+
+        return Ok(leaderBoard);
+    }
 }

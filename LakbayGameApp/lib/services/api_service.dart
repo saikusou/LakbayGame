@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:lakbay_game/User/models/leaderboard.dart';
 import 'package:lakbay_game/config/api_config.dart';
 
 class ApiService {
@@ -87,6 +88,20 @@ class ApiService {
       return data;
     } else {
       throw Exception('Failed to claim daily reward: ${response.body}');
+    }
+  }
+
+  static Future<List<LeaderboardModel>> getUsersLeaderboard() async {
+    final response = await http.get(
+      Uri.parse('${ApiConfig.baseUrl}/users/getAllUsersLeaderboard'),
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+
+      return data.map((json) => LeaderboardModel.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to fetch leaderboard data');
     }
   }
 }
