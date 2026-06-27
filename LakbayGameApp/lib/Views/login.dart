@@ -28,21 +28,15 @@ class _LoginScreenState extends State<LoginScreen> {
       isLogin = false;
     });
 
-    final user = await authService.login(
-      userName: userName.text.trim(),
-      password: password.text.trim(),
-    );
+    try {
+      final user = await authService.login(
+        userName: userName.text.trim(),
+        password: password.text.trim(),
+      );
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    setState(() {
-      isLoading = false;
-      isLogin = user == null;
-    });
-
-    if (user != null) {
       final prefs = await SharedPreferences.getInstance();
-
       await prefs.setBool('isLoggedIn', true);
       await prefs.setInt('userId', user.id!);
 
@@ -52,6 +46,22 @@ class _LoginScreenState extends State<LoginScreen> {
         context,
         MaterialPageRoute(builder: (context) => ProfileScreen(user: user)),
       );
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        isLogin = true;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 

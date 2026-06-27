@@ -4,26 +4,26 @@ import 'package:lakbay_game/config/api_config.dart';
 import 'package:lakbay_game/User/models/user_model.dart';
 
 class AuthService {
-  Future<UserModel?> login({
+  Future<UserModel> login({
     required String userName,
     required String password,
   }) async {
-    try {
-      final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/users/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'login': userName, 'password': password}),
-      );
+    final response = await http.post(
+      Uri.parse('${ApiConfig.baseUrl}/users/login'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'login': userName, 'password': password}),
+    );
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+    final data = jsonDecode(response.body);
 
-        return UserModel.fromJson(data);
-      }
-
-      throw Exception('Invalid credentials');
-    } catch (e) {
-      throw Exception('Error during login');
+    if (response.statusCode == 200) {
+      return UserModel.fromJson(data);
+    } else if (response.statusCode == 401) {
+      throw Exception(data['message']);
+    } else if (response.statusCode == 404) {
+      throw Exception(data['message']);
+    } else {
+      throw Exception('Something went wrong.');
     }
   }
 
