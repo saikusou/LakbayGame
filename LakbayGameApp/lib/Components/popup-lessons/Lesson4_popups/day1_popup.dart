@@ -2,11 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/game/lesson-four/act2.dart';
 import 'package:lakbay_game/Views/game/lesson-four/act3.dart';
 import 'package:lakbay_game/Views/game/lesson-four/act4.dart';
-import 'package:lakbay_game/Views/game/lesson-three/day-three/act3.dart';
-import 'package:lakbay_game/Views/game/lesson-two/day-three/act2.dart';
-import 'package:lakbay_game/Views/game/lesson-two/day-three/act3.dart';
-import 'package:lakbay_game/Views/game/lesson-two/day-three/act4.dart';
-import 'package:lakbay_game/Views/game/lesson-two/day-three/act5.dart';
 import 'package:lakbay_game/User/models/user_model.dart';
 
 class Day1Popup extends StatelessWidget {

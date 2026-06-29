@@ -179,5 +179,7 @@ namespace LakbayGameApi.Controllers
                 alreadyClaimed
             });
         }
+
+
     }
 }
