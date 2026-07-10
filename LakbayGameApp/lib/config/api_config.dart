@@ -1,6 +1,5 @@
 class ApiConfig {
-  static const String ip =
-      '192.168.0.105'; // Replace with your machine's local IP address
+  static const String ip = '187.127.123.121';
   static const int port = 5211;
 
   static String get baseUrl => 'http://$ip:$port';
