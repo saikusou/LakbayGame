@@ -13,28 +13,72 @@ class LessonOneActFour extends StatefulWidget {
 }
 
 class _LessonOneActFourState extends State<LessonOneActFour> {
-  int currentScenario = 1;
-
-  String? answer1;
-  String? answer2;
+  int currentQuestionIndex = 0;
 
   bool isSaving = false;
 
-  final List<String> correctAnswers = ['MALI', 'TAMA'];
+  static const int pointsPerQuestion = 5;
 
-  double clampDouble(double value, double min, double max) {
-    return value.clamp(min, max).toDouble();
+  // One correct answer per question.
+  // You may change the order depending on your actual questions.
+  final List<String> correctAnswers = ['TAMA', 'MALI', 'TAMA', 'MALI', 'TAMA'];
+
+  // Stores the selected answer for all five questions.
+  final List<String?> selectedAnswers = List<String?>.filled(5, null);
+
+  // Main background image for each question.
+  final List<String> backgroundImages = [
+    'assets/lesson-one-day1-act4a.png',
+    'assets/lesson-one-day1-act4b.png',
+    'assets/lesson-one-day1-act4c.png',
+    'assets/lesson-one-day1-act4d.png',
+    'assets/lesson-one-day1-act4e.png',
+  ];
+
+  // Only five popup images.
+  // Each question has only one explanation image.
+  final List<String> popupImages = [
+    'assets/lesson-one-day1-act4-q1.png',
+    'assets/lesson-one-day1-act4-q2.png',
+    'assets/lesson-one-day1-act4-q3.png',
+    'assets/lesson-one-day1-act4-q4.png',
+    'assets/lesson-one-day1-act4-q5.png',
+  ];
+
+  double clampDouble(double value, double minimum, double maximum) {
+    return value.clamp(minimum, maximum).toDouble();
   }
 
-  String? get currentAnswer => currentScenario == 1 ? answer1 : answer2;
+  int get currentQuestionNumber => currentQuestionIndex + 1;
+
+  String? get currentAnswer => selectedAnswers[currentQuestionIndex];
+
+  bool get isLastQuestion {
+    return currentQuestionIndex == correctAnswers.length - 1;
+  }
 
   int getScore() {
     int score = 0;
 
-    if (answer1 == correctAnswers[0]) score += 5;
-    if (answer2 == correctAnswers[1]) score += 5;
+    for (int index = 0; index < correctAnswers.length; index++) {
+      if (selectedAnswers[index] == correctAnswers[index]) {
+        score += pointsPerQuestion;
+      }
+    }
 
     return score;
+  }
+
+  int getCorrectCount() {
+    int correctCount = 0;
+
+    for (int index = 0; index < correctAnswers.length; index++) {
+      if (selectedAnswers[index] == correctAnswers[index]) {
+        correctCount++;
+      }
+    }
+
+    return correctCount;
   }
 
   Future<void> handleSavePoints({required int totalScore}) async {
@@ -49,22 +93,23 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
 
   void selectAnswer(String answer) {
     setState(() {
-      if (currentScenario == 1) {
-        answer1 = answer;
-      } else {
-        answer2 = answer;
-      }
+      selectedAnswers[currentQuestionIndex] = answer;
     });
 
-    showAnswerPopup();
+    showAnswerPopup(selectedAnswer: answer);
   }
 
   void showNoAnswerMessage() {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Please select TAMA or MALI first.'),
+      SnackBar(
+        content: Text(
+          'Please select TAMA or MALI for Question '
+          '$currentQuestionNumber.',
+        ),
         backgroundColor: Colors.red,
-        duration: Duration(seconds: 2),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
@@ -76,39 +121,70 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
     );
   }
 
+  void goToPreviousQuestion() {
+    if (currentQuestionIndex <= 0) {
+      return;
+    }
+
+    setState(() {
+      currentQuestionIndex--;
+    });
+  }
+
+  void goToNextQuestion() {
+    if (currentQuestionIndex >= correctAnswers.length - 1) {
+      return;
+    }
+
+    setState(() {
+      currentQuestionIndex++;
+    });
+  }
+
   Widget smallButton({
     required String label,
-    required VoidCallback onTap,
+    required VoidCallback? onTap,
     required double width,
     required double height,
     required double fontSize,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: width,
-        height: height,
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFFFFC857), Color(0xFFFFA500)],
+    final bool disabled = onTap == null;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          width: width,
+          height: height,
+          decoration: BoxDecoration(
+            gradient: disabled
+                ? const LinearGradient(colors: [Colors.grey, Colors.grey])
+                : const LinearGradient(
+                    colors: [Color(0xFFFFC857), Color(0xFFFFA500)],
+                  ),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: Colors.white, width: 3),
+            boxShadow: disabled
+                ? []
+                : const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 6,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
           ),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: Colors.white, width: 3),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black26,
-              blurRadius: 6,
-              offset: Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: fontSize,
+          child: Center(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: fontSize,
+              ),
             ),
           ),
         ),
@@ -116,52 +192,140 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
     );
   }
 
-  void showAnswerPopup() {
-    final size = MediaQuery.of(context).size;
-    final w = size.width;
-    final h = size.height;
+  void showAnswerPopup({required String selectedAnswer}) {
+    final Size size = MediaQuery.of(context).size;
 
-    final String popupImage = currentScenario == 1
-        ? 'assets/lesson-one-day1-act4m.png'
-        : 'assets/lesson-one-day1-act4t.png';
+    final double width = size.width;
+    final double height = size.height;
+
+    final String correctAnswer = correctAnswers[currentQuestionIndex];
+
+    final bool isCorrect = selectedAnswer == correctAnswer;
+
+    // Only one image is used for the current question.
+    // It does not depend on whether TAMA or MALI was selected.
+    final String popupImage = popupImages[currentQuestionIndex];
 
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) {
+      builder: (dialogContext) {
         return Dialog(
           backgroundColor: Colors.transparent,
           insetPadding: EdgeInsets.symmetric(
-            horizontal: clampDouble(w * 0.04, 10, 22),
-            vertical: clampDouble(h * 0.025, 10, 24),
+            horizontal: clampDouble(width * 0.04, 10, 22),
+            vertical: clampDouble(height * 0.025, 10, 24),
           ),
           child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: 520, maxHeight: h * 0.78),
-            child: AspectRatio(
-              aspectRatio: 1.05,
-              child: Stack(
-                children: [
-                  Positioned.fill(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(22),
-                      child: Image.asset(popupImage, fit: BoxFit.fill),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: clampDouble(h * 0.025, 12, 28),
-                    left: 0,
-                    right: 0,
-                    child: Center(
-                      child: smallButton(
-                        label: 'OK',
-                        width: clampDouble(w * 0.23, 75, 115),
-                        height: clampDouble(h * 0.052, 35, 48),
-                        fontSize: clampDouble(w * 0.04, 13, 18),
-                        onTap: () => Navigator.pop(context),
-                      ),
-                    ),
+            constraints: BoxConstraints(
+              maxWidth: 520,
+              maxHeight: height * 0.88,
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF4D8),
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(
+                  color: isCorrect ? Colors.green : Colors.red,
+                  width: 4,
+                ),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 10,
+                    offset: Offset(0, 5),
                   ),
                 ],
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(18),
+                      ),
+                      child: Image.asset(
+                        popupImage,
+                        width: double.infinity,
+                        height: clampDouble(height * 0.46, 240, 420),
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            width: double.infinity,
+                            height: clampDouble(height * 0.40, 220, 360),
+                            padding: const EdgeInsets.all(20),
+                            alignment: Alignment.center,
+                            color: const Color(0xFFFFF4D8),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  isCorrect ? Icons.check_circle : Icons.cancel,
+                                  color: isCorrect ? Colors.green : Colors.red,
+                                  size: clampDouble(width * 0.20, 70, 110),
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  'Image not found:\n$popupImage',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: Colors.brown,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        clampDouble(width * 0.04, 14, 22),
+                        10,
+                        clampDouble(width * 0.04, 14, 22),
+                        clampDouble(height * 0.02, 14, 22),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            isCorrect ? 'CORRECT!' : 'INCORRECT',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: isCorrect ? Colors.green : Colors.red,
+                              fontWeight: FontWeight.bold,
+                              fontSize: clampDouble(width * 0.06, 21, 32),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            isCorrect
+                                ? 'Your answer is correct.'
+                                : 'The correct answer is $correctAnswer.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.brown,
+                              fontWeight: FontWeight.bold,
+                              fontSize: clampDouble(width * 0.04, 14, 19),
+                            ),
+                          ),
+                          SizedBox(height: clampDouble(height * 0.018, 12, 20)),
+                          smallButton(
+                            label: 'OK',
+                            width: clampDouble(width * 0.23, 80, 120),
+                            height: clampDouble(height * 0.052, 38, 50),
+                            fontSize: clampDouble(width * 0.04, 14, 18),
+                            onTap: () {
+                              Navigator.pop(dialogContext);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -171,112 +335,152 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
   }
 
   void showScorePopup() {
-    final size = MediaQuery.of(context).size;
-    final w = size.width;
-    final h = size.height;
+    final Size size = MediaQuery.of(context).size;
 
-    final score = getScore();
-    final correctCount = score ~/ 5;
+    final double width = size.width;
+    final double height = size.height;
+
+    final int score = getScore();
+    final int correctCount = getCorrectCount();
+    final int maximumScore = correctAnswers.length * pointsPerQuestion;
+
+    isSaving = false;
 
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) {
+      builder: (dialogContext) {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return Dialog(
               backgroundColor: Colors.transparent,
-              child: Container(
-                width: clampDouble(w * 0.82, 280, 420),
-                padding: EdgeInsets.all(clampDouble(w * 0.06, 18, 28)),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFF4D8),
-                  borderRadius: BorderRadius.circular(28),
-                  border: Border.all(color: Colors.orange, width: 4),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 10,
-                      offset: Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'CONGRATULATIONS!',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.orange,
-                        fontWeight: FontWeight.bold,
-                        fontSize: clampDouble(w * 0.065, 22, 34),
+              insetPadding: EdgeInsets.symmetric(
+                horizontal: clampDouble(width * 0.06, 16, 30),
+                vertical: clampDouble(height * 0.03, 16, 30),
+              ),
+              child: SingleChildScrollView(
+                child: Container(
+                  width: clampDouble(width * 0.84, 280, 420),
+                  padding: EdgeInsets.all(clampDouble(width * 0.06, 18, 28)),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF4D8),
+                    borderRadius: BorderRadius.circular(28),
+                    border: Border.all(color: Colors.orange, width: 4),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 10,
+                        offset: Offset(0, 5),
                       ),
-                    ),
-                    SizedBox(height: clampDouble(h * 0.018, 10, 18)),
-                    Text(
-                      'Your Score',
-                      style: TextStyle(
-                        color: Colors.brown,
-                        fontWeight: FontWeight.bold,
-                        fontSize: clampDouble(w * 0.05, 18, 26),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.emoji_events,
+                        color: Colors.amber,
+                        size: clampDouble(width * 0.18, 65, 95),
                       ),
-                    ),
-                    SizedBox(height: clampDouble(h * 0.012, 8, 14)),
-                    Text(
-                      '$score / 10',
-                      style: TextStyle(
-                        color: Colors.green,
-                        fontWeight: FontWeight.bold,
-                        fontSize: clampDouble(w * 0.09, 34, 50),
+                      const SizedBox(height: 8),
+                      Text(
+                        'CONGRATULATIONS!',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.orange,
+                          fontWeight: FontWeight.bold,
+                          fontSize: clampDouble(width * 0.065, 22, 34),
+                        ),
                       ),
-                    ),
-                    SizedBox(height: clampDouble(h * 0.01, 6, 12)),
-                    Text(
-                      '$correctCount out of 2 correct answers',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.black87,
-                        fontSize: clampDouble(w * 0.04, 14, 20),
+                      SizedBox(height: clampDouble(height * 0.018, 10, 18)),
+                      Text(
+                        'Your Score',
+                        style: TextStyle(
+                          color: Colors.brown,
+                          fontWeight: FontWeight.bold,
+                          fontSize: clampDouble(width * 0.05, 18, 26),
+                        ),
                       ),
-                    ),
-                    SizedBox(height: clampDouble(h * 0.025, 16, 26)),
-                    isSaving
-                        ? const CircularProgressIndicator()
-                        : smallButton(
-                            label: 'OK',
-                            width: clampDouble(w * 0.32, 110, 150),
-                            height: clampDouble(h * 0.055, 40, 52),
-                            fontSize: clampDouble(w * 0.04, 14, 18),
-                            onTap: () async {
+                      SizedBox(height: clampDouble(height * 0.012, 8, 14)),
+                      Text(
+                        '$score / $maximumScore',
+                        style: TextStyle(
+                          color: Colors.green,
+                          fontWeight: FontWeight.bold,
+                          fontSize: clampDouble(width * 0.09, 34, 50),
+                        ),
+                      ),
+                      SizedBox(height: clampDouble(height * 0.01, 6, 12)),
+                      Text(
+                        '$correctCount out of '
+                        '${correctAnswers.length} correct answers',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.black87,
+                          fontSize: clampDouble(width * 0.04, 14, 20),
+                        ),
+                      ),
+                      SizedBox(height: clampDouble(height * 0.025, 16, 26)),
+                      if (isSaving)
+                        const Column(
+                          children: [
+                            CircularProgressIndicator(),
+                            SizedBox(height: 10),
+                            Text(
+                              'Saving your score...',
+                              style: TextStyle(
+                                color: Colors.brown,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        )
+                      else
+                        smallButton(
+                          label: 'OK',
+                          width: clampDouble(width * 0.32, 110, 150),
+                          height: clampDouble(height * 0.055, 40, 52),
+                          fontSize: clampDouble(width * 0.04, 14, 18),
+                          onTap: () async {
+                            setDialogState(() {
+                              isSaving = true;
+                            });
+
+                            try {
+                              await handleSavePoints(totalScore: score);
+
+                              if (!mounted) {
+                                return;
+                              }
+
+                              Navigator.pop(dialogContext);
+
+                              goHome();
+                            } catch (error) {
+                              if (!mounted) {
+                                return;
+                              }
+
                               setDialogState(() {
-                                isSaving = true;
+                                isSaving = false;
                               });
 
-                              try {
-                                await handleSavePoints(totalScore: score);
+                              ScaffoldMessenger.of(
+                                this.context,
+                              ).hideCurrentSnackBar();
 
-                                if (!mounted) return;
-
-                                Navigator.pop(context);
-                                goHome();
-                              } catch (e) {
-                                if (!mounted) return;
-
-                                setDialogState(() {
-                                  isSaving = false;
-                                });
-
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Failed to save score: $e'),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
-                              }
-                            },
-                          ),
-                  ],
+                              ScaffoldMessenger.of(this.context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Failed to save score: $error'),
+                                  backgroundColor: Colors.red,
+                                  duration: const Duration(seconds: 3),
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -287,8 +491,31 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
   }
 
   void submitAnswers() {
-    if (answer1 == null || answer2 == null) {
-      showNoAnswerMessage();
+    final bool hasUnansweredQuestion = selectedAnswers.any(
+      (answer) => answer == null,
+    );
+
+    if (hasUnansweredQuestion) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please answer all five questions first.'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
+      );
+
+      final int firstUnansweredIndex = selectedAnswers.indexWhere(
+        (answer) => answer == null,
+      );
+
+      if (firstUnansweredIndex >= 0) {
+        setState(() {
+          currentQuestionIndex = firstUnansweredIndex;
+        });
+      }
+
       return;
     }
 
@@ -301,12 +528,10 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
       return;
     }
 
-    if (currentScenario == 1) {
-      setState(() {
-        currentScenario = 2;
-      });
-    } else {
+    if (isLastQuestion) {
       submitAnswers();
+    } else {
+      goToNextQuestion();
     }
   }
 
@@ -316,10 +541,11 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
     required Color color,
     required VoidCallback onTap,
   }) {
-    final shortest = size.shortestSide;
+    final double shortestSide = size.shortestSide;
 
-    final double buttonSize = clampDouble(shortest * 0.12, 38, 58);
-    final double iconSize = clampDouble(shortest * 0.065, 20, 32);
+    final double buttonSize = clampDouble(shortestSide * 0.12, 38, 58);
+
+    final double iconSize = clampDouble(shortestSide * 0.065, 20, 32);
 
     return Material(
       color: Colors.transparent,
@@ -357,8 +583,9 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
     final bool verySmall = size.height < 620;
     final bool small = size.height < 700;
 
-    final double width = clampDouble(size.width * 0.32, 96, 145);
-    final double height = clampDouble(
+    final double buttonWidth = clampDouble(size.width * 0.32, 96, 145);
+
+    final double buttonHeight = clampDouble(
       size.height *
           (verySmall
               ? 0.062
@@ -371,37 +598,41 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
 
     final double fontSize = clampDouble(size.shortestSide * 0.045, 14, 22);
 
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        width: isSelected ? width + 4 : width,
-        height: isSelected ? height + 3 : height,
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: isSelected ? Colors.yellow : Colors.white,
-            width: isSelected ? 4 : 3,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: isSelected
-                  ? Colors.yellow.withValues(alpha: 0.7)
-                  : Colors.black26,
-              blurRadius: isSelected ? 12 : 6,
-              spreadRadius: isSelected ? 1.5 : 0,
-              offset: const Offset(0, 3),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          width: isSelected ? buttonWidth + 4 : buttonWidth,
+          height: isSelected ? buttonHeight + 3 : buttonHeight,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: isSelected ? Colors.yellow : Colors.white,
+              width: isSelected ? 4 : 3,
             ),
-          ],
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: fontSize,
+            boxShadow: [
+              BoxShadow(
+                color: isSelected
+                    ? Colors.yellow.withOpacity(0.70)
+                    : Colors.black26,
+                blurRadius: isSelected ? 12 : 6,
+                spreadRadius: isSelected ? 1.5 : 0,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: fontSize,
+              ),
             ),
           ),
         ),
@@ -409,40 +640,111 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
     );
   }
 
+  Widget questionIndicator(Size size) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: clampDouble(size.width * 0.035, 12, 20),
+        vertical: clampDouble(size.height * 0.008, 5, 10),
+      ),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.65),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: Colors.white, width: 2),
+      ),
+      child: Text(
+        'Question $currentQuestionNumber of '
+        '${correctAnswers.length}',
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: clampDouble(size.shortestSide * 0.035, 12, 17),
+        ),
+      ),
+    );
+  }
+
+  Widget buildProgressIndicator() {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(correctAnswers.length, (index) {
+        final bool isCurrent = index == currentQuestionIndex;
+
+        final bool isAnswered = selectedAnswers[index] != null;
+
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          margin: const EdgeInsets.symmetric(horizontal: 3),
+          width: isCurrent ? 22 : 12,
+          height: 12,
+          decoration: BoxDecoration(
+            color: isCurrent
+                ? Colors.orange
+                : isAnswered
+                ? Colors.green
+                : Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.brown, width: 1.5),
+          ),
+        );
+      }),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final String backgroundImage = currentScenario == 1
-        ? 'assets/lesson-one-day1-act4a.png'
-        : 'assets/lesson-one-day1-act4b.png';
+    final String backgroundImage = backgroundImages[currentQuestionIndex];
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final size = Size(constraints.maxWidth, constraints.maxHeight);
+          final Size size = Size(constraints.maxWidth, constraints.maxHeight);
 
-          final w = size.width;
-          final h = size.height;
+          final double width = size.width;
+          final double height = size.height;
 
-          final bool verySmall = h < 620;
-          final bool small = h < 700;
+          final bool verySmall = height < 620;
+          final bool small = height < 700;
 
-          final double bottomButtonWidth = clampDouble(w * 0.28, 90, 135);
-          final double bottomButtonHeight = clampDouble(h * 0.052, 36, 50);
-          final double bottomButtonFont = clampDouble(w * 0.038, 13, 18);
+          final double bottomButtonWidth = clampDouble(width * 0.28, 90, 135);
+
+          final double bottomButtonHeight = clampDouble(height * 0.052, 36, 50);
+
+          final double bottomButtonFont = clampDouble(width * 0.038, 13, 18);
 
           return Stack(
             children: [
               Positioned.fill(
-                child: Image.asset(backgroundImage, fit: BoxFit.fill),
+                child: Image.asset(
+                  backgroundImage,
+                  fit: BoxFit.fill,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: const Color(0xFFFFE5A3),
+                      padding: const EdgeInsets.all(20),
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Image not found:\n$backgroundImage',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.brown,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ),
+
+              // Top navigation buttons.
               SafeArea(
                 bottom: false,
                 child: Stack(
                   children: [
                     Positioned(
-                      top: clampDouble(h * 0.005, 4, 14),
-                      right: clampDouble(w * 0.03, 8, 18),
+                      top: clampDouble(height * 0.005, 4, 14),
+                      right: clampDouble(width * 0.03, 8, 18),
                       child: circleButton(
                         icon: Icons.home,
                         color: Colors.orange,
@@ -450,76 +752,111 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
                         onTap: goHome,
                       ),
                     ),
-                    if (currentScenario == 2)
+                    if (currentQuestionIndex > 0)
                       Positioned(
-                        top: clampDouble(h * 0.005, 4, 14),
-                        left: clampDouble(w * 0.03, 8, 18),
+                        top: clampDouble(height * 0.005, 4, 14),
+                        left: clampDouble(width * 0.03, 8, 18),
                         child: circleButton(
                           size: size,
                           icon: Icons.arrow_back,
                           color: Colors.blue,
-                          onTap: () {
-                            setState(() {
-                              currentScenario = 1;
-                            });
-                          },
+                          onTap: goToPreviousQuestion,
                         ),
                       ),
                   ],
                 ),
               ),
+
+              // Question number indicator.
+              SafeArea(
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      top: clampDouble(height * 0.01, 7, 15),
+                    ),
+                    child: questionIndicator(size),
+                  ),
+                ),
+              ),
+
+              // Bottom answer controls.
               Align(
                 alignment: Alignment.bottomCenter,
                 child: SafeArea(
                   top: false,
                   minimum: EdgeInsets.only(
-                    left: clampDouble(w * 0.03, 8, 20),
-                    right: clampDouble(w * 0.03, 8, 20),
-                    bottom: clampDouble(h * 0.008, 5, 14),
+                    left: clampDouble(width * 0.03, 8, 20),
+                    right: clampDouble(width * 0.03, 8, 20),
+                    bottom: clampDouble(height * 0.008, 5, 14),
                   ),
-                  child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              choiceButton(
-                                size: size,
-                                label: 'TAMA',
-                                color: Colors.green,
-                                isSelected: currentAnswer == 'TAMA',
-                                onTap: () => selectAnswer('TAMA'),
-                              ),
-                              SizedBox(width: clampDouble(w * 0.06, 14, 32)),
-                              choiceButton(
-                                size: size,
-                                label: 'MALI',
-                                color: Colors.red,
-                                isSelected: currentAnswer == 'MALI',
-                                onTap: () => selectAnswer('MALI'),
-                              ),
-                            ],
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: clampDouble(width * 0.025, 8, 16),
+                      vertical: clampDouble(height * 0.012, 8, 14),
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.18),
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          buildProgressIndicator(),
+                          SizedBox(
+                            height: verySmall
+                                ? 5
+                                : small
+                                ? 8
+                                : 12,
                           ),
-                        ),
-                        SizedBox(
-                          height: verySmall
-                              ? 5
-                              : small
-                              ? 8
-                              : 13,
-                        ),
-                        smallButton(
-                          label: currentScenario == 1 ? 'NEXT' : 'DONE',
-                          width: bottomButtonWidth,
-                          height: bottomButtonHeight,
-                          fontSize: bottomButtonFont,
-                          onTap: nextOrDone,
-                        ),
-                      ],
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                choiceButton(
+                                  size: size,
+                                  label: 'TAMA',
+                                  color: Colors.green,
+                                  isSelected: currentAnswer == 'TAMA',
+                                  onTap: () {
+                                    selectAnswer('TAMA');
+                                  },
+                                ),
+                                SizedBox(
+                                  width: clampDouble(width * 0.06, 14, 32),
+                                ),
+                                choiceButton(
+                                  size: size,
+                                  label: 'MALI',
+                                  color: Colors.red,
+                                  isSelected: currentAnswer == 'MALI',
+                                  onTap: () {
+                                    selectAnswer('MALI');
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            height: verySmall
+                                ? 5
+                                : small
+                                ? 8
+                                : 13,
+                          ),
+                          smallButton(
+                            label: isLastQuestion ? 'DONE' : 'NEXT',
+                            width: bottomButtonWidth,
+                            height: bottomButtonHeight,
+                            fontSize: bottomButtonFont,
+                            onTap: nextOrDone,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

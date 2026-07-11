@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lakbay_game/User/models/user_model.dart';
-import 'package:lakbay_game/Views/game/lesson-one/day-one/act3a.dart';
 import 'package:lakbay_game/Views/lesson1.dart';
+import 'package:lakbay_game/services/api_service.dart';
 
-class LessonOneDayOneActThree extends StatefulWidget {
+class LessonOneDayOneActThreeB extends StatefulWidget {
   final UserModel user;
 
-  const LessonOneDayOneActThree({super.key, required this.user});
+  const LessonOneDayOneActThreeB({super.key, required this.user});
 
   @override
-  State<LessonOneDayOneActThree> createState() =>
-      _LessonOneDayOneActThreeState();
+  State<LessonOneDayOneActThreeB> createState() =>
+      _LessonOneDayOneActThreeBState();
 }
 
-class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
-  static const String correctAnswer = 'COREPOPULATION';
+class _LessonOneDayOneActThreeBState extends State<LessonOneDayOneActThreeB> {
+  static const String correctAnswer = 'KAALAMANGBAYAN';
+  static const int activityScore = 150;
 
   late final List<TextEditingController> controllers;
   late final List<FocusNode> focusNodes;
@@ -30,6 +31,7 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
   bool answerChecked = false;
   bool answerIsCorrect = false;
   bool dialogIsShowing = false;
+  bool isSavingPoints = false;
 
   @override
   void initState() {
@@ -44,6 +46,12 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
       correctAnswer.length,
       (_) => FocusNode(),
     );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && focusNodes.isNotEmpty) {
+        focusNodes.first.requestFocus();
+      }
+    });
   }
 
   @override
@@ -57,6 +65,10 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
     }
 
     super.dispose();
+  }
+
+  double clampDouble(double value, double minimum, double maximum) {
+    return value.clamp(minimum, maximum).toDouble();
   }
 
   double responsiveValue({
@@ -74,6 +86,21 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
     }
 
     return large;
+  }
+
+  String getTypedAnswer() {
+    return controllers
+        .map(
+          (TextEditingController controller) =>
+              controller.text.trim().toUpperCase(),
+        )
+        .join();
+  }
+
+  bool hasEmptyAnswerBox() {
+    return controllers.any(
+      (TextEditingController controller) => controller.text.trim().isEmpty,
+    );
   }
 
   void selectAnswerBox(int index) {
@@ -181,25 +208,10 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
+      if (mounted && focusNodes.isNotEmpty) {
         focusNodes.first.requestFocus();
       }
     });
-  }
-
-  String getUserAnswer() {
-    return controllers
-        .map(
-          (TextEditingController controller) =>
-              controller.text.trim().toUpperCase(),
-        )
-        .join();
-  }
-
-  bool hasEmptyAnswerBox() {
-    return controllers.any(
-      (TextEditingController controller) => controller.text.trim().isEmpty,
-    );
   }
 
   void showMessage({required String message, required Color backgroundColor}) {
@@ -213,6 +225,7 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
         SnackBar(
           content: Text(
             message,
+            textAlign: TextAlign.center,
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -226,7 +239,67 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
       );
   }
 
-  void checkAnswer() {
+  Future<bool> handleSavePoints({required int totalScore}) async {
+    if (isSavingPoints) {
+      return false;
+    }
+
+    setState(() {
+      isSavingPoints = true;
+    });
+
+    try {
+      await ApiService.savePoints(
+        userId: widget.user.id,
+        countedPoints: totalScore,
+        lesson: 'Lesson 1',
+        day: 'Day 1',
+        act: 'Act 3A',
+      );
+
+      return true;
+    } catch (error) {
+      if (!mounted) {
+        return false;
+      }
+
+      final String errorMessage = error.toString().toLowerCase();
+
+      // The backend may return Conflict when the activity
+      // has already been completed.
+      if (errorMessage.contains('already completed') ||
+          errorMessage.contains('conflict') ||
+          errorMessage.contains('409')) {
+        return true;
+      }
+
+      showMessage(
+        message: 'Hindi na-save ang puntos. Pakisubukan muli.',
+        backgroundColor: Colors.red,
+      );
+
+      return false;
+    } finally {
+      if (mounted) {
+        setState(() {
+          isSavingPoints = false;
+        });
+      }
+    }
+  }
+
+  void goToNextPage() {
+    if (!mounted) {
+      return;
+    }
+
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => Lesson1Screen(user: widget.user)),
+      (Route<dynamic> route) => false,
+    );
+  }
+
+  Future<void> checkAnswer() async {
     FocusScope.of(context).unfocus();
 
     if (hasEmptyAnswerBox()) {
@@ -243,7 +316,8 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
       return;
     }
 
-    final bool isCorrect = getUserAnswer() == correctAnswer;
+    final String typedAnswer = getTypedAnswer();
+    final bool isCorrect = typedAnswer == correctAnswer;
 
     setState(() {
       answerChecked = true;
@@ -254,7 +328,7 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
       HapticFeedback.mediumImpact();
 
       showMessage(
-        message: 'Mali ang sagot. Subukan ulit.',
+        message: 'Maling sagot. Subukan ulit.',
         backgroundColor: Colors.red,
       );
 
@@ -262,7 +336,8 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
     }
 
     HapticFeedback.heavyImpact();
-    showCorrectAnswerDialog();
+
+    await showCorrectAnswerDialog();
   }
 
   Future<void> showCorrectAnswerDialog() async {
@@ -276,12 +351,245 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext dialogContext) {
-        final MediaQueryData mediaQuery = MediaQuery.of(dialogContext);
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setDialogState) {
+            final MediaQueryData mediaQuery = MediaQuery.of(dialogContext);
+            final Size screenSize = mediaQuery.size;
+            final double screenWidth = screenSize.width;
+            final double screenHeight = screenSize.height;
+            final bool isSmallPhone = screenWidth < 390;
+            final bool isLandscape =
+                mediaQuery.orientation == Orientation.landscape;
+            final double maximumDialogHeight =
+                screenHeight * (isLandscape ? 0.94 : 0.88);
 
-        final Size screenSize = mediaQuery.size;
-        final double screenWidth = screenSize.width;
-        final double screenHeight = screenSize.height;
+            Future<void> finishActivity() async {
+              if (isSavingPoints) {
+                return;
+              }
 
+              setDialogState(() {});
+
+              final bool saved = await handleSavePoints(
+                totalScore: activityScore,
+              );
+
+              if (!dialogContext.mounted) {
+                return;
+              }
+
+              setDialogState(() {});
+
+              if (!saved) {
+                return;
+              }
+
+              // Close the correct-answer popup first.
+              Navigator.of(dialogContext).pop();
+
+              // Then show the final popup with a picture and TAPOS NA button.
+              await showFinishedDialog();
+            }
+
+            return Dialog(
+              backgroundColor: Colors.transparent,
+              insetPadding: EdgeInsets.symmetric(
+                horizontal: isSmallPhone ? 10 : 22,
+                vertical: isLandscape ? 8 : 18,
+              ),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: 600,
+                  maxHeight: maximumDialogHeight,
+                ),
+                child: Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(isSmallPhone ? 10 : 14),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(color: Colors.green, width: 4),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black38,
+                        blurRadius: 12,
+                        offset: Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minHeight: isLandscape
+                                ? screenHeight * 0.42
+                                : screenHeight * 0.35,
+                            maxHeight: isLandscape
+                                ? screenHeight * 0.68
+                                : screenHeight * 0.64,
+                          ),
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: Image.asset(
+                                'assets/lesson-one-day1-act33.png',
+                                fit: BoxFit.contain,
+                                errorBuilder:
+                                    (
+                                      BuildContext context,
+                                      Object error,
+                                      StackTrace? stackTrace,
+                                    ) {
+                                      return Container(
+                                        width: double.infinity,
+                                        padding: EdgeInsets.all(
+                                          isSmallPhone ? 18 : 28,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFF7FFF7),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                        ),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.check_circle_rounded,
+                                              color: Colors.green,
+                                              size: isSmallPhone ? 65 : 85,
+                                            ),
+                                            const SizedBox(height: 16),
+                                            Text(
+                                              'TAMANG SAGOT!',
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                color: Colors.green,
+                                                fontSize: isSmallPhone
+                                                    ? 22
+                                                    : 28,
+                                                fontWeight: FontWeight.w900,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 10),
+                                            Text(
+                                              correctAnswer,
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                color: Colors.black87,
+                                                fontSize: isSmallPhone
+                                                    ? 18
+                                                    : 23,
+                                                fontWeight: FontWeight.w900,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 10),
+                                            Text(
+                                              '+$activityScore points',
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                color: Colors.orange,
+                                                fontSize: isSmallPhone
+                                                    ? 16
+                                                    : 20,
+                                                fontWeight: FontWeight.w900,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: isSmallPhone ? 10 : 14),
+                      SafeArea(
+                        top: false,
+                        child: SizedBox(
+                          width: isSmallPhone ? double.infinity : 220,
+                          height: isSmallPhone ? 48 : 54,
+                          child: ElevatedButton(
+                            onPressed: isSavingPoints ? null : finishActivity,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              disabledBackgroundColor: Colors.green.shade300,
+                              foregroundColor: Colors.white,
+                              elevation: 5,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(13),
+                                side: const BorderSide(
+                                  color: Colors.white,
+                                  width: 3,
+                                ),
+                              ),
+                            ),
+                            child: isSavingPoints
+                                ? const SizedBox(
+                                    width: 25,
+                                    height: 25,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 3,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.check_rounded,
+                                        color: Colors.white,
+                                        size: isSmallPhone ? 22 : 26,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'DONE',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: isSmallPhone ? 16 : 18,
+                                          fontWeight: FontWeight.w900,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    if (mounted) {
+      dialogIsShowing = false;
+    }
+  }
+
+  Future<void> showFinishedDialog() async {
+    if (!mounted) {
+      return;
+    }
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext finishedDialogContext) {
+        final MediaQueryData mediaQuery = MediaQuery.of(finishedDialogContext);
+        final double screenWidth = mediaQuery.size.width;
+        final double screenHeight = mediaQuery.size.height;
         final bool isSmallPhone = screenWidth < 390;
         final bool isLandscape =
             mediaQuery.orientation == Orientation.landscape;
@@ -289,26 +597,26 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
         return Dialog(
           backgroundColor: Colors.transparent,
           insetPadding: EdgeInsets.symmetric(
-            horizontal: isSmallPhone ? 10 : 22,
-            vertical: isLandscape ? 8 : 18,
+            horizontal: isSmallPhone ? 12 : 24,
+            vertical: isLandscape ? 8 : 20,
           ),
           child: ConstrainedBox(
             constraints: BoxConstraints(
               maxWidth: 600,
-              maxHeight: screenHeight * (isLandscape ? 0.95 : 0.90),
+              maxHeight: screenHeight * (isLandscape ? 0.95 : 0.88),
             ),
             child: Container(
               width: double.infinity,
-              padding: EdgeInsets.all(isSmallPhone ? 10 : 14),
+              padding: EdgeInsets.all(isSmallPhone ? 12 : 18),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(22),
-                border: Border.all(color: Colors.green, width: 4),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: const Color(0xFFF5A800), width: 4),
                 boxShadow: const [
                   BoxShadow(
                     color: Colors.black38,
-                    blurRadius: 12,
-                    offset: Offset(0, 6),
+                    blurRadius: 14,
+                    offset: Offset(0, 7),
                   ),
                 ],
               ),
@@ -316,150 +624,102 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Flexible(
-                    child: Stack(
-                      children: [
-                        ConstrainedBox(
-                          constraints: BoxConstraints(
-                            minHeight: isLandscape
-                                ? screenHeight * 0.45
-                                : screenHeight * 0.40,
-                            maxHeight: isLandscape
-                                ? screenHeight * 0.70
-                                : screenHeight * 0.72,
-                          ),
-                          child: SizedBox(
-                            width: double.infinity,
-                            child: Image.asset(
-                              'assets/lesson-one-day1-act3a.png',
-                              fit: BoxFit.contain,
-                              errorBuilder:
-                                  (
-                                    BuildContext context,
-                                    Object error,
-                                    StackTrace? stackTrace,
-                                  ) {
-                                    return Container(
-                                      width: double.infinity,
-                                      padding: EdgeInsets.all(
-                                        isSmallPhone ? 18 : 28,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(18),
+                      child: Image.asset(
+                        'assets/lesson-one-day1-act34.png',
+                        width: double.infinity,
+                        fit: BoxFit.contain,
+                        errorBuilder:
+                            (
+                              BuildContext context,
+                              Object error,
+                              StackTrace? stackTrace,
+                            ) {
+                              return Container(
+                                width: double.infinity,
+                                constraints: BoxConstraints(
+                                  minHeight: isSmallPhone ? 220 : 280,
+                                ),
+                                padding: const EdgeInsets.all(24),
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      Color(0xFFFFF8DA),
+                                      Color(0xFFFFE7A0),
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(18),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.emoji_events_rounded,
+                                      color: const Color(0xFFF5A800),
+                                      size: isSmallPhone ? 78 : 100,
+                                    ),
+                                    const SizedBox(height: 14),
+                                    Text(
+                                      'MAHUSAY!',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: const Color(0xFF7A4A00),
+                                        fontSize: isSmallPhone ? 28 : 36,
+                                        fontWeight: FontWeight.w900,
                                       ),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFF7FFF7),
-                                        borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Natapos mo ang gawain.',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: Colors.black87,
+                                        fontSize: isSmallPhone ? 17 : 21,
+                                        fontWeight: FontWeight.w700,
                                       ),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Icon(
-                                            Icons.check_circle_rounded,
-                                            color: Colors.green,
-                                            size: isSmallPhone ? 65 : 85,
-                                          ),
-                                          const SizedBox(height: 16),
-                                          Text(
-                                            'TAMANG SAGOT!',
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              color: Colors.green,
-                                              fontSize: isSmallPhone ? 22 : 28,
-                                              fontWeight: FontWeight.w900,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 10),
-                                          Text(
-                                            'CORE POPULATION',
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              color: Colors.black87,
-                                              fontSize: isSmallPhone ? 18 : 23,
-                                              fontWeight: FontWeight.w900,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                            ),
-                          ),
-                        ),
-
-                        Positioned(
-                          top: 4,
-                          right: 4,
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: () {
-                                Navigator.of(dialogContext).pop();
-                              },
-                              borderRadius: BorderRadius.circular(50),
-                              child: Container(
-                                width: isSmallPhone ? 36 : 44,
-                                height: isSmallPhone ? 36 : 44,
-                                decoration: const BoxDecoration(
-                                  color: Colors.red,
-                                  shape: BoxShape.circle,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black26,
-                                      blurRadius: 5,
-                                      offset: Offset(0, 3),
                                     ),
                                   ],
                                 ),
-                                child: Icon(
-                                  Icons.close_rounded,
-                                  color: Colors.white,
-                                  size: isSmallPhone ? 22 : 28,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                              );
+                            },
+                      ),
                     ),
                   ),
-
-                  SizedBox(height: isSmallPhone ? 10 : 14),
-
+                  SizedBox(height: isSmallPhone ? 12 : 18),
                   SafeArea(
                     top: false,
                     child: SizedBox(
-                      width: isSmallPhone ? double.infinity : 220,
-                      height: isSmallPhone ? 46 : 52,
+                      width: isSmallPhone ? double.infinity : 250,
+                      height: isSmallPhone ? 50 : 56,
                       child: ElevatedButton.icon(
                         onPressed: () {
-                          Navigator.of(dialogContext).pop();
+                          Navigator.of(finishedDialogContext).pop();
 
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  LessonOneDayOneActThreeA(user: widget.user),
-                            ),
-                          );
+                          if (mounted) {
+                            goToNextPage();
+                          }
                         },
-                        icon: Icon(
-                          Icons.check_rounded,
+                        icon: const Icon(
+                          Icons.done_all_rounded,
                           color: Colors.white,
-                          size: isSmallPhone ? 22 : 26,
                         ),
                         label: Text(
-                          'OK',
+                          'TAPOS NA',
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: isSmallPhone ? 16 : 18,
+                            fontSize: isSmallPhone ? 17 : 19,
                             fontWeight: FontWeight.w900,
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,
                           foregroundColor: Colors.white,
-                          elevation: 5,
-                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          elevation: 6,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(13),
+                            borderRadius: BorderRadius.circular(14),
                             side: const BorderSide(
                               color: Colors.white,
                               width: 3,
@@ -476,10 +736,6 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
         );
       },
     );
-
-    if (mounted) {
-      dialogIsShowing = false;
-    }
   }
 
   Color getAnswerBorderColor(int index) {
@@ -542,7 +798,7 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
         textAlignVertical: TextAlignVertical.center,
         textCapitalization: TextCapitalization.characters,
         keyboardType: TextInputType.text,
-        inputFormatters: [
+        inputFormatters: <TextInputFormatter>[
           FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')),
           LengthLimitingTextInputFormatter(1),
         ],
@@ -553,7 +809,7 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
           handleTypedLetter(index, value);
         },
         style: TextStyle(
-          fontSize: boxSize * 0.55,
+          fontSize: boxSize * 0.50,
           fontWeight: FontWeight.w900,
           color: Colors.black,
         ),
@@ -570,65 +826,69 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
   }
 
   Widget buildAnswerBoxes(double availableWidth) {
-    final double desiredBoxSize = responsiveValue(
-      screenWidth: availableWidth,
-      small: 27,
-      medium: 32,
-      large: 38,
-    );
-
-    final double spacing = responsiveValue(
-      screenWidth: availableWidth,
-      small: 3,
-      medium: 5,
-      large: 7,
-    );
-
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        final double availableSecondRowWidth =
-            constraints.maxWidth - (spacing * 9);
+        final double spacing = responsiveValue(
+          screenWidth: availableWidth,
+          small: 2,
+          medium: 4,
+          large: 6,
+        );
 
-        final double calculatedSize = availableSecondRowWidth / 10;
+        final double desiredBoxSize = responsiveValue(
+          screenWidth: availableWidth,
+          small: 28,
+          medium: 34,
+          large: 40,
+        );
 
-        final double boxSize = calculatedSize
-            .clamp(23.0, desiredBoxSize)
+        final double usableWidth = constraints.maxWidth.isFinite
+            ? constraints.maxWidth
+            : availableWidth;
+
+        final double totalSpacing = spacing * (controllers.length - 1);
+
+        final double calculatedBoxSize =
+            (usableWidth - totalSpacing) / controllers.length;
+
+        final double boxSize = calculatedBoxSize
+            .clamp(22.0, desiredBoxSize)
             .toDouble();
 
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // First row: CORE
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List<Widget>.generate(4, (int index) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(horizontal: spacing / 2),
-                  child: buildSingleAnswerBox(index: index, boxSize: boxSize),
-                );
-              }),
-            ),
+        final double completeRowWidth =
+            (boxSize * controllers.length) + totalSpacing;
 
-            SizedBox(height: availableWidth < 390 ? 9 : 12),
-
-            // Second row: POPULATION
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List<Widget>.generate(controllers.length - 4, (
-                  int position,
-                ) {
-                  final int index = position + 4;
-
-                  return Padding(
-                    padding: EdgeInsets.symmetric(horizontal: spacing / 2),
-                    child: buildSingleAnswerBox(index: index, boxSize: boxSize),
-                  );
-                }),
+        return SizedBox(
+          width: double.infinity,
+          height: boxSize + 14,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minWidth: usableWidth),
+              child: Center(
+                child: SizedBox(
+                  width: completeRowWidth,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List<Widget>.generate(controllers.length, (
+                      int index,
+                    ) {
+                      return Padding(
+                        padding: EdgeInsets.only(
+                          right: index == controllers.length - 1 ? 0 : spacing,
+                        ),
+                        child: buildSingleAnswerBox(
+                          index: index,
+                          boxSize: boxSize,
+                        ),
+                      );
+                    }),
+                  ),
+                ),
               ),
             ),
-          ],
+          ),
         );
       },
     );
@@ -679,7 +939,7 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
           child: FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
-              'CRACK THE CODE #1',
+              'CRACK THE CODE #3',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white,
@@ -697,7 +957,6 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
             ),
           ),
         ),
-
         Positioned(
           right: 0,
           child: GestureDetector(
@@ -879,21 +1138,17 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
               ),
             ),
           ),
-
           const SizedBox(height: 8),
-
           buildDecoderRow(
             letters: alphabet.sublist(0, 10),
             startNumber: 1,
             screenWidth: screenWidth,
           ),
-
           buildDecoderRow(
             letters: alphabet.sublist(10, 20),
             startNumber: 11,
             screenWidth: screenWidth,
           ),
-
           Align(
             alignment: Alignment.centerLeft,
             child: FractionallySizedBox(
@@ -970,7 +1225,6 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
                   ),
                 ),
               ),
-
               Container(
                 height: numberHeight,
                 alignment: Alignment.center,
@@ -995,7 +1249,6 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 2),
             ],
           ),
@@ -1068,9 +1321,7 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
             screenWidth: screenWidth,
           ),
         ),
-
         SizedBox(width: screenWidth < 390 ? 10 : 16),
-
         Expanded(
           child: actionButton(
             label: 'Check',
@@ -1134,26 +1385,22 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
                             return Column(
                               children: [
                                 buildHeader(contentWidth),
-
                                 SizedBox(height: sectionSpacing),
-
                                 buildWoodenTitle(
                                   title: 'TANONG',
                                   screenWidth: contentWidth,
                                 ),
-
                                 SizedBox(height: isLandscape ? 10 : 14),
-
                                 Padding(
                                   padding: EdgeInsets.symmetric(
                                     horizontal: contentWidth < 390 ? 10 : 35,
                                   ),
                                   child: Text(
-                                    '“Ito naman ang teoryang nagsasabing '
-                                    'matagal nang may tao dito at hindi '
-                                    'kailanman dumating galing sa ibang '
-                                    'bansa; dito sila nabuhay at umunlad '
-                                    'kasabay ng pagbabago ng panahon.”',
+                                    '“Ito ay binubuo ng mga kwento '
+                                    'alamat, at paniniwalang ipinamana '
+                                    'sa atin ng ating mga ninuno na '
+                                    'nagpapaliwanag sa ating pinagmulan '
+                                    'batay sa kultura at pananampalataya" ',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       color: const Color(0xFF24170C),
@@ -1168,22 +1415,16 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
                                     ),
                                   ),
                                 ),
-
                                 SizedBox(height: sectionSpacing),
-
                                 Padding(
                                   padding: EdgeInsets.symmetric(
                                     horizontal: contentWidth < 390 ? 10 : 28,
                                   ),
                                   child: buildPurpleBanner(contentWidth),
                                 ),
-
                                 SizedBox(height: isLandscape ? 10 : 15),
-
                                 buildLockRow(contentWidth),
-
                                 const SizedBox(height: 12),
-
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 6,
@@ -1191,8 +1432,7 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
                                   child: FittedBox(
                                     fit: BoxFit.scaleDown,
                                     child: Text(
-                                      '3-15-18-5   '
-                                      '16-15-16-21-12-1-20-9-15-14',
+                                      '1-21-19-20-18-15-14-5-19-25-1-14-15',
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                         color: const Color(0xFF2A2018),
@@ -1208,29 +1448,25 @@ class _LessonOneDayOneActThreeState extends State<LessonOneDayOneActThree> {
                                     ),
                                   ),
                                 ),
-
                                 SizedBox(height: isLandscape ? 12 : 18),
 
+                                // All answer boxes are kept in one row.
                                 Padding(
                                   padding: EdgeInsets.symmetric(
-                                    horizontal: contentWidth < 390 ? 2 : 16,
+                                    horizontal: contentWidth < 390 ? 0 : 12,
                                   ),
                                   child: buildAnswerBoxes(contentWidth),
                                 ),
 
                                 SizedBox(height: isLandscape ? 14 : 22),
-
                                 buildDecoderTable(contentWidth),
-
                                 SizedBox(height: isLandscape ? 14 : 20),
-
                                 Padding(
                                   padding: EdgeInsets.symmetric(
                                     horizontal: contentWidth < 390 ? 10 : 55,
                                   ),
                                   child: buildButtons(contentWidth),
                                 ),
-
                                 const SizedBox(height: 20),
                               ],
                             );
