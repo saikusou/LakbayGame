@@ -1,10 +1,29 @@
 import 'package:flutter/material.dart';
+
 import 'package:lakbay_game/Views/game/lesson-one/day-three/act2.dart';
 import 'package:lakbay_game/Views/game/lesson-one/day-three/act3.dart';
 import 'package:lakbay_game/Views/game/lesson-one/day-three/act4.dart';
 import 'package:lakbay_game/Views/game/lesson-one/day-three/act5.dart';
-
 import 'package:lakbay_game/User/models/user_model.dart';
+
+/// Closes the current popup/dialog before opening the activity page.
+///
+/// Do not use pushReplacement directly from inside the dialog because the
+/// dialog is its own route. Closing it first prevents the modal from remaining
+/// visible above the new page.
+void closePopupAndOpenPage(BuildContext context, Widget page) {
+  final NavigatorState navigator = Navigator.of(context, rootNavigator: true);
+
+  // Close the popup first.
+  if (navigator.canPop()) {
+    navigator.pop();
+  }
+
+  // Open the new page after the popup route has been removed.
+  Future.microtask(() {
+    navigator.push(MaterialPageRoute(builder: (_) => page));
+  });
+}
 
 class Day3Popup extends StatelessWidget {
   final String title;
@@ -19,13 +38,19 @@ class Day3Popup extends StatelessWidget {
       return _LearningObjectivesPopup(user: user);
     }
 
-    /// 2. GAWAIN
+    /// 2. TUKUYIN ANG EBIDENSYA
     if (title.contains('Tukuyin ang Ebidensya')) {
-      return _GawainPopup(user: user);
+      return ImagePopup(
+        imagePath: 'assets/lesson-two-day3-act2.png',
+        buttonText: 'NEXT',
+        onButtonTap: () {
+          closePopupAndOpenPage(context, LessonOneDayThreeActTwo(user: user));
+        },
+      );
     }
 
-    /// 4. Group Mission
-    if (title.contains('Group Mission')) {
+    /// 3. GROUP MISSION
+    if (title.contains('Lakbay Ground')) {
       return _GroupPopup(user: user);
     }
 
@@ -34,44 +59,34 @@ class Day3Popup extends StatelessWidget {
       return _TamaOMaliPopup(user: user);
     }
 
-    /// 4. TAMA O MALI
+    /// 5. PAGSUSURI
     if (title.contains('Pagsusuri')) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!context.mounted) return;
 
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => LessonOneDayThreeActFour(user: user),
-          ),
-        );
+        closePopupAndOpenPage(context, LessonOneDayThreeActFour(user: user));
       });
 
       return const SizedBox.shrink();
     }
 
-    /// 5. TAKDANG ARALIN
+    /// 6. TAKDANG ARALIN
     if (title.contains('Takdang Aralin')) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!context.mounted) return;
 
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => LessonOneDayThreeActFive(user: user),
-          ),
-        );
+        closePopupAndOpenPage(context, LessonOneDayThreeActFive(user: user));
       });
 
       return const SizedBox.shrink();
     }
 
-    return const SizedBox();
+    return const SizedBox.shrink();
   }
 }
 
 /// =========================================================
-/// 1. LEARNING OBJECTIVES
+/// LEARNING OBJECTIVES POPUP
 /// =========================================================
 class _LearningObjectivesPopup extends StatelessWidget {
   final UserModel user;
@@ -84,341 +99,35 @@ class _LearningObjectivesPopup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    final Size screenSize = MediaQuery.sizeOf(context);
 
-    final popupHeight = clampDouble(size.height * 0.75, 450, 500);
-    final popupWidth = clampDouble(size.width * 0.90, 350, 550);
+    final double popupHeight = clampDouble(screenSize.height * 0.75, 450, 500);
+
+    final double popupWidth = clampDouble(screenSize.width * 0.90, 300, 550);
+
+    final double closeButtonSize = clampDouble(popupWidth * 0.09, 40, 46);
 
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.all(18),
-
       child: Container(
         width: popupWidth,
         height: popupHeight,
-
+        clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(28),
-
           border: Border.all(color: Colors.blue, width: 5),
-
-          /// BACKGROUND IMAGE
           image: const DecorationImage(
             image: AssetImage('assets/lesson-two-day3-act1.png'),
             fit: BoxFit.fill,
           ),
         ),
-
-        child: Column(
+        child: Stack(
           children: [
-            /// CLOSE BUTTON
-            Align(
-              alignment: Alignment.topRight,
-
-              child: Padding(
-                padding: const EdgeInsets.all(14),
-
-                child: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-
-                  child: Container(
-                    width: 44,
-                    height: 44,
-
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-
-                      border: Border.all(color: Colors.white, width: 3),
-                    ),
-
-                    child: const Icon(
-                      Icons.close,
-                      color: Colors.white,
-                      size: 26,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            /// OPTIONAL SPACE
-            const Spacer(),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// =========================================================
-/// 2. GAWAIN
-/// =========================================================
-class _GawainPopup extends StatelessWidget {
-  final UserModel user;
-
-  const _GawainPopup({required this.user});
-
-  double clampDouble(double value, double min, double max) {
-    return value.clamp(min, max).toDouble();
-  }
-
-  void _closePopup(BuildContext context) {
-    Navigator.of(context, rootNavigator: true).pop();
-  }
-
-  void _openNextPage(BuildContext context) {
-    Navigator.of(context, rootNavigator: true).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => LessonOneDayThreeActTwo(user: user),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
-
-    final popupWidth = clampDouble(screenSize.width * 0.90, 300, 550);
-
-    final popupHeight = clampDouble(screenSize.height * 0.80, 480, 650);
-
-    final closeButtonSize = clampDouble(popupWidth * 0.09, 40, 48);
-
-    final submitButtonSize = clampDouble(popupWidth * 0.14, 55, 72);
-
-    return PopScope(
-      canPop: true,
-      child: Dialog(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
-        child: Container(
-          width: popupWidth,
-          height: popupHeight,
-          clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: Colors.blue, width: 5),
-          ),
-          child: Column(
-            children: [
-              /// IMAGE AREA
-              Expanded(
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: Image.asset(
-                        'assets/lesson-two-day3-act2.png',
-                        fit: BoxFit.fill,
-                        errorBuilder:
-                            (
-                              BuildContext context,
-                              Object error,
-                              StackTrace? stackTrace,
-                            ) {
-                              return const Center(
-                                child: Text(
-                                  'Image not found',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              );
-                            },
-                      ),
-                    ),
-
-                    /// CLOSE BUTTON
-                    Positioned(
-                      top: 12,
-                      right: 12,
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: () => _closePopup(context),
-                          customBorder: const CircleBorder(),
-                          child: Container(
-                            width: closeButtonSize,
-                            height: closeButtonSize,
-                            decoration: BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 3),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black26,
-                                  blurRadius: 6,
-                                  offset: Offset(0, 3),
-                                ),
-                              ],
-                            ),
-                            child: Icon(
-                              Icons.close,
-                              color: Colors.white,
-                              size: closeButtonSize * 0.58,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              /// BUTTON AREA
-              Container(
-                width: double.infinity,
-                constraints: const BoxConstraints(minHeight: 95),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
-                ),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  border: Border(top: BorderSide(color: Colors.blue, width: 3)),
-                ),
-                child: SafeArea(
-                  top: false,
-                  child: Center(
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () => _openNextPage(context),
-                        customBorder: const CircleBorder(),
-                        child: Container(
-                          width: submitButtonSize,
-                          height: submitButtonSize,
-                          decoration: BoxDecoration(
-                            color: Colors.green,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 4),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Colors.black26,
-                                blurRadius: 8,
-                                offset: Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            Icons.send,
-                            color: Colors.white,
-                            size: submitButtonSize * 0.45,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// =========================================================
-/// 4. TAMA O MALI
-/// =========================================================
-
-class _TamaOMaliPopup extends StatelessWidget {
-  final UserModel user;
-
-  const _TamaOMaliPopup({required this.user});
-
-  double clampDouble(double value, double min, double max) {
-    return value.clamp(min, max).toDouble();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
-    final popupHeight = clampDouble(size.height * 0.75, 450, 530);
-    final popupWidth = clampDouble(size.width * 0.90, 350, 550);
-
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.all(18),
-      child: Container(
-        width: popupWidth,
-        height: popupHeight,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: Colors.blue, width: 5),
-
-          /// IMAGE FILLS ENTIRE POPUP
-          image: const DecorationImage(
-            image: AssetImage('assets/lesson-three-day1-act4.png'),
-            fit: BoxFit.fill,
-          ),
-        ),
-
-        child: Column(
-          children: [
-            /// CLOSE BUTTON
-            Align(
-              alignment: Alignment.topRight,
-              child: Padding(
-                padding: const EdgeInsets.all(14),
-                child: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 3),
-                    ),
-                    child: const Icon(
-                      Icons.close,
-                      color: Colors.white,
-                      size: 26,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            const Spacer(),
-
-            /// SUBMIT BUTTON
-            Padding(
-              padding: const EdgeInsets.only(bottom: 5),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          LessonOneDayThreeActFour(user: user),
-                    ),
-                  );
-                },
-                child: Container(
-                  width: 55,
-                  height: 55,
-                  decoration: BoxDecoration(
-                    color: Colors.green,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 4),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 8,
-                        offset: Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(Icons.send, color: Colors.white, size: 30),
-                ),
-              ),
+            Positioned(
+              top: 12,
+              right: 12,
+              child: _CloseButton(size: closeButtonSize),
             ),
           ],
         ),
@@ -428,9 +137,8 @@ class _TamaOMaliPopup extends StatelessWidget {
 }
 
 /// =========================================================
-/// 4. TAMA O MALI
+/// GROUP MISSION POPUP
 /// =========================================================
-
 class _GroupPopup extends StatelessWidget {
   final UserModel user;
 
@@ -440,12 +148,21 @@ class _GroupPopup extends StatelessWidget {
     return value.clamp(min, max).toDouble();
   }
 
+  void _openActivity(BuildContext context) {
+    closePopupAndOpenPage(context, LessonOneDayThreeActThree(user: user));
+  }
+
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    final Size screenSize = MediaQuery.sizeOf(context);
 
-    final popupHeight = clampDouble(size.height * 0.75, 450, 530);
-    final popupWidth = clampDouble(size.width * 0.90, 350, 550);
+    final double popupHeight = clampDouble(screenSize.height * 0.75, 450, 530);
+
+    final double popupWidth = clampDouble(screenSize.width * 0.90, 300, 550);
+
+    final double closeButtonSize = clampDouble(popupWidth * 0.09, 40, 46);
+
+    final double submitButtonSize = clampDouble(popupWidth * 0.12, 50, 58);
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -453,79 +170,355 @@ class _GroupPopup extends StatelessWidget {
       child: Container(
         width: popupWidth,
         height: popupHeight,
+        clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(28),
           border: Border.all(color: Colors.blue, width: 5),
-
-          /// IMAGE FILLS ENTIRE POPUP
           image: const DecorationImage(
             image: AssetImage('assets/lesson-one-day3-act3.png'),
             fit: BoxFit.fill,
           ),
         ),
-
-        child: Column(
+        child: Stack(
           children: [
-            /// CLOSE BUTTON
-            Align(
-              alignment: Alignment.topRight,
-              child: Padding(
-                padding: const EdgeInsets.all(14),
-                child: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 3),
-                    ),
-                    child: const Icon(
-                      Icons.close,
-                      color: Colors.white,
-                      size: 26,
-                    ),
-                  ),
-                ),
-              ),
+            Positioned(
+              top: 12,
+              right: 12,
+              child: _CloseButton(size: closeButtonSize),
             ),
-
-            const Spacer(),
-
-            /// SUBMIT BUTTON
-            Padding(
-              padding: const EdgeInsets.only(bottom: 5),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          LessonOneDayThreeActThree(user: user),
-                    ),
-                  );
-                },
-                child: Container(
-                  width: 55,
-                  height: 55,
-                  decoration: BoxDecoration(
-                    color: Colors.green,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 4),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 8,
-                        offset: Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(Icons.send, color: Colors.white, size: 30),
+            Positioned(
+              bottom: 12,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: _CircularNextButton(
+                  size: submitButtonSize,
+                  onTap: () => _openActivity(context),
                 ),
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// =========================================================
+/// TAMA O MALI POPUP
+/// =========================================================
+class _TamaOMaliPopup extends StatelessWidget {
+  final UserModel user;
+
+  const _TamaOMaliPopup({required this.user});
+
+  double clampDouble(double value, double min, double max) {
+    return value.clamp(min, max).toDouble();
+  }
+
+  void _openActivity(BuildContext context) {
+    closePopupAndOpenPage(context, LessonOneDayThreeActFour(user: user));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final Size screenSize = MediaQuery.sizeOf(context);
+
+    final double popupHeight = clampDouble(screenSize.height * 0.75, 450, 530);
+
+    final double popupWidth = clampDouble(screenSize.width * 0.90, 300, 550);
+
+    final double closeButtonSize = clampDouble(popupWidth * 0.09, 40, 46);
+
+    final double submitButtonSize = clampDouble(popupWidth * 0.12, 50, 58);
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.all(18),
+      child: Container(
+        width: popupWidth,
+        height: popupHeight,
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: Colors.blue, width: 5),
+          image: const DecorationImage(
+            image: AssetImage('assets/lesson-three-day1-act4.png'),
+            fit: BoxFit.fill,
+          ),
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              top: 12,
+              right: 12,
+              child: _CloseButton(size: closeButtonSize),
+            ),
+            Positioned(
+              bottom: 12,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: _CircularNextButton(
+                  size: submitButtonSize,
+                  onTap: () => _openActivity(context),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// =========================================================
+/// REUSABLE IMAGE POPUP
+/// =========================================================
+class ImagePopup extends StatelessWidget {
+  final String imagePath;
+  final String? buttonText;
+  final VoidCallback? onButtonTap;
+
+  const ImagePopup({
+    super.key,
+    required this.imagePath,
+    this.buttonText,
+    this.onButtonTap,
+  });
+
+  double clampDouble(double value, double min, double max) {
+    return value.clamp(min, max).toDouble();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final Size screenSize = MediaQuery.sizeOf(context);
+
+    final double popupHeight = clampDouble(screenSize.height * 0.80, 450, 650);
+
+    final double popupWidth = clampDouble(screenSize.width * 0.90, 300, 550);
+
+    final double closeButtonSize = clampDouble(popupWidth * 0.09, 40, 46);
+
+    final bool hasButton =
+        buttonText != null &&
+        buttonText!.trim().isNotEmpty &&
+        onButtonTap != null;
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
+      child: Container(
+        width: popupWidth,
+        height: popupHeight,
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: Colors.blue, width: 5),
+        ),
+        child: Column(
+          children: [
+            Expanded(
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: Padding(
+                      padding: const EdgeInsets.all(6),
+                      child: Image.asset(
+                        imagePath,
+                        fit: BoxFit.contain,
+                        errorBuilder:
+                            (
+                              BuildContext context,
+                              Object error,
+                              StackTrace? stackTrace,
+                            ) {
+                              return const Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.broken_image,
+                                      size: 60,
+                                      color: Colors.grey,
+                                    ),
+                                    SizedBox(height: 10),
+                                    Text(
+                                      'Image not found',
+                                      style: TextStyle(
+                                        color: Colors.grey,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: _CloseButton(size: closeButtonSize),
+                  ),
+                ],
+              ),
+            ),
+
+            /// The button has its own area below the image.
+            /// This prevents it from covering the image content.
+            if (hasButton)
+              SafeArea(
+                top: false,
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 16),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    border: Border(
+                      top: BorderSide(color: Colors.black12, width: 1),
+                    ),
+                  ),
+                  child: Center(
+                    child: _PopupTextButton(
+                      text: buttonText!,
+                      onTap: onButtonTap!,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// =========================================================
+/// REUSABLE CLOSE BUTTON
+/// =========================================================
+class _CloseButton extends StatelessWidget {
+  final double size;
+
+  const _CloseButton({required this.size});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      shape: const CircleBorder(),
+      child: InkWell(
+        onTap: () {
+          Navigator.of(context, rootNavigator: true).pop();
+        },
+        customBorder: const CircleBorder(),
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            color: Colors.red,
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.white, width: 3),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 6,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Icon(Icons.close, color: Colors.white, size: size * 0.58),
+        ),
+      ),
+    );
+  }
+}
+
+/// =========================================================
+/// REUSABLE CIRCULAR NEXT BUTTON
+/// =========================================================
+class _CircularNextButton extends StatelessWidget {
+  final double size;
+  final VoidCallback onTap;
+
+  const _CircularNextButton({required this.size, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      shape: const CircleBorder(),
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const CircleBorder(),
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            color: Colors.green,
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.white, width: 4),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 8,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Icon(Icons.send, color: Colors.white, size: size * 0.50),
+        ),
+      ),
+    );
+  }
+}
+
+/// =========================================================
+/// REUSABLE TEXT BUTTON
+/// =========================================================
+class _PopupTextButton extends StatelessWidget {
+  final String text;
+  final VoidCallback onTap;
+
+  const _PopupTextButton({required this.text, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(30),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(30),
+        child: Container(
+          constraints: const BoxConstraints(minWidth: 120),
+          height: 52,
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: Colors.green,
+            borderRadius: BorderRadius.circular(30),
+            border: Border.all(color: Colors.white, width: 3),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 8,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Text(
+            text,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
       ),
     );

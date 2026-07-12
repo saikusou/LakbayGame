@@ -15,8 +15,8 @@ class _LessonTwoDayOneActFourState extends State<LessonTwoDayOneActFour> {
   int currentPage = 0;
 
   final List<String> images = [
-    'assets/lesson-two-day1-act4a.png',
     'assets/lesson-two-day1-act4b.png',
+    'assets/lesson-two-day1-act4a.png',
     'assets/lesson-two-day1-act4c.png',
   ];
 

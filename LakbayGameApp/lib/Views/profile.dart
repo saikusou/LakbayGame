@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:lakbay_game/User/data/points_provider.dart';
-import 'package:lakbay_game/services/api_service.dart';
 import 'package:provider/provider.dart';
 
-import 'package:lakbay_game/Views/lesson1.dart';
+import 'package:lakbay_game/User/data/points_provider.dart';
+import 'package:lakbay_game/User/models/user_model.dart';
+import 'package:lakbay_game/services/api_service.dart';
+
 import 'package:lakbay_game/Components/side_navigation.dart';
+import 'package:lakbay_game/Views/lesson1.dart';
 import 'package:lakbay_game/Views/lesson2.dart';
 import 'package:lakbay_game/Views/lesson3.dart';
 import 'package:lakbay_game/Views/lesson4.dart';
-import 'package:lakbay_game/User/models/user_model.dart';
 
 class ProfileScreen extends StatefulWidget {
   final UserModel user;
@@ -22,29 +23,53 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   bool showMenu = false;
   bool rewardPopupShown = false;
+  bool isClaimingReward = false;
 
   double clampDouble(double value, double minimum, double maximum) {
     return value.clamp(minimum, maximum).toDouble();
   }
 
+  int? get userId => widget.user.id;
+
   @override
   void initState() {
     super.initState();
 
-    Future.microtask(() async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
 
-      await context.read<PointsProvider>().loadPoints(widget.user.id!);
-    });
+      await loadUserPoints();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      checkDailyReward();
+      if (!mounted) return;
+
+      await checkDailyReward();
     });
   }
 
-  Future<void> checkDailyReward() async {
+  Future<void> loadUserPoints() async {
+    final id = userId;
+
+    if (id == null) {
+      debugPrint('Unable to load points: User ID is null.');
+      return;
+    }
+
     try {
-      final alreadyClaimed = await ApiService.hasClaimedToday(widget.user.id!);
+      await context.read<PointsProvider>().loadPoints(id);
+    } catch (error) {
+      debugPrint('Error loading points: $error');
+    }
+  }
+
+  Future<void> checkDailyReward() async {
+    final id = userId;
+
+    if (id == null || !mounted) {
+      return;
+    }
+
+    try {
+      final alreadyClaimed = await ApiService.hasClaimedToday(id);
 
       if (!alreadyClaimed && mounted) {
         showDailyRewardPopup();
@@ -54,25 +79,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  Future<void> claimDailyReward() async {
+  Future<void> claimDailyReward(BuildContext dialogContext) async {
+    final id = userId;
+
+    if (id == null || isClaimingReward) {
+      return;
+    }
+
+    setState(() {
+      isClaimingReward = true;
+    });
+
     try {
-      await ApiService.claimDailyReward(widget.user.id!);
+      await ApiService.claimDailyReward(id);
 
       if (!mounted) return;
 
-      Navigator.pop(context);
+      if (Navigator.of(dialogContext).canPop()) {
+        Navigator.of(dialogContext).pop();
+      }
 
-      await context.read<PointsProvider>().loadPoints(widget.user.id!);
+      await context.read<PointsProvider>().loadPoints(id);
     } catch (error) {
       debugPrint('Error claiming daily reward: $error');
 
       if (!mounted) return;
+
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Hindi nakuha ang daily reward. Subukan muli.'),
         ),
       );
+    } finally {
+      if (mounted) {
+        setState(() {
+          isClaimingReward = false;
+        });
+      }
     }
   }
 
@@ -83,7 +128,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void showDailyRewardPopup() {
-    if (rewardPopupShown || !mounted) return;
+    if (rewardPopupShown || !mounted) {
+      return;
+    }
 
     rewardPopupShown = true;
 
@@ -102,7 +149,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
         return Dialog(
           backgroundColor: Colors.transparent,
-          insetPadding: EdgeInsets.zero,
+          insetPadding: const EdgeInsets.all(12),
           child: SizedBox(
             width: popupWidth,
             height: popupHeight,
@@ -117,27 +164,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   fit: BoxFit.contain,
                 ),
 
-                // Invisible claim button placed above the
-                // button already included in the image.
+                // Invisible claim button placed on top of the
+                // claim button already included in the image.
                 Positioned(
                   bottom: popupHeight * 0.04,
                   left: popupWidth * 0.30,
                   child: SizedBox(
                     width: popupWidth * 0.40,
                     height: popupHeight * 0.09,
-                    child: ElevatedButton(
-                      onPressed: claimDailyReward,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Colors.transparent,
-                        foregroundColor: Colors.transparent,
-                        elevation: 0,
-                        padding: EdgeInsets.zero,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(40),
-                        ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(40),
+                        onTap: isClaimingReward
+                            ? null
+                            : () {
+                                claimDailyReward(dialogContext);
+                              },
+                        child: const SizedBox.expand(),
                       ),
-                      child: const SizedBox.expand(),
                     ),
                   ),
                 ),
@@ -146,9 +191,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   top: popupHeight * 0.04,
                   right: popupWidth * 0.08,
                   child: GestureDetector(
-                    onTap: () {
-                      Navigator.pop(dialogContext);
-                    },
+                    onTap: isClaimingReward
+                        ? null
+                        : () {
+                            Navigator.of(dialogContext).pop();
+                          },
                     child: Container(
                       width: closeSize,
                       height: closeSize,
@@ -165,6 +212,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                 ),
+
+                if (isClaimingReward)
+                  Container(
+                    width: popupWidth,
+                    height: popupHeight,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.20),
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: const Center(
+                      child: CircularProgressIndicator(color: Colors.white),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -172,51 +232,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
       },
     ).whenComplete(() {
       rewardPopupShown = false;
+
+      if (mounted && isClaimingReward) {
+        setState(() {
+          isClaimingReward = false;
+        });
+      }
     });
   }
 
   void openLessonOne() {
-    Navigator.push(
+    Navigator.of(
       context,
-      MaterialPageRoute(
-        builder: (context) {
-          return Lesson1Screen(user: widget.user);
-        },
-      ),
-    );
+    ).push(MaterialPageRoute(builder: (_) => Lesson1Screen(user: widget.user)));
   }
 
   void openLessonTwo() {
-    Navigator.push(
+    Navigator.of(
       context,
-      MaterialPageRoute(
-        builder: (context) {
-          return Lesson2Screen(user: widget.user);
-        },
-      ),
-    );
+    ).push(MaterialPageRoute(builder: (_) => Lesson2Screen(user: widget.user)));
   }
 
   void openLessonThree() {
-    Navigator.push(
+    Navigator.of(
       context,
-      MaterialPageRoute(
-        builder: (context) {
-          return Lesson3Screen(user: widget.user);
-        },
-      ),
-    );
+    ).push(MaterialPageRoute(builder: (_) => Lesson3Screen(user: widget.user)));
   }
 
   void openLessonFour() {
-    Navigator.push(
+    Navigator.of(
       context,
-      MaterialPageRoute(
-        builder: (context) {
-          return Lesson4Screen(user: widget.user);
-        },
-      ),
-    );
+    ).push(MaterialPageRoute(builder: (_) => Lesson4Screen(user: widget.user)));
   }
 
   @override
@@ -225,13 +271,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     final totalPoints = context.watch<PointsProvider>().totalPoints;
 
-    // Ship is always unlocked.
+    // Lesson unlocking requirements.
+    const int lessonTwoRequiredPoints = 100;
+    const int lessonThreeRequiredPoints = 200;
+    const int lessonFourRequiredPoints = 300;
+
+    // Lesson 1 is always unlocked.
     const bool lessonOneUnlocked = true;
 
-    // The remaining islands unlock when the user reaches 200 points.
-    final bool lessonTwoUnlocked = totalPoints >= 200;
-    final bool lessonThreeUnlocked = totalPoints >= 200;
-    final bool lessonFourUnlocked = totalPoints >= 200;
+    // Each lesson now uses its correct point requirement.
+    final bool lessonTwoUnlocked = totalPoints >= lessonTwoRequiredPoints;
+
+    final bool lessonThreeUnlocked = totalPoints >= lessonThreeRequiredPoints;
+
+    final bool lessonFourUnlocked = totalPoints >= lessonFourRequiredPoints;
 
     final levelWidth = clampDouble(size.width * 0.50, 190, 320);
 
@@ -242,7 +295,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          SizedBox.expand(
+          Positioned.fill(
             child: Image.asset('assets/profile.png', fit: BoxFit.cover),
           ),
 
@@ -268,6 +321,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(18),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.15),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -339,9 +399,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: Container(
                           width: clampDouble(width * 0.12, 44, 55),
                           height: clampDouble(width * 0.12, 44, 55),
-                          decoration: BoxDecoration(
-                            color: const Color.fromARGB(255, 139, 41, 5),
-                            borderRadius: BorderRadius.circular(50),
+                          decoration: const BoxDecoration(
+                            color: Color.fromARGB(255, 139, 41, 5),
+                            shape: BoxShape.circle,
                           ),
                           child: Icon(
                             showMenu ? Icons.close : Icons.menu,
@@ -352,7 +412,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
 
-                    // Lesson 1 - always enabled
+                    // Lesson 1
                     Positioned(
                       top: height * 0.10,
                       left: width * 0.02,
@@ -367,7 +427,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
 
-                    // Lesson 2 - visible but locked below 200 points
+                    // Lesson 2 - unlocks at 100 points
                     Positioned(
                       top: height * 0.28,
                       right: width * 0.02,
@@ -377,12 +437,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         imageHeight: imageHeight,
                         starSize: starSize,
                         enabled: lessonTwoUnlocked,
-                        requiredPoints: 200,
+                        requiredPoints: lessonTwoRequiredPoints,
                         onTap: openLessonTwo,
                       ),
                     ),
 
-                    // Lesson 3 - visible but locked below 200 points
+                    // Lesson 3 - unlocks at 200 points
                     Positioned(
                       top: height * 0.48,
                       left: width * 0.02,
@@ -392,12 +452,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         imageHeight: imageHeight,
                         starSize: starSize,
                         enabled: lessonThreeUnlocked,
-                        requiredPoints: 200,
+                        requiredPoints: lessonThreeRequiredPoints,
                         onTap: openLessonThree,
                       ),
                     ),
 
-                    // Lesson 4 - visible but locked below 200 points
+                    // Lesson 4 - unlocks at 300 points
                     Positioned(
                       top: height * 0.66,
                       right: width * 0.02,
@@ -407,7 +467,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         imageHeight: imageHeight,
                         starSize: starSize,
                         enabled: lessonFourUnlocked,
-                        requiredPoints: 200,
+                        requiredPoints: lessonFourRequiredPoints,
                         onTap: openLessonFour,
                       ),
                     ),
@@ -456,80 +516,95 @@ class LevelCard extends StatefulWidget {
 
 class _LevelCardState extends State<LevelCard> {
   bool isHighlighted = false;
+  bool isOpening = false;
+
+  double clampValue(double value, double minimum, double maximum) {
+    return value.clamp(minimum, maximum).toDouble();
+  }
 
   void setHighlight(bool value) {
     if (!widget.enabled) return;
-    if (!mounted || isHighlighted == value) return;
+    if (!mounted) return;
+    if (isHighlighted == value) return;
 
     setState(() {
       isHighlighted = value;
     });
   }
 
-  void handleTap() {
-    if (!widget.enabled) {
-      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+  void showLockedMessage() {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Kailangan mo ng ${widget.requiredPoints} points para ma-unlock ito.',
-          ),
-          duration: const Duration(seconds: 2),
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Kailangan mo ng ${widget.requiredPoints} points '
+          'para ma-unlock ang araling ito.',
         ),
-      );
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
 
+  Future<void> handleTap() async {
+    if (!widget.enabled) {
+      showLockedMessage();
       return;
     }
 
-    widget.onTap();
-  }
+    // Prevent opening the same page twice from rapid taps.
+    if (isOpening) {
+      return;
+    }
 
-  void handleTapUp(TapUpDetails details) {
-    if (!widget.enabled) return;
+    setState(() {
+      isOpening = true;
+      isHighlighted = true;
+    });
 
-    Future.delayed(const Duration(milliseconds: 150), () {
-      if (mounted) {
-        setHighlight(false);
-      }
+    await Future<void>.delayed(const Duration(milliseconds: 120));
+
+    if (!mounted) return;
+
+    setState(() {
+      isHighlighted = false;
     });
 
     widget.onTap();
+
+    await Future<void>.delayed(const Duration(milliseconds: 400));
+
+    if (mounted) {
+      setState(() {
+        isOpening = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
+    final lockSize = clampValue(widget.width * 0.22, 48, 70);
 
-      // Locked islands can still detect a tap so the
-      // required-points message can be displayed.
-      onTap: widget.enabled ? null : handleTap,
+    final lockIconSize = clampValue(widget.width * 0.11, 25, 38);
 
-      onTapDown: (_) {
-        if (widget.enabled) {
+    return MouseRegion(
+      cursor: widget.enabled
+          ? SystemMouseCursors.click
+          : SystemMouseCursors.forbidden,
+      onEnter: (_) {
+        setHighlight(true);
+      },
+      onExit: (_) {
+        setHighlight(false);
+      },
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: handleTap,
+        onTapDown: (_) {
           setHighlight(true);
-        }
-      },
-      onTapUp: widget.enabled ? handleTapUp : null,
-      onTapCancel: () {
-        if (widget.enabled) {
-          setHighlight(false);
-        }
-      },
-      child: MouseRegion(
-        cursor: widget.enabled
-            ? SystemMouseCursors.click
-            : SystemMouseCursors.forbidden,
-        onEnter: (_) {
-          if (widget.enabled) {
-            setHighlight(true);
-          }
         },
-        onExit: (_) {
-          if (widget.enabled) {
-            setHighlight(false);
-          }
+        onTapCancel: () {
+          setHighlight(false);
         },
         child: AnimatedScale(
           scale: isHighlighted && widget.enabled ? 1.07 : 1.0,
@@ -606,8 +681,8 @@ class _LevelCardState extends State<LevelCard> {
 
                   if (!widget.enabled)
                     Container(
-                      width: clampValue(widget.width * 0.22, 48, 70),
-                      height: clampValue(widget.width * 0.22, 48, 70),
+                      width: lockSize,
+                      height: lockSize,
                       decoration: BoxDecoration(
                         color: Colors.black.withValues(alpha: 0.60),
                         shape: BoxShape.circle,
@@ -616,7 +691,7 @@ class _LevelCardState extends State<LevelCard> {
                       child: Icon(
                         Icons.lock,
                         color: Colors.white,
-                        size: clampValue(widget.width * 0.11, 25, 38),
+                        size: lockIconSize,
                       ),
                     ),
                 ],
@@ -626,9 +701,5 @@ class _LevelCardState extends State<LevelCard> {
         ),
       ),
     );
-  }
-
-  double clampValue(double value, double minimum, double maximum) {
-    return value.clamp(minimum, maximum).toDouble();
   }
 }
