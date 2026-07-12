@@ -1,21 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:lakbay_game/Components/daily_reward_popup.dart';
-import 'package:lakbay_game/User/data/points_provider.dart';
-import 'package:lakbay_game/services/api_service.dart';
-import 'package:provider/provider.dart';
-
+import 'package:lakbay_game/Components/side_navigation.dart';
 import 'package:lakbay_game/User/data/points_provider.dart';
 import 'package:lakbay_game/User/models/user_model.dart';
-import 'package:lakbay_game/services/api_service.dart';
-
-import 'package:lakbay_game/Components/side_navigation.dart';
 import 'package:lakbay_game/Views/lesson1.dart';
 import 'package:lakbay_game/Views/lesson2.dart';
 import 'package:lakbay_game/Views/lesson3.dart';
 import 'package:lakbay_game/Views/lesson4.dart';
+import 'package:lakbay_game/services/api_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   final UserModel user;
@@ -31,10 +25,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool rewardPopupShown = false;
   bool isClaimingReward = false;
 
-  int claimedStreak = 1;
+  int claimedStreak = 0;
 
-  double clampDouble(double value, double min, double max) {
-    return value.clamp(min, max).toDouble();
+  double clampDouble(double value, double minimum, double maximum) {
+    return value.clamp(minimum, maximum).toDouble();
   }
 
   int? get userId => widget.user.id;
@@ -44,33 +38,60 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (!mounted) return;
-
-      await loadUserPoints();
-
-      if (!mounted) return;
-
-      await checkDailyReward();
+      await initializeProfile();
     });
   }
 
+  Future<void> initializeProfile() async {
+    await loadUserPoints();
+
+    if (!mounted) return;
+
+    await checkDailyReward();
+  }
+
   Future<void> loadUserPoints() async {
-    final id = userId;
+    final int? id = userId;
 
     if (id == null) {
-      debugPrint('Unable to load points: User ID is null.');
+      debugPrint('Unable to load points because the user ID is null.');
       return;
     }
 
     try {
-final status = await ApiService.getDailyRewardStatus(id);
+      await context.read<PointsProvider>().loadPoints(id);
+    } catch (error) {
+      debugPrint('Unable to load user points: $error');
+    }
+  }
+
+  Future<void> checkDailyReward() async {
+    final int? id = userId;
+
+    if (id == null) {
+      debugPrint(
+        'Unable to check the daily reward because the user ID is null.',
+      );
+      return;
+    }
+
+    try {
+      final Map<String, dynamic> status = await ApiService.getDailyRewardStatus(
+        id,
+      );
+
+      if (!mounted) return;
+
+      final int claimedDays =
+          (status['claimedDaysSoFar'] as num?)?.toInt() ?? 0;
+
+      final bool alreadyClaimed = status['alreadyClaimed'] as bool? ?? false;
 
       setState(() {
-        claimedStreak = status['claimedDaysSoFar'];
+        claimedStreak = claimedDays;
       });
 
-      final alreadyClaimed = status['alreadyClaimed'] ?? false;
-      if (!alreadyClaimed && mounted) {
+      if (!alreadyClaimed) {
         showDailyRewardPopup();
       }
     } catch (error) {
@@ -78,57 +99,80 @@ final status = await ApiService.getDailyRewardStatus(id);
     }
   }
 
-Future<void> claimDailyReward([BuildContext? dialogContext]) async {
-  final id = userId ?? widget.user.id;
+  Future<void> claimDailyReward({
+    required BuildContext dialogContext,
+    required StateSetter setDialogState,
+  }) async {
+    final int? id = userId;
 
-  if (id == null || isClaimingReward) {
-    return;
-  }
+    if (id == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Hindi makita ang user ID.')),
+      );
+      return;
+    }
 
-  setState(() {
-    isClaimingReward = true;
-  });
-
-  try {
-    final result = await ApiService.claimDailyReward(id);
-
-    if (!mounted) return;
+    if (isClaimingReward) return;
 
     setState(() {
-      claimedStreak = result['streakDay'] ?? claimedStreak;
+      isClaimingReward = true;
     });
 
-    if (dialogContext != null) {
-      if (Navigator.of(dialogContext).canPop()) {
+    setDialogState(() {});
+
+    try {
+      final Map<String, dynamic> result = await ApiService.claimDailyReward(id);
+
+      if (!mounted) return;
+
+      final int newStreak =
+          (result['streakDay'] as num?)?.toInt() ??
+          (result['claimedDaysSoFar'] as num?)?.toInt() ??
+          claimedStreak;
+
+      setState(() {
+        claimedStreak = newStreak;
+      });
+
+      await context.read<PointsProvider>().loadPoints(id);
+
+      if (!mounted) return;
+
+      if (dialogContext.mounted && Navigator.of(dialogContext).canPop()) {
         Navigator.of(dialogContext).pop();
       }
-    } else {
-      if (Navigator.canPop(context)) {
-        Navigator.pop(context);
+
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Nakuha mo na ang iyong daily reward!'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } catch (error) {
+      debugPrint('Error claiming daily reward: $error');
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Hindi nakuha ang daily reward. Subukan muli.'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          isClaimingReward = false;
+        });
       }
-    }
 
-    await context.read<PointsProvider>().loadPoints(id);
-  } catch (error) {
-    debugPrint('Error claiming daily reward: $error');
-
-    if (!mounted) return;
-
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Hindi nakuha ang daily reward. Subukan muli.'),
-      ),
-    );
-  } finally {
-    if (mounted) {
-      setState(() {
-        isClaimingReward = false;
-      });
-    }
-  }
-}
+      if (dialogContext.mounted) {
+        setDialogState(() {});
+      }
     }
   }
 
@@ -139,109 +183,107 @@ Future<void> claimDailyReward([BuildContext? dialogContext]) async {
   }
 
   void showDailyRewardPopup() {
-    if (rewardPopupShown || !mounted) {
-      return;
-    }
+    if (!mounted || rewardPopupShown) return;
 
     rewardPopupShown = true;
 
     showDialog<void>(
       context: context,
       barrierDismissible: false,
-      barrierColor: Colors.black.withValues(alpha: 0.45),
-      builder: (dialogContext) {
-        final size = MediaQuery.of(dialogContext).size;
+      barrierColor: Colors.black.withOpacity(0.45),
+      builder: (BuildContext dialogContext) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setDialogState) {
+            final Size size = MediaQuery.of(context).size;
 
-        final popupWidth = clampDouble(size.width * 0.92, 300, 470);
-        final popupHeight = clampDouble(size.height * 0.86, 500, 780);
-        final closeSize = clampDouble(size.width * 0.10, 36, 48);
+            final double popupWidth = clampDouble(size.width * 0.92, 300, 470);
 
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.all(12),
-          child: SizedBox(
-            width: popupWidth,
-            height: popupHeight,
-            child: Stack(
-              clipBehavior: Clip.none,
-              alignment: Alignment.center,
-              children: [
-// NEW: the 7-day reward card replaces the static image.
-SingleChildScrollView(
-  physics: const NeverScrollableScrollPhysics(),
-  child: LakbayDailyRewardCard(
-    claimedDays: claimedStreak,
-    totalDays: 7,
-    onClaim: () => claimDailyReward(),
-  ),
-),
+            final double popupHeight = clampDouble(
+              size.height * 0.86,
+              500,
+              780,
+            );
 
-// Invisible claim button placed on top of the
-// claim button already included in the image.
-Positioned(
-  bottom: popupHeight * 0.04,
-  left: popupWidth * 0.30,
-  child: SizedBox(
-    width: popupWidth * 0.40,
-    height: popupHeight * 0.09,
-    child: Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(40),
-        onTap: isClaimingReward
-            ? null
-            : () {
-                claimDailyReward(dialogContext);
-              },
-        child: const SizedBox.expand(),
-      ),
-    ),
-  ),
-),
-                  ),
-                ),
+            final double closeSize = clampDouble(size.width * 0.10, 36, 48);
 
-                Positioned(
-                  top: popupHeight * 0.02,
-                  right: popupWidth * 0.06,
-                  child: GestureDetector(
-                    onTap: isClaimingReward
-                        ? null
-                        : () {
-                            Navigator.of(dialogContext).pop();
-                          },
-                    child: Container(
-                      width: closeSize,
-                      height: closeSize,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1F5C8F),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: Colors.white, width: 3),
-                      ),
-                      child: Icon(
-                        Icons.close,
-                        color: Colors.white,
-                        size: closeSize * 0.65,
+            return Dialog(
+              backgroundColor: Colors.transparent,
+              insetPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 18,
+              ),
+              child: SizedBox(
+                width: popupWidth,
+                height: popupHeight,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  alignment: Alignment.center,
+                  children: [
+                    Positioned.fill(
+                      child: LakbayDailyRewardCard(
+                        claimedDays: claimedStreak,
+                        totalDays: 7,
+                        onClaim: () {
+                          claimDailyReward(
+                            dialogContext: dialogContext,
+                            setDialogState: setDialogState,
+                          );
+                        },
                       ),
                     ),
-                  ),
-                ),
 
-                if (isClaimingReward)
-                  Container(
-                    width: popupWidth,
-                    height: popupHeight,
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.20),
-                      borderRadius: BorderRadius.circular(24),
+                    Positioned(
+                      top: popupHeight * 0.015,
+                      right: popupWidth * 0.025,
+                      child: GestureDetector(
+                        onTap: isClaimingReward
+                            ? null
+                            : () {
+                                Navigator.of(dialogContext).pop();
+                              },
+                        child: Container(
+                          width: closeSize,
+                          height: closeSize,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1F5C8F),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: Colors.white, width: 3),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.25),
+                                blurRadius: 6,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            Icons.close,
+                            color: Colors.white,
+                            size: closeSize * 0.65,
+                          ),
+                        ),
+                      ),
                     ),
-                    child: const Center(
-                      child: CircularProgressIndicator(color: Colors.white),
-                    ),
-                  ),
-              ],
-            ),
-          ),
+
+                    if (isClaimingReward)
+                      Positioned.fill(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.25),
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          child: const Center(
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            );
+          },
         );
       },
     ).whenComplete(() {
@@ -281,30 +323,25 @@ Positioned(
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    final Size size = MediaQuery.of(context).size;
 
-    final totalPoints = context.watch<PointsProvider>().totalPoints;
+    final int totalPoints = context.watch<PointsProvider>().totalPoints;
 
-    // Lesson unlocking requirements.
     const int lessonTwoRequiredPoints = 100;
     const int lessonThreeRequiredPoints = 200;
     const int lessonFourRequiredPoints = 300;
 
-    // Lesson 1 is always unlocked.
-    const bool lessonOneUnlocked = true;
-
-    // Each lesson now uses its correct point requirement.
     final bool lessonTwoUnlocked = totalPoints >= lessonTwoRequiredPoints;
 
     final bool lessonThreeUnlocked = totalPoints >= lessonThreeRequiredPoints;
 
     final bool lessonFourUnlocked = totalPoints >= lessonFourRequiredPoints;
 
-    final levelWidth = clampDouble(size.width * 0.50, 190, 320);
+    final double levelWidth = clampDouble(size.width * 0.50, 190, 320);
 
-    final imageHeight = clampDouble(size.height * 0.24, 180, 300);
+    final double imageHeight = clampDouble(size.height * 0.24, 180, 300);
 
-    final starSize = clampDouble(size.width * 0.065, 20, 36);
+    final double starSize = clampDouble(size.width * 0.065, 20, 36);
 
     return Scaffold(
       body: Stack(
@@ -315,14 +352,13 @@ Positioned(
 
           SafeArea(
             child: LayoutBuilder(
-              builder: (context, constraints) {
-                final height = constraints.maxHeight;
-                final width = constraints.maxWidth;
+              builder: (BuildContext context, BoxConstraints constraints) {
+                final double height = constraints.maxHeight;
+                final double width = constraints.maxWidth;
 
                 return Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    // User information
                     Positioned(
                       top: height * 0.02,
                       left: width * 0.03,
@@ -337,7 +373,7 @@ Positioned(
                           borderRadius: BorderRadius.circular(18),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.15),
+                              color: Colors.black.withOpacity(0.15),
                               blurRadius: 8,
                               offset: const Offset(0, 3),
                             ),
@@ -404,7 +440,6 @@ Positioned(
                       ),
                     ),
 
-                    // Menu button
                     Positioned(
                       top: height * 0.02,
                       right: width * 0.04,
@@ -426,7 +461,6 @@ Positioned(
                       ),
                     ),
 
-                    // Lesson 1
                     Positioned(
                       top: height * 0.10,
                       left: width * 0.02,
@@ -435,13 +469,12 @@ Positioned(
                         width: levelWidth,
                         imageHeight: imageHeight,
                         starSize: starSize,
-                        enabled: lessonOneUnlocked,
+                        enabled: true,
                         requiredPoints: 0,
                         onTap: openLessonOne,
                       ),
                     ),
 
-                    // Lesson 2 - unlocks at 100 points
                     Positioned(
                       top: height * 0.28,
                       right: width * 0.02,
@@ -456,7 +489,6 @@ Positioned(
                       ),
                     ),
 
-                    // Lesson 3 - unlocks at 200 points
                     Positioned(
                       top: height * 0.48,
                       left: width * 0.02,
@@ -471,7 +503,6 @@ Positioned(
                       ),
                     ),
 
-                    // Lesson 4 - unlocks at 300 points
                     Positioned(
                       top: height * 0.66,
                       right: width * 0.02,
@@ -566,10 +597,7 @@ class _LevelCardState extends State<LevelCard> {
       return;
     }
 
-    // Prevent opening the same page twice from rapid taps.
-    if (isOpening) {
-      return;
-    }
+    if (isOpening) return;
 
     setState(() {
       isOpening = true;
@@ -588,18 +616,18 @@ class _LevelCardState extends State<LevelCard> {
 
     await Future<void>.delayed(const Duration(milliseconds: 400));
 
-    if (mounted) {
-      setState(() {
-        isOpening = false;
-      });
-    }
+    if (!mounted) return;
+
+    setState(() {
+      isOpening = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final lockSize = clampValue(widget.width * 0.22, 48, 70);
+    final double lockSize = clampValue(widget.width * 0.22, 48, 70);
 
-    final lockIconSize = clampValue(widget.width * 0.11, 25, 38);
+    final double lockIconSize = clampValue(widget.width * 0.11, 25, 38);
 
     return MouseRegion(
       cursor: widget.enabled
@@ -617,6 +645,9 @@ class _LevelCardState extends State<LevelCard> {
         onTapDown: (_) {
           setHighlight(true);
         },
+        onTapUp: (_) {
+          setHighlight(false);
+        },
         onTapCancel: () {
           setHighlight(false);
         },
@@ -633,7 +664,7 @@ class _LevelCardState extends State<LevelCard> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(24),
                 color: isHighlighted && widget.enabled
-                    ? Colors.yellow.withValues(alpha: 0.18)
+                    ? Colors.yellow.withOpacity(0.18)
                     : Colors.transparent,
                 border: Border.all(
                   color: isHighlighted && widget.enabled
@@ -644,7 +675,7 @@ class _LevelCardState extends State<LevelCard> {
                 boxShadow: isHighlighted && widget.enabled
                     ? [
                         BoxShadow(
-                          color: Colors.yellow.withValues(alpha: 0.90),
+                          color: Colors.yellow.withOpacity(0.90),
                           blurRadius: 26,
                           spreadRadius: 4,
                         ),
@@ -675,7 +706,7 @@ class _LevelCardState extends State<LevelCard> {
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(3, (index) {
+                          children: List.generate(3, (int index) {
                             return Padding(
                               padding: EdgeInsets.symmetric(
                                 horizontal: widget.starSize * 0.08,
@@ -698,7 +729,7 @@ class _LevelCardState extends State<LevelCard> {
                       width: lockSize,
                       height: lockSize,
                       decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.60),
+                        color: Colors.black.withOpacity(0.60),
                         shape: BoxShape.circle,
                         border: Border.all(color: Colors.white, width: 3),
                       ),
