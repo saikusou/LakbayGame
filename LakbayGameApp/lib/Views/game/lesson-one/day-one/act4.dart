@@ -19,14 +19,10 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
 
   static const int pointsPerQuestion = 5;
 
-  // One correct answer per question.
-  // You may change the order depending on your actual questions.
   final List<String> correctAnswers = ['TAMA', 'MALI', 'TAMA', 'MALI', 'TAMA'];
 
-  // Stores the selected answer for all five questions.
   final List<String?> selectedAnswers = List<String?>.filled(5, null);
 
-  // Main background image for each question.
   final List<String> backgroundImages = [
     'assets/lesson-one-day1-act4a.png',
     'assets/lesson-one-day1-act4b.png',
@@ -35,14 +31,12 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
     'assets/lesson-one-day1-act4e.png',
   ];
 
-  // Only five popup images.
-  // Each question has only one explanation image.
   final List<String> popupImages = [
-    'assets/lesson-one-day1-act4-q1.png',
-    'assets/lesson-one-day1-act4-q2.png',
-    'assets/lesson-one-day1-act4-q3.png',
-    'assets/lesson-one-day1-act4-q4.png',
-    'assets/lesson-one-day1-act4-q5.png',
+    'assets/lesson-one-day1-act4-q1-tama.png',
+    'assets/lesson-one-day1-act4-q2-mali.png',
+    'assets/lesson-one-day1-act4-q3-tama.png',
+    'assets/lesson-one-day1-act4-q4-mali.png',
+    'assets/lesson-one-day1-act4-q5-tama.png',
   ];
 
   double clampDouble(double value, double minimum, double maximum) {
@@ -96,7 +90,7 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
       selectedAnswers[currentQuestionIndex] = answer;
     });
 
-    showAnswerPopup(selectedAnswer: answer);
+    showAnswerPopup();
   }
 
   void showNoAnswerMessage() {
@@ -192,18 +186,12 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
     );
   }
 
-  void showAnswerPopup({required String selectedAnswer}) {
+  void showAnswerPopup() {
     final Size size = MediaQuery.of(context).size;
 
     final double width = size.width;
     final double height = size.height;
 
-    final String correctAnswer = correctAnswers[currentQuestionIndex];
-
-    final bool isCorrect = selectedAnswer == correctAnswer;
-
-    // Only one image is used for the current question.
-    // It does not depend on whether TAMA or MALI was selected.
     final String popupImage = popupImages[currentQuestionIndex];
 
     showDialog(
@@ -225,10 +213,7 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
               decoration: BoxDecoration(
                 color: const Color(0xFFFFF4D8),
                 borderRadius: BorderRadius.circular(22),
-                border: Border.all(
-                  color: isCorrect ? Colors.green : Colors.red,
-                  width: 4,
-                ),
+                border: Border.all(color: Colors.orange, width: 4),
                 boxShadow: const [
                   BoxShadow(
                     color: Colors.black26,
@@ -248,12 +233,12 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
                       child: Image.asset(
                         popupImage,
                         width: double.infinity,
-                        height: clampDouble(height * 0.46, 240, 420),
+                        height: clampDouble(height * 0.58, 280, 500),
                         fit: BoxFit.contain,
                         errorBuilder: (context, error, stackTrace) {
                           return Container(
                             width: double.infinity,
-                            height: clampDouble(height * 0.40, 220, 360),
+                            height: clampDouble(height * 0.48, 240, 400),
                             padding: const EdgeInsets.all(20),
                             alignment: Alignment.center,
                             color: const Color(0xFFFFF4D8),
@@ -261,8 +246,8 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(
-                                  isCorrect ? Icons.check_circle : Icons.cancel,
-                                  color: isCorrect ? Colors.green : Colors.red,
+                                  Icons.image_not_supported,
+                                  color: Colors.orange,
                                   size: clampDouble(width * 0.20, 70, 110),
                                 ),
                                 const SizedBox(height: 12),
@@ -283,45 +268,18 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
                     Padding(
                       padding: EdgeInsets.fromLTRB(
                         clampDouble(width * 0.04, 14, 22),
-                        10,
+                        clampDouble(height * 0.012, 8, 14),
                         clampDouble(width * 0.04, 14, 22),
                         clampDouble(height * 0.02, 14, 22),
                       ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            isCorrect ? 'CORRECT!' : 'INCORRECT',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: isCorrect ? Colors.green : Colors.red,
-                              fontWeight: FontWeight.bold,
-                              fontSize: clampDouble(width * 0.06, 21, 32),
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            isCorrect
-                                ? 'Your answer is correct.'
-                                : 'The correct answer is $correctAnswer.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.brown,
-                              fontWeight: FontWeight.bold,
-                              fontSize: clampDouble(width * 0.04, 14, 19),
-                            ),
-                          ),
-                          SizedBox(height: clampDouble(height * 0.018, 12, 20)),
-                          smallButton(
-                            label: 'OK',
-                            width: clampDouble(width * 0.23, 80, 120),
-                            height: clampDouble(height * 0.052, 38, 50),
-                            fontSize: clampDouble(width * 0.04, 14, 18),
-                            onTap: () {
-                              Navigator.pop(dialogContext);
-                            },
-                          ),
-                        ],
+                      child: smallButton(
+                        label: 'OK',
+                        width: clampDouble(width * 0.23, 80, 120),
+                        height: clampDouble(height * 0.052, 38, 50),
+                        fontSize: clampDouble(width * 0.04, 14, 18),
+                        onTap: () {
+                          Navigator.pop(dialogContext);
+                        },
                       ),
                     ),
                   ],
@@ -454,7 +412,6 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
                               }
 
                               Navigator.pop(dialogContext);
-
                               goHome();
                             } catch (error) {
                               if (!mounted) {
@@ -737,7 +694,6 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
                 ),
               ),
 
-              // Top navigation buttons.
               SafeArea(
                 bottom: false,
                 child: Stack(
@@ -767,7 +723,6 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
                 ),
               ),
 
-              // Question number indicator.
               SafeArea(
                 child: Align(
                   alignment: Alignment.topCenter,
@@ -780,7 +735,6 @@ class _LessonOneActFourState extends State<LessonOneActFour> {
                 ),
               ),
 
-              // Bottom answer controls.
               Align(
                 alignment: Alignment.bottomCenter,
                 child: SafeArea(

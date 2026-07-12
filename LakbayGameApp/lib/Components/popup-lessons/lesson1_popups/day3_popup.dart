@@ -154,7 +154,6 @@ class _LearningObjectivesPopup extends StatelessWidget {
 /// =========================================================
 /// 2. GAWAIN
 /// =========================================================
-
 class _GawainPopup extends StatelessWidget {
   final UserModel user;
 
@@ -164,107 +163,159 @@ class _GawainPopup extends StatelessWidget {
     return value.clamp(min, max).toDouble();
   }
 
+  void _closePopup(BuildContext context) {
+    Navigator.of(context, rootNavigator: true).pop();
+  }
+
+  void _openNextPage(BuildContext context) {
+    Navigator.of(context, rootNavigator: true).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => LessonOneDayThreeActTwo(user: user),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    final screenSize = MediaQuery.of(context).size;
 
-    final popupHeight = clampDouble(size.height * 0.75, 450, 530);
-    final popupWidth = clampDouble(size.width * 0.90, 350, 550);
+    final popupWidth = clampDouble(screenSize.width * 0.90, 300, 550);
 
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.all(18),
+    final popupHeight = clampDouble(screenSize.height * 0.80, 480, 650);
 
-      child: Container(
-        width: popupWidth,
-        height: popupHeight,
+    final closeButtonSize = clampDouble(popupWidth * 0.09, 40, 48);
 
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(28),
+    final submitButtonSize = clampDouble(popupWidth * 0.14, 55, 72);
 
-          border: Border.all(color: Colors.blue, width: 5),
-
-          /// BACKGROUND IMAGE
-          image: const DecorationImage(
-            image: AssetImage('assets/lesson-two-day3-act2.png'),
-            fit: BoxFit.fill,
+    return PopScope(
+      canPop: true,
+      child: Dialog(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
+        child: Container(
+          width: popupWidth,
+          height: popupHeight,
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(color: Colors.blue, width: 5),
           ),
-        ),
-
-        child: Column(
-          children: [
-            /// CLOSE BUTTON
-            Align(
-              alignment: Alignment.topRight,
-
-              child: Padding(
-                padding: const EdgeInsets.all(14),
-
-                child: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-
-                  child: Container(
-                    width: 44,
-                    height: 44,
-
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-
-                      border: Border.all(color: Colors.white, width: 3),
-                    ),
-
-                    child: const Icon(
-                      Icons.close,
-                      color: Colors.white,
-                      size: 26,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            /// PUSH BUTTON TO BOTTOM
-            const Spacer(),
-
-            /// SUBMIT BUTTON
-            Padding(
-              padding: const EdgeInsets.only(bottom: 20),
-
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => LessonOneDayThreeActTwo(user: user),
-                    ),
-                  );
-                },
-
-                child: Container(
-                  width: 70,
-                  height: 70,
-
-                  decoration: BoxDecoration(
-                    color: Colors.green,
-                    shape: BoxShape.circle,
-
-                    border: Border.all(color: Colors.white, width: 4),
-
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 8,
-                        offset: Offset(0, 4),
+          child: Column(
+            children: [
+              /// IMAGE AREA
+              Expanded(
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: Image.asset(
+                        'assets/lesson-two-day3-act2.png',
+                        fit: BoxFit.fill,
+                        errorBuilder:
+                            (
+                              BuildContext context,
+                              Object error,
+                              StackTrace? stackTrace,
+                            ) {
+                              return const Center(
+                                child: Text(
+                                  'Image not found',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              );
+                            },
                       ),
-                    ],
-                  ),
+                    ),
 
-                  child: const Icon(Icons.send, color: Colors.white, size: 30),
+                    /// CLOSE BUTTON
+                    Positioned(
+                      top: 12,
+                      right: 12,
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () => _closePopup(context),
+                          customBorder: const CircleBorder(),
+                          child: Container(
+                            width: closeButtonSize,
+                            height: closeButtonSize,
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 3),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  blurRadius: 6,
+                                  offset: Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: Icon(
+                              Icons.close,
+                              color: Colors.white,
+                              size: closeButtonSize * 0.58,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ],
+
+              /// BUTTON AREA
+              Container(
+                width: double.infinity,
+                constraints: const BoxConstraints(minHeight: 95),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  border: Border(top: BorderSide(color: Colors.blue, width: 3)),
+                ),
+                child: SafeArea(
+                  top: false,
+                  child: Center(
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () => _openNextPage(context),
+                        customBorder: const CircleBorder(),
+                        child: Container(
+                          width: submitButtonSize,
+                          height: submitButtonSize,
+                          decoration: BoxDecoration(
+                            color: Colors.green,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 4),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black26,
+                                blurRadius: 8,
+                                offset: Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            Icons.send,
+                            color: Colors.white,
+                            size: submitButtonSize * 0.45,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
