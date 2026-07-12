@@ -13,6 +13,10 @@ namespace LakbayGameApi.Controllers
     {
         private readonly LakbayGameDbContext _context = context;
 
+        private const int StreakCycleLength = 7;
+
+        private const int PointsPerDay = 5;
+
         [HttpPost("savePoints")]
         public async Task<ActionResult<Points>> SavePoints([FromBody] Points points)
         {
@@ -88,7 +92,7 @@ namespace LakbayGameApi.Controllers
         {
             var today = DateTime.Today;
 
-            // Check if already claimed today
+   
             bool alreadyClaimed = await _context.DailyRewards
                 .AnyAsync(x =>
                     x.UserId == dto.UserId &&
@@ -103,29 +107,8 @@ namespace LakbayGameApi.Controllers
                 });
             }
 
-            // Get latest reward record
-            var lastReward = await _context.DailyRewards
-                .Where(x => x.UserId == dto.UserId)
-                .OrderByDescending(x => x.RewardDate)
-                .FirstOrDefaultAsync();
-
-            int streakDay = 1;
-
-            if (lastReward != null)
-            {
-                var daysDifference = (today - lastReward.RewardDate).Days;
-
-                if (daysDifference == 1)
-                {
-                    streakDay = (lastReward.PointsAwarded / 5) + 1;
-                }
-                else
-                {
-                    streakDay = 1;
-                }
-            }
-
-            int pointsToAward = streakDay * 5;
+            int streakDay = await ComputeNextStreakDayAsync(dto.UserId, today);
+            int pointsToAward = PointsPerDay;
 
             var reward = new DailyRewardRequest
             {
@@ -174,12 +157,85 @@ namespace LakbayGameApi.Controllers
                     x.UserId == userId &&
                     x.RewardDate == today);
 
+            int currentStreakDay;
+
+            if (alreadyClaimed)
+            {
+     
+                int rawLength = await ComputeConsecutiveStreakLengthAsync(userId, today);
+                currentStreakDay = ((rawLength - 1) % StreakCycleLength) + 1;
+            }
+            else
+            {
+                currentStreakDay = await ComputeNextStreakDayAsync(userId, today);
+            }
+
+            int claimedDaysSoFar = alreadyClaimed
+                ? currentStreakDay
+                : currentStreakDay - 1;
+
             return Ok(new
             {
-                alreadyClaimed
+                alreadyClaimed,
+                currentStreakDay,
+                claimedDaysSoFar,
+                cycleLength = StreakCycleLength
             });
         }
 
 
+        private async Task<int> ComputeNextStreakDayAsync(int userId, DateTime today)
+        {
+            var lastReward = await _context.DailyRewards
+                .Where(x => x.UserId == userId)
+                .OrderByDescending(x => x.RewardDate)
+                .FirstOrDefaultAsync();
+
+            if (lastReward == null)
+            {
+                return 1;
+            }
+
+            var daysDifference = (today - lastReward.RewardDate).Days;
+
+            if (daysDifference != 1)
+            {
+
+                return 1;
+            }
+
+            int rawLength = await ComputeConsecutiveStreakLengthAsync(userId, lastReward.RewardDate);
+            int nextRawLength = rawLength + 1;
+
+            return ((nextRawLength - 1) % StreakCycleLength) + 1;
+        }
+
+        private async Task<int> ComputeConsecutiveStreakLengthAsync(int userId, DateTime uptoDate)
+        {
+            var rewardDates = await _context.DailyRewards
+                .Where(x => x.UserId == userId && x.RewardDate <= uptoDate)
+                .OrderByDescending(x => x.RewardDate)
+                .Select(x => x.RewardDate)
+                .ToListAsync();
+
+            int count = 0;
+            var expected = uptoDate;
+
+            foreach (var date in rewardDates)
+            {
+                if (date == expected)
+                {
+                    count++;
+                    expected = expected.AddDays(-1);
+                }
+                else if (date < expected)
+                {
+                    break;
+                }
+  
+            }
+
+            return count;
+        }
     }
 }

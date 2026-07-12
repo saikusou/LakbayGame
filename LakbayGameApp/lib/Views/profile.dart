@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lakbay_game/Components/daily_reward_popup.dart';
 import 'package:lakbay_game/User/data/points_provider.dart';
 import 'package:lakbay_game/services/api_service.dart';
 import 'package:provider/provider.dart';
@@ -23,8 +24,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool showMenu = false;
   bool rewardPopupShown = false;
 
+<<<<<<< Updated upstream
   double clampDouble(double value, double minimum, double maximum) {
     return value.clamp(minimum, maximum).toDouble();
+=======
+  int claimedStreak = 1;
+
+  double clampDouble(double value, double min, double max) {
+    return value.clamp(min, max).toDouble();
+>>>>>>> Stashed changes
   }
 
   @override
@@ -44,8 +52,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> checkDailyReward() async {
     try {
-      final alreadyClaimed = await ApiService.hasClaimedToday(widget.user.id!);
+      final status = await ApiService.getDailyRewardStatus(widget.user.id!);
 
+      setState(() {
+        claimedStreak = status['claimedDaysSoFar'];
+      });
+
+      final alreadyClaimed = status['alreadyClaimed'] ?? false;
       if (!alreadyClaimed && mounted) {
         showDailyRewardPopup();
       }
@@ -55,11 +68,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> claimDailyReward() async {
+<<<<<<< Updated upstream
     try {
       await ApiService.claimDailyReward(widget.user.id!);
 
       if (!mounted) return;
 
+=======
+    final result = await ApiService.claimDailyReward(widget.user.id!);
+
+    if (mounted) {
+      setState(() {
+        claimedStreak = result['streakDay'] ?? claimedStreak;
+      });
+>>>>>>> Stashed changes
       Navigator.pop(context);
 
       await context.read<PointsProvider>().loadPoints(widget.user.id!);
@@ -95,9 +117,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final size = MediaQuery.of(dialogContext).size;
 
         final popupWidth = clampDouble(size.width * 0.92, 300, 470);
+<<<<<<< Updated upstream
 
         final popupHeight = clampDouble(size.height * 0.86, 500, 760);
 
+=======
+        final popupHeight = clampDouble(size.height * 0.86, 500, 780);
+>>>>>>> Stashed changes
         final closeSize = clampDouble(size.width * 0.10, 36, 48);
 
         return Dialog(
@@ -110,6 +136,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               clipBehavior: Clip.none,
               alignment: Alignment.center,
               children: [
+<<<<<<< Updated upstream
                 Image.asset(
                   'assets/active_star1.png',
                   width: popupWidth,
@@ -139,12 +166,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       child: const SizedBox.expand(),
                     ),
+=======
+                // NEW: the 7-day reward card replaces the static image.
+                SingleChildScrollView(
+                  physics: const NeverScrollableScrollPhysics(),
+                  child: LakbayDailyRewardCard(
+                    claimedDays: claimedStreak,
+                    totalDays: 7,
+                    onClaim: claimDailyReward,
+>>>>>>> Stashed changes
                   ),
                 ),
 
                 Positioned(
-                  top: popupHeight * 0.04,
-                  right: popupWidth * 0.08,
+                  top: popupHeight * 0.02,
+                  right: popupWidth * 0.06,
                   child: GestureDetector(
                     onTap: () {
                       Navigator.pop(dialogContext);

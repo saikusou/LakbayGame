@@ -1,0 +1,1 @@
+ C:\\Users\\Kusanali\\Documents\\GitHub\\LakbayGame\\LakbayGameApp\\.dart_tool\\flutter_build\\3ab9371a0e74bb7ef6f264dea0eaad32\\native_assets.json: 
