@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lakbay_game/Views/game/lesson-two/day-two/act22.dart';
 import 'package:lakbay_game/Views/game/lesson-two/day-two/act23.dart';
 import 'package:lakbay_game/Views/lesson2.dart';
 import 'package:lakbay_game/User/models/user_model.dart';
@@ -17,23 +16,23 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LessonTwoDayTwoActTwoC(
+      home: LessonTwoDayTwoActTwoE(
         user: UserModel(id: null, userName: '', email: '', gender: ''),
       ),
     );
   }
 }
 
-class LessonTwoDayTwoActTwoC extends StatefulWidget {
+class LessonTwoDayTwoActTwoE extends StatefulWidget {
   final UserModel user;
 
-  const LessonTwoDayTwoActTwoC({super.key, required this.user});
+  const LessonTwoDayTwoActTwoE({super.key, required this.user});
 
   @override
-  State<LessonTwoDayTwoActTwoC> createState() => _LessonTwoDayTwoActTwoCState();
+  State<LessonTwoDayTwoActTwoE> createState() => _LessonTwoDayTwoActTwoEState();
 }
 
-class _LessonTwoDayTwoActTwoCState extends State<LessonTwoDayTwoActTwoC> {
+class _LessonTwoDayTwoActTwoEState extends State<LessonTwoDayTwoActTwoE> {
   bool isNavigating = false;
 
   double clampDouble(double value, double minimum, double maximum) {
@@ -85,7 +84,7 @@ class _LessonTwoDayTwoActTwoCState extends State<LessonTwoDayTwoActTwoC> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Image.asset('assets/konek-grid.png', fit: BoxFit.fill),
+          Image.asset('assets/konek-longhitud.png', fit: BoxFit.fill),
 
           // HOME BUTTON
           Positioned(

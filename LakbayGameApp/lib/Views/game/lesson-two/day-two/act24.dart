@@ -2,24 +2,24 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/User/models/user_model.dart';
-import 'package:lakbay_game/Views/game/lesson-two/day-two/act22b.dart';
+import 'package:lakbay_game/Views/game/lesson-two/day-two/act24d.dart';
 import 'package:lakbay_game/services/api_service.dart';
 
-class LessonTwoDayTwoActTwo2 extends StatefulWidget {
+class LessonTwoDayTwoActTwo4 extends StatefulWidget {
   final UserModel user;
 
-  const LessonTwoDayTwoActTwo2({super.key, required this.user});
+  const LessonTwoDayTwoActTwo4({super.key, required this.user});
 
   @override
-  State<LessonTwoDayTwoActTwo2> createState() => _LessonTwoDayTwoActTwo2State();
+  State<LessonTwoDayTwoActTwo4> createState() => _LessonTwoDayTwoActTwo4State();
 }
 
-class _LessonTwoDayTwoActTwo2State extends State<LessonTwoDayTwoActTwo2> {
+class _LessonTwoDayTwoActTwo4State extends State<LessonTwoDayTwoActTwo4> {
   final List<String> pieces = [
-    'assets/l2-d1b-1.png',
-    'assets/l2-d1b-2.png',
-    'assets/l2-d1b-3.png',
-    'assets/l2-d1b-4.png',
+    'assets/l2-d1d-1.png',
+    'assets/l2-d1d-2.png',
+    'assets/l2-d1d-3.png',
+    'assets/l2-d1d-4.png',
   ];
 
   final List<int?> placed = List<int?>.filled(4, null);
@@ -173,7 +173,7 @@ class _LessonTwoDayTwoActTwo2State extends State<LessonTwoDayTwoActTwo2> {
       countedPoints: totalScore,
       lesson: 'Lesson 2',
       day: 'Day 2',
-      act: 'Act 2b',
+      act: 'Act 2c',
     );
   }
 
@@ -216,7 +216,7 @@ class _LessonTwoDayTwoActTwo2State extends State<LessonTwoDayTwoActTwo2> {
 
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (_) => LessonTwoDayTwoActTwoC(user: widget.user),
+        builder: (_) => LessonTwoDayTwoActTwoE(user: widget.user),
       ),
     );
   }
