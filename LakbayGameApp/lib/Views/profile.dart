@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'package:lakbay_game/Components/daily_reward_popup.dart';
+import 'package:lakbay_game/User/data/points_provider.dart';
+import 'package:lakbay_game/services/api_service.dart';
 import 'package:provider/provider.dart';
 
 import 'package:lakbay_game/User/data/points_provider.dart';
@@ -25,8 +31,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool rewardPopupShown = false;
   bool isClaimingReward = false;
 
-  double clampDouble(double value, double minimum, double maximum) {
-    return value.clamp(minimum, maximum).toDouble();
+  int claimedStreak = 1;
+
+  double clampDouble(double value, double min, double max) {
+    return value.clamp(min, max).toDouble();
   }
 
   int? get userId => widget.user.id;
@@ -55,22 +63,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
 
     try {
-      await context.read<PointsProvider>().loadPoints(id);
-    } catch (error) {
-      debugPrint('Error loading points: $error');
-    }
-  }
+final status = await ApiService.getDailyRewardStatus(id);
 
-  Future<void> checkDailyReward() async {
-    final id = userId;
+      setState(() {
+        claimedStreak = status['claimedDaysSoFar'];
+      });
 
-    if (id == null || !mounted) {
-      return;
-    }
-
-    try {
-      final alreadyClaimed = await ApiService.hasClaimedToday(id);
-
+      final alreadyClaimed = status['alreadyClaimed'] ?? false;
       if (!alreadyClaimed && mounted) {
         showDailyRewardPopup();
       }
@@ -79,45 +78,57 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  Future<void> claimDailyReward(BuildContext dialogContext) async {
-    final id = userId;
+Future<void> claimDailyReward([BuildContext? dialogContext]) async {
+  final id = userId ?? widget.user.id;
 
-    if (id == null || isClaimingReward) {
-      return;
-    }
+  if (id == null || isClaimingReward) {
+    return;
+  }
+
+  setState(() {
+    isClaimingReward = true;
+  });
+
+  try {
+    final result = await ApiService.claimDailyReward(id);
+
+    if (!mounted) return;
 
     setState(() {
-      isClaimingReward = true;
+      claimedStreak = result['streakDay'] ?? claimedStreak;
     });
 
-    try {
-      await ApiService.claimDailyReward(id);
-
-      if (!mounted) return;
-
+    if (dialogContext != null) {
       if (Navigator.of(dialogContext).canPop()) {
         Navigator.of(dialogContext).pop();
       }
-
-      await context.read<PointsProvider>().loadPoints(id);
-    } catch (error) {
-      debugPrint('Error claiming daily reward: $error');
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Hindi nakuha ang daily reward. Subukan muli.'),
-        ),
-      );
-    } finally {
-      if (mounted) {
-        setState(() {
-          isClaimingReward = false;
-        });
+    } else {
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
       }
+    }
+
+    await context.read<PointsProvider>().loadPoints(id);
+  } catch (error) {
+    debugPrint('Error claiming daily reward: $error');
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Hindi nakuha ang daily reward. Subukan muli.'),
+      ),
+    );
+  } finally {
+    if (mounted) {
+      setState(() {
+        isClaimingReward = false;
+      });
+    }
+  }
+}
     }
   }
 
@@ -142,9 +153,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final size = MediaQuery.of(dialogContext).size;
 
         final popupWidth = clampDouble(size.width * 0.92, 300, 470);
-
-        final popupHeight = clampDouble(size.height * 0.86, 500, 760);
-
+        final popupHeight = clampDouble(size.height * 0.86, 500, 780);
         final closeSize = clampDouble(size.width * 0.10, 36, 48);
 
         return Dialog(
@@ -157,39 +166,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
               clipBehavior: Clip.none,
               alignment: Alignment.center,
               children: [
-                Image.asset(
-                  'assets/active_star1.png',
-                  width: popupWidth,
-                  height: popupHeight,
-                  fit: BoxFit.contain,
-                ),
+// NEW: the 7-day reward card replaces the static image.
+SingleChildScrollView(
+  physics: const NeverScrollableScrollPhysics(),
+  child: LakbayDailyRewardCard(
+    claimedDays: claimedStreak,
+    totalDays: 7,
+    onClaim: () => claimDailyReward(),
+  ),
+),
 
-                // Invisible claim button placed on top of the
-                // claim button already included in the image.
-                Positioned(
-                  bottom: popupHeight * 0.04,
-                  left: popupWidth * 0.30,
-                  child: SizedBox(
-                    width: popupWidth * 0.40,
-                    height: popupHeight * 0.09,
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(40),
-                        onTap: isClaimingReward
-                            ? null
-                            : () {
-                                claimDailyReward(dialogContext);
-                              },
-                        child: const SizedBox.expand(),
-                      ),
-                    ),
+// Invisible claim button placed on top of the
+// claim button already included in the image.
+Positioned(
+  bottom: popupHeight * 0.04,
+  left: popupWidth * 0.30,
+  child: SizedBox(
+    width: popupWidth * 0.40,
+    height: popupHeight * 0.09,
+    child: Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(40),
+        onTap: isClaimingReward
+            ? null
+            : () {
+                claimDailyReward(dialogContext);
+              },
+        child: const SizedBox.expand(),
+      ),
+    ),
+  ),
+),
                   ),
                 ),
 
                 Positioned(
-                  top: popupHeight * 0.04,
-                  right: popupWidth * 0.08,
+                  top: popupHeight * 0.02,
+                  right: popupWidth * 0.06,
                   child: GestureDetector(
                     onTap: isClaimingReward
                         ? null

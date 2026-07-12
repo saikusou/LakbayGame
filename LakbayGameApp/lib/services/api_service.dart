@@ -48,17 +48,21 @@ class ApiService {
     }
   }
 
-  static Future<bool> hasClaimedToday(int userId) async {
+  static Future<Map<String, dynamic>> getDailyRewardStatus(int userId) async {
     final response = await http.get(
       Uri.parse('${ApiConfig.baseUrl}/points/daily-reward-status/$userId'),
     );
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return data['alreadyClaimed'] ?? false;
+      return jsonDecode(response.body) as Map<String, dynamic>;
     }
 
     throw Exception('Failed to check daily reward status');
+  }
+
+  static Future<bool> hasClaimedToday(int userId) async {
+    final status = await getDailyRewardStatus(userId);
+    return status['alreadyClaimed'] ?? false;
   }
 
   static Future<Map<String, dynamic>> claimDailyReward(int userId) async {
