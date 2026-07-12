@@ -24,15 +24,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool showMenu = false;
   bool rewardPopupShown = false;
 
-<<<<<<< Updated upstream
-  double clampDouble(double value, double minimum, double maximum) {
-    return value.clamp(minimum, maximum).toDouble();
-=======
   int claimedStreak = 1;
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
->>>>>>> Stashed changes
   }
 
   @override
@@ -68,33 +63,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> claimDailyReward() async {
-<<<<<<< Updated upstream
-    try {
-      await ApiService.claimDailyReward(widget.user.id!);
-
-      if (!mounted) return;
-
-=======
     final result = await ApiService.claimDailyReward(widget.user.id!);
 
     if (mounted) {
       setState(() {
         claimedStreak = result['streakDay'] ?? claimedStreak;
       });
->>>>>>> Stashed changes
       Navigator.pop(context);
-
       await context.read<PointsProvider>().loadPoints(widget.user.id!);
-    } catch (error) {
-      debugPrint('Error claiming daily reward: $error');
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Hindi nakuha ang daily reward. Subukan muli.'),
-        ),
-      );
     }
   }
 
@@ -117,13 +93,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final size = MediaQuery.of(dialogContext).size;
 
         final popupWidth = clampDouble(size.width * 0.92, 300, 470);
-<<<<<<< Updated upstream
-
-        final popupHeight = clampDouble(size.height * 0.86, 500, 760);
-
-=======
         final popupHeight = clampDouble(size.height * 0.86, 500, 780);
->>>>>>> Stashed changes
         final closeSize = clampDouble(size.width * 0.10, 36, 48);
 
         return Dialog(
@@ -136,37 +106,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               clipBehavior: Clip.none,
               alignment: Alignment.center,
               children: [
-<<<<<<< Updated upstream
-                Image.asset(
-                  'assets/active_star1.png',
-                  width: popupWidth,
-                  height: popupHeight,
-                  fit: BoxFit.contain,
-                ),
-
-                // Invisible claim button placed above the
-                // button already included in the image.
-                Positioned(
-                  bottom: popupHeight * 0.04,
-                  left: popupWidth * 0.30,
-                  child: SizedBox(
-                    width: popupWidth * 0.40,
-                    height: popupHeight * 0.09,
-                    child: ElevatedButton(
-                      onPressed: claimDailyReward,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Colors.transparent,
-                        foregroundColor: Colors.transparent,
-                        elevation: 0,
-                        padding: EdgeInsets.zero,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(40),
-                        ),
-                      ),
-                      child: const SizedBox.expand(),
-                    ),
-=======
                 // NEW: the 7-day reward card replaces the static image.
                 SingleChildScrollView(
                   physics: const NeverScrollableScrollPhysics(),
@@ -174,7 +113,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     claimedDays: claimedStreak,
                     totalDays: 7,
                     onClaim: claimDailyReward,
->>>>>>> Stashed changes
                   ),
                 ),
 
