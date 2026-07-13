@@ -662,7 +662,7 @@ class _LessonTwoDayOneActThreeState extends State<LessonTwoDayOneActThree> {
                   width: displayedImageWidth,
                   height: displayedImageHeight,
                   child: Image.asset(
-                    'assets/lesson-two-day1-act3m.png',
+                    'assets/lesson-two-day1-act3mining.png',
                     fit: BoxFit.fill,
                   ),
                 ),

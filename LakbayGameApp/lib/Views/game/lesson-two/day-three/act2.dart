@@ -37,7 +37,7 @@ class _LessonThreeDayThreeActTwoState extends State<LessonThreeDayThreeActTwo> {
     'Ang konsepto ng global citizenship ay nagpapakita ng ugnayan ng mga tao sa buong mundo',
   ];
 
-  final List<int> correctAnswers = [1, 1, 1, 0, 1, 1, 1, 1, 1, 1];
+  final List<int> correctAnswers = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1];
 
   Future<void> handleSavePoints({required int totalScore}) async {
     await ApiService.savePoints(

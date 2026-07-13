@@ -173,7 +173,7 @@ class _LessonTwoDayTwoActTwo4State extends State<LessonTwoDayTwoActTwo4> {
       countedPoints: totalScore,
       lesson: 'Lesson 2',
       day: 'Day 2',
-      act: 'Act 2c',
+      act: 'Act 2d',
     );
   }
 
