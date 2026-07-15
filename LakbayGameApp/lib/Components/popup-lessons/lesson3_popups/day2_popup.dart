@@ -29,7 +29,7 @@ class Day2Popup extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    if (title.contains('Katanungan')) {
+    if (title.contains('AKTIBIDAD')) {
       return _TamaOMaliPopup(user: user);
     }
 

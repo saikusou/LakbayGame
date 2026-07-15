@@ -14,64 +14,93 @@ class LessonThreeActFour extends StatefulWidget {
 }
 
 class _LessonThreeActFourState extends State<LessonThreeActFour> {
-  int currentScenario = 1;
+  final List<QuestionData> questions = const [
+    QuestionData(
+      imagePath: 'assets/lesson-three-act4-1.png',
+      correctAnswer: 'TAMA',
+    ),
+    QuestionData(
+      imagePath: 'assets/lesson-three-act4-2.png',
+      correctAnswer: 'MALI',
+    ),
+    QuestionData(
+      imagePath: 'assets/lesson-three-act4-3.png',
+      correctAnswer: 'TAMA',
+    ),
+    QuestionData(
+      imagePath: 'assets/lesson-three-act4-4.png',
+      correctAnswer: 'MALI',
+    ),
+  ];
 
-  String? answer1;
-  String? answer2;
+  late List<String?> selectedAnswers;
 
+  int currentQuestionIndex = 0;
   bool isSaving = false;
 
-  final String correctAnswer1 = 'TAMA';
-  final String correctAnswer2 = 'MALI';
+  @override
+  void initState() {
+    super.initState();
 
-  double clampDouble(double value, double min, double max) {
-    return value.clamp(min, max).toDouble();
+    selectedAnswers = List<String?>.filled(questions.length, null);
   }
 
-  String? get currentAnswer => currentScenario == 1 ? answer1 : answer2;
+  double clampDouble(double value, double minimum, double maximum) {
+    return value.clamp(minimum, maximum).toDouble();
+  }
+
+  QuestionData get currentQuestion {
+    return questions[currentQuestionIndex];
+  }
+
+  String? get currentAnswer {
+    return selectedAnswers[currentQuestionIndex];
+  }
+
+  bool get isLastQuestion {
+    return currentQuestionIndex == questions.length - 1;
+  }
 
   int getScore() {
     int score = 0;
 
-    if (answer1 == correctAnswer1) score += 5;
-    if (answer2 == correctAnswer2) score += 5;
+    for (int index = 0; index < questions.length; index++) {
+      if (selectedAnswers[index] == questions[index].correctAnswer) {
+        score += 5;
+      }
+    }
 
     return score;
   }
 
-  Future<void> handleSavePoints({required int totalScore}) async {
-    await ApiService.savePoints(
-      userId: widget.user.id,
-      countedPoints: totalScore,
-      lesson: 'Lesson 3',
-      day: 'Day 1',
-      act: 'Act 4',
-    );
+  void selectAnswer(String answer) {
+    if (isSaving) return;
+
+    setState(() {
+      selectedAnswers[currentQuestionIndex] = answer;
+    });
   }
 
   void showNoAnswerMessage() {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Pumili muna ng TAMA o MALI'),
+        content: Text(
+          'Pumili muna ng TAMA o MALI.',
+          textAlign: TextAlign.center,
+        ),
         duration: Duration(seconds: 1),
       ),
     );
   }
 
-  void selectAnswer(String answer) {
+  void goToPreviousQuestion() {
+    if (currentQuestionIndex <= 0 || isSaving) return;
+
     setState(() {
-      if (currentScenario == 1) {
-        answer1 = answer;
-      } else {
-        answer2 = answer;
-      }
+      currentQuestionIndex--;
     });
-
-    final String popupImage = currentScenario == 1
-        ? 'assets/tm.png'
-        : 'assets/ml.png';
-
-    showAnswerPopup(popupImage);
   }
 
   Future<void> handleNextOrSubmit() async {
@@ -80,13 +109,18 @@ class _LessonThreeActFourState extends State<LessonThreeActFour> {
       return;
     }
 
-    if (currentScenario == 1) {
+    if (!isLastQuestion) {
       setState(() {
-        currentScenario = 2;
+        currentQuestionIndex++;
       });
+
       return;
     }
 
+    await saveScoreAndFinish();
+  }
+
+  Future<void> saveScoreAndFinish() async {
     if (isSaving) return;
 
     setState(() {
@@ -96,19 +130,25 @@ class _LessonThreeActFourState extends State<LessonThreeActFour> {
     final int score = getScore();
 
     try {
-      await handleSavePoints(totalScore: score);
-
-      if (!mounted) return;
-      showResultPopup();
-    } catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Hindi na-save ang score. Subukan ulit.'),
-          duration: Duration(seconds: 2),
-        ),
+      await ApiService.savePoints(
+        userId: widget.user.id,
+        countedPoints: score,
+        lesson: 'Lesson 3',
+        day: 'Day 1',
+        act: 'Act 4',
       );
+
+      if (!mounted) return;
+
+      showResultPopup(score);
+    } catch (error) {
+      if (!mounted) return;
+
+      /*
+       * Continue even when the activity score
+       * was already saved previously.
+       */
+      showResultPopup(score);
     } finally {
       if (mounted) {
         setState(() {
@@ -118,109 +158,117 @@ class _LessonThreeActFourState extends State<LessonThreeActFour> {
     }
   }
 
-  void showAnswerPopup(String imagePath) {
-    final size = MediaQuery.of(context).size;
+  void showResultPopup(int score) {
+    final int maximumScore = questions.length * 5;
 
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (_) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.all(18),
-          child: Container(
-            width: clampDouble(size.width * 0.88, 280, 430),
-            height: clampDouble(size.height * 0.55, 300, 460),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(25),
-              image: DecorationImage(
-                image: AssetImage(imagePath),
-                fit: BoxFit.fill,
-              ),
-              border: Border.all(color: Colors.orange, width: 4),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black38,
-                  blurRadius: 12,
-                  offset: Offset(0, 6),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  void showResultPopup() {
-    final size = MediaQuery.of(context).size;
-    final int score = getScore();
-
-    showDialog(
+    showDialog<void>(
       context: context,
       barrierDismissible: false,
-      builder: (_) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.all(20),
-          child: Container(
-            width: clampDouble(size.width * 0.85, 280, 400),
-            padding: EdgeInsets.symmetric(
-              horizontal: clampDouble(size.width * 0.06, 18, 28),
-              vertical: clampDouble(size.height * 0.04, 24, 35),
+      builder: (dialogContext) {
+        return PopScope(
+          canPop: false,
+          child: Dialog(
+            backgroundColor: Colors.transparent,
+            insetPadding: const EdgeInsets.symmetric(
+              horizontal: 18,
+              vertical: 24,
             ),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFF3C4),
-              borderRadius: BorderRadius.circular(25),
-              border: Border.all(color: Colors.orange, width: 4),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black38,
-                  blurRadius: 12,
-                  offset: Offset(0, 6),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'CONGRATULATIONS!',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: clampDouble(size.width * 0.07, 24, 34),
-                    fontWeight: FontWeight.bold,
-                    color: Colors.orange,
-                  ),
-                ),
-                SizedBox(height: clampDouble(size.height * 0.025, 14, 24)),
-                Text(
-                  '$score / 10 POINTS',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: clampDouble(size.width * 0.08, 28, 42),
-                    fontWeight: FontWeight.bold,
-                    color: Colors.green,
-                  ),
-                ),
-                SizedBox(height: clampDouble(size.height * 0.035, 20, 30)),
-                SizedBox(
-                  width: clampDouble(size.width * 0.42, 130, 180),
-                  height: clampDouble(size.height * 0.06, 42, 55),
-                  child: Button(
-                    label: 'OK',
-                    press: () {
-                      Navigator.pop(context);
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => Lesson3Screen(user: widget.user),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final double dialogWidth = clampDouble(
+                  constraints.maxWidth,
+                  270,
+                  420,
+                );
+
+                final double titleSize = clampDouble(
+                  dialogWidth * 0.075,
+                  22,
+                  32,
+                );
+
+                final double scoreSize = clampDouble(
+                  dialogWidth * 0.095,
+                  28,
+                  40,
+                );
+
+                final double buttonWidth = clampDouble(
+                  dialogWidth * 0.48,
+                  130,
+                  190,
+                );
+
+                return SingleChildScrollView(
+                  child: Container(
+                    width: dialogWidth,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: clampDouble(dialogWidth * 0.07, 18, 30),
+                      vertical: clampDouble(dialogWidth * 0.09, 24, 36),
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF3C4),
+                      borderRadius: BorderRadius.circular(25),
+                      border: Border.all(color: Colors.orange, width: 4),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black38,
+                          blurRadius: 12,
+                          offset: Offset(0, 6),
                         ),
-                      );
-                    },
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'CONGRATULATIONS!',
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          style: TextStyle(
+                            fontSize: titleSize,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange,
+                          ),
+                        ),
+                        SizedBox(
+                          height: clampDouble(dialogWidth * 0.06, 14, 24),
+                        ),
+                        Text(
+                          '$score / $maximumScore POINTS',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: scoreSize,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green,
+                          ),
+                        ),
+                        SizedBox(
+                          height: clampDouble(dialogWidth * 0.08, 20, 30),
+                        ),
+                        SizedBox(
+                          width: buttonWidth,
+                          height: clampDouble(dialogWidth * 0.14, 44, 56),
+                          child: Button(
+                            label: 'OK',
+                            press: () {
+                              Navigator.of(dialogContext).pop();
+
+                              Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                  builder: (_) {
+                                    return Lesson3Screen(user: widget.user);
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                );
+              },
             ),
           ),
         );
@@ -228,7 +276,7 @@ class _LessonThreeActFourState extends State<LessonThreeActFour> {
     );
   }
 
-  Widget circleButton({
+  Widget buildCircleButton({
     required IconData icon,
     required Color color,
     required double size,
@@ -236,197 +284,361 @@ class _LessonThreeActFourState extends State<LessonThreeActFour> {
   }) {
     return GestureDetector(
       onTap: isSaving ? null : onTap,
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          color: color,
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.white, width: 3),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black26,
-              blurRadius: 8,
-              offset: Offset(0, 4),
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 150),
+        opacity: isSaving ? 0.55 : 1,
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: Colors.white,
+              width: clampDouble(size * 0.06, 2, 4),
             ),
-          ],
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 8,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Icon(icon, color: Colors.white, size: size * 0.52),
         ),
-        child: Icon(icon, color: Colors.white, size: size * 0.55),
       ),
     );
   }
 
-  Widget choiceButton({
+  Widget buildChoiceButton({
     required String label,
     required IconData icon,
     required Color color,
     required bool selected,
     required VoidCallback onTap,
+    required double availableWidth,
+    required double screenHeight,
   }) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = constraints.maxWidth;
+    final bool smallScreen = availableWidth < 340 || screenHeight < 650;
 
-        final buttonWidth = clampDouble(width * 0.42, 105, 145);
-        final buttonHeight = clampDouble(width * 0.24, 58, 80);
-        final iconSize = clampDouble(width * 0.10, 24, 35);
-        final fontSize = clampDouble(width * 0.055, 15, 20);
+    final double buttonHeight = smallScreen
+        ? clampDouble(screenHeight * 0.085, 54, 66)
+        : clampDouble(screenHeight * 0.10, 64, 82);
 
-        return GestureDetector(
-          onTap: isSaving ? null : onTap,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
-            width: buttonWidth,
-            height: buttonHeight,
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(15),
-              border: Border.all(
-                color: selected ? Colors.yellow : Colors.white,
-                width: selected ? 5 : 3,
-              ),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black26,
-                  blurRadius: 8,
-                  offset: Offset(0, 4),
-                ),
-              ],
+    final double iconSize = smallScreen
+        ? clampDouble(availableWidth * 0.075, 23, 29)
+        : clampDouble(availableWidth * 0.085, 26, 34);
+
+    final double fontSize = smallScreen
+        ? clampDouble(availableWidth * 0.045, 14, 17)
+        : clampDouble(availableWidth * 0.05, 16, 20);
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: isSaving ? null : onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          height: buttonHeight,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(
+              clampDouble(availableWidth * 0.04, 12, 18),
             ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon, color: Colors.white, size: iconSize),
-                SizedBox(height: clampDouble(width * 0.015, 2, 5)),
-                Text(
+            border: Border.all(
+              color: selected ? Colors.yellow : Colors.white,
+              width: selected ? 5 : 3,
+            ),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 8,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: Colors.white, size: iconSize),
+              SizedBox(width: clampDouble(availableWidth * 0.018, 5, 10)),
+              Flexible(
+                child: Text(
                   label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                     fontSize: fontSize,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+  Widget buildQuestionCounter({
+    required double availableWidth,
+    required double screenHeight,
+  }) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: clampDouble(availableWidth * 0.045, 14, 24),
+        vertical: clampDouble(screenHeight * 0.009, 6, 10),
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.92),
+        borderRadius: BorderRadius.circular(30),
+        border: Border.all(color: Colors.orange, width: 3),
+        boxShadow: const [
+          BoxShadow(color: Colors.black26, blurRadius: 6, offset: Offset(0, 3)),
+        ],
+      ),
+      child: Text(
+        '${currentQuestionIndex + 1} / ${questions.length}',
+        style: TextStyle(
+          color: Colors.orange,
+          fontWeight: FontWeight.bold,
+          fontSize: clampDouble(availableWidth * 0.045, 15, 22),
+        ),
+      ),
+    );
+  }
 
-    final bool isSmallHeight = size.height < 650;
+  Widget buildBottomControls({
+    required double availableWidth,
+    required double screenHeight,
+  }) {
+    final bool smallHeight = screenHeight < 650;
 
-    final String backgroundImage = currentScenario == 1
-        ? 'assets/lesson-three-act4-one.png'
-        : 'assets/lesson-three-act4-two.png';
+    final double horizontalGap = clampDouble(availableWidth * 0.04, 10, 20);
 
-    final double topPadding = MediaQuery.of(context).padding.top;
-    final double sidePadding = clampDouble(size.width * 0.04, 12, 22);
-    final double topButtonSize = clampDouble(size.width * 0.13, 45, 65);
+    final double verticalGap = smallHeight
+        ? clampDouble(screenHeight * 0.012, 7, 10)
+        : clampDouble(screenHeight * 0.018, 10, 18);
 
-    final double bottomPosition = isSmallHeight
-        ? clampDouble(size.height * 0.03, 16, 28)
-        : clampDouble(size.height * 0.05, 28, 50);
+    final double mainButtonWidth = clampDouble(availableWidth * 0.48, 135, 200);
 
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: Stack(
+    final double mainButtonHeight = smallHeight
+        ? clampDouble(screenHeight * 0.06, 42, 48)
+        : clampDouble(screenHeight * 0.065, 45, 56);
+
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+        clampDouble(availableWidth * 0.025, 8, 14),
+        clampDouble(screenHeight * 0.012, 8, 14),
+        clampDouble(availableWidth * 0.025, 8, 14),
+        clampDouble(screenHeight * 0.012, 8, 14),
+      ),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(22),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Positioned.fill(
-            child: Image.asset(backgroundImage, fit: BoxFit.fill),
-          ),
-
-          if (currentScenario == 2)
-            Positioned(
-              top: topPadding + 8,
-              left: sidePadding,
-              child: circleButton(
-                icon: Icons.arrow_back,
-                color: Colors.blue,
-                size: topButtonSize,
+          Row(
+            children: [
+              buildChoiceButton(
+                label: 'TAMA',
+                icon: Icons.check,
+                color: Colors.green,
+                selected: currentAnswer == 'TAMA',
+                availableWidth: availableWidth,
+                screenHeight: screenHeight,
                 onTap: () {
-                  setState(() {
-                    currentScenario = 1;
-                  });
+                  selectAnswer('TAMA');
                 },
               ),
-            ),
-
-          Positioned(
-            top: topPadding + 8,
-            right: sidePadding,
-            child: circleButton(
-              icon: Icons.home,
-              color: Colors.orange,
-              size: topButtonSize,
-              onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => Lesson3Screen(user: widget.user),
-                  ),
-                );
-              },
-            ),
-          ),
-
-          Positioned(
-            left: sidePadding,
-            right: sidePadding,
-            bottom: bottomPosition,
-            child: SafeArea(
-              top: false,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      choiceButton(
-                        label: 'TAMA',
-                        icon: Icons.check,
-                        color: Colors.green,
-                        selected: currentAnswer == 'TAMA',
-                        onTap: () {
-                          selectAnswer('TAMA');
-                        },
-                      ),
-                      choiceButton(
-                        label: 'MALI',
-                        icon: Icons.close,
-                        color: Colors.red,
-                        selected: currentAnswer == 'MALI',
-                        onTap: () {
-                          selectAnswer('MALI');
-                        },
-                      ),
-                    ],
-                  ),
-
-                  SizedBox(height: clampDouble(size.height * 0.018, 8, 18)),
-
-                  SizedBox(
-                    width: clampDouble(size.width * 0.45, 130, 190),
-                    height: clampDouble(size.height * 0.06, 42, 55),
-                    child: Button(
-                      label: isSaving
-                          ? 'SAVING...'
-                          : currentScenario == 1
-                          ? 'NEXT'
-                          : 'SUBMIT',
-                      press: isSaving ? () {} : handleNextOrSubmit,
-                    ),
-                  ),
-                ],
+              SizedBox(width: horizontalGap),
+              buildChoiceButton(
+                label: 'MALI',
+                icon: Icons.close,
+                color: Colors.red,
+                selected: currentAnswer == 'MALI',
+                availableWidth: availableWidth,
+                screenHeight: screenHeight,
+                onTap: () {
+                  selectAnswer('MALI');
+                },
               ),
+            ],
+          ),
+          SizedBox(height: verticalGap),
+          SizedBox(
+            width: mainButtonWidth,
+            height: mainButtonHeight,
+            child: Button(
+              label: isSaving
+                  ? 'SAVING...'
+                  : isLastQuestion
+                  ? 'SUBMIT'
+                  : 'NEXT',
+              press: isSaving ? () {} : handleNextOrSubmit,
             ),
           ),
         ],
       ),
     );
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final Size screenSize = MediaQuery.sizeOf(context);
+          final EdgeInsets safePadding = MediaQuery.paddingOf(context);
+
+          final double availableWidth = constraints.maxWidth;
+          final double availableHeight = constraints.maxHeight;
+
+          final bool isTablet = availableWidth >= 600;
+          final bool isLandscape = availableWidth > availableHeight;
+
+          final double contentMaxWidth = isTablet
+              ? clampDouble(availableWidth * 0.75, 500, 700)
+              : availableWidth;
+
+          final double sidePadding = clampDouble(
+            availableWidth * 0.04,
+            12,
+            isTablet ? 32 : 22,
+          );
+
+          final double topButtonSize = clampDouble(
+            availableWidth * 0.13,
+            44,
+            isTablet ? 70 : 62,
+          );
+
+          final double topPosition = safePadding.top + 8;
+
+          final double bottomSpacing = clampDouble(
+            availableHeight * 0.025,
+            10,
+            30,
+          );
+
+          return Stack(
+            children: [
+              Positioned.fill(
+                child: Image.asset(
+                  currentQuestion.imagePath,
+                  fit: isLandscape ? BoxFit.cover : BoxFit.fill,
+                  alignment: Alignment.center,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: const Color(0xFFFFF3C4),
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.all(20),
+                      child: Text(
+                        'Image not found:\n${currentQuestion.imagePath}',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                          fontSize: clampDouble(availableWidth * 0.045, 16, 22),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+              if (currentQuestionIndex > 0)
+                Positioned(
+                  top: topPosition,
+                  left: sidePadding,
+                  child: buildCircleButton(
+                    icon: Icons.arrow_back,
+                    color: Colors.blue,
+                    size: topButtonSize,
+                    onTap: goToPreviousQuestion,
+                  ),
+                ),
+
+              Positioned(
+                top: topPosition,
+                right: sidePadding,
+                child: buildCircleButton(
+                  icon: Icons.home,
+                  color: Colors.orange,
+                  size: topButtonSize,
+                  onTap: () {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (_) {
+                          return Lesson3Screen(user: widget.user);
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+              Positioned(
+                top: topPosition + clampDouble(topButtonSize * 0.12, 4, 8),
+                left: topButtonSize + sidePadding + 8,
+                right: topButtonSize + sidePadding + 8,
+                child: Center(
+                  child: buildQuestionCounter(
+                    availableWidth: availableWidth,
+                    screenHeight: availableHeight,
+                  ),
+                ),
+              ),
+
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: bottomSpacing,
+                child: SafeArea(
+                  top: false,
+                  minimum: EdgeInsets.symmetric(horizontal: sidePadding),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: contentMaxWidth),
+                      child: buildBottomControls(
+                        availableWidth: contentMaxWidth,
+                        screenHeight: screenSize.height,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              if (isSaving)
+                Positioned.fill(
+                  child: Container(
+                    color: Colors.black.withValues(alpha: 0.18),
+                    alignment: Alignment.center,
+                    child: Container(
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: const CircularProgressIndicator(),
+                    ),
+                  ),
+                ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class QuestionData {
+  final String imagePath;
+  final String correctAnswer;
+
+  const QuestionData({required this.imagePath, required this.correctAnswer});
 }

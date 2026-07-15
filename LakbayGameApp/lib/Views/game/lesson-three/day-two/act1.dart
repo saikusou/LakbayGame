@@ -22,7 +22,7 @@ class _LessonThreeDayTwoActThreeState extends State<LessonThreeDayTwoActThree> {
   final double listMarginTop = 20;
 
   /// 0 = Ilaya, 1 = Ilawud
-  final List<int> correctAnswers = [0, 0, 0, 1, 1];
+  final List<int> correctAnswers = [0, 1, 0, 1, 1];
 
   final List<String> questions = [
     'Isa itong pamayanan\nna nasa looban o bundok.',
