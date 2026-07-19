@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Components/leaderboard_screen.dart';
-import 'package:lakbay_game/Views/login.dart';
+import 'package:lakbay_game/Views/auths/login.dart';
 import 'package:lakbay_game/User/models/user_model.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';

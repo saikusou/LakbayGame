@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Components/button.dart';
-import 'package:lakbay_game/Views/login.dart';
-import 'package:lakbay_game/Views/signup.dart';
+import 'package:lakbay_game/Views/auths/login.dart';
+import 'package:lakbay_game/Views/auths/signup.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});

@@ -96,4 +96,21 @@ class ApiService {
       throw Exception('Failed to fetch leaderboard data');
     }
   }
+
+  static Future<Map<String, dynamic>> getLessonProgress(
+    int userId,
+    String lesson,
+  ) async {
+    final response = await http.get(
+      Uri.parse(
+        '${ApiConfig.baseUrl}/api/progress/getProgress/$userId/$lesson',
+      ),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    }
+
+    throw Exception("Failed to load progress");
+  }
 }

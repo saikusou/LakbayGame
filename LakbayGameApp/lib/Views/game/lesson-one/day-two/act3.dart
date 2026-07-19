@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lakbay_game/Views/game/lesson-one/day-two/act3a.dart';
-import 'package:lakbay_game/Views/lesson1.dart';
+import 'package:lakbay_game/Views/main_screen/lessons/lesson1.dart';
 import 'package:lakbay_game/User/models/user_model.dart';
 
 class LessonOneDayTwoActThree extends StatefulWidget {
