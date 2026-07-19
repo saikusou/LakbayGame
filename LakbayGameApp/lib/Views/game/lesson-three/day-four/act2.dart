@@ -18,6 +18,7 @@ class _LessonThreeDayFourActTwoState extends State<LessonThreeDayFourActTwo> {
   final List<String> images = [
     'assets/lesson-three-day4-act2-p1.png',
     'assets/lesson-three-day4-act2-p2.png',
+    'assets/lesson-three-day4-act3.png',
   ];
 
   double clampDouble(double value, double min, double max) {

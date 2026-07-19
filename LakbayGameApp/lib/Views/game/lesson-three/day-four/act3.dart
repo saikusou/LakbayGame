@@ -57,7 +57,7 @@ class _LessonThreeDayFourActThreeState
               width: size.width,
               height: size.height,
               child: Image.asset(
-                'assets/lesson-three-day4-act3.png',
+                'assets/lesson-three-day3-act3act.png',
                 // BoxFit.fill forces the template to match the target device screen dimensions precisely.
                 // Alternatively, use BoxFit.fitWidth if you want to retain exact original asset ratios.
                 fit: BoxFit.fill,

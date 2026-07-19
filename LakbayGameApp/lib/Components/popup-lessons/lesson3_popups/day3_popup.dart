@@ -19,10 +19,11 @@ class Day3Popup extends StatelessWidget {
 
     /// 3. KONSEPTO
     if (title.contains('Kilalanin Mo Ako!')) {
-      Future.microtask(() {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) return;
+
+        Navigator.of(context, rootNavigator: true).pushReplacement<void, void>(
+          MaterialPageRoute<void>(
             builder: (_) => LessonThreeDayOneActTwo(user: user),
           ),
         );

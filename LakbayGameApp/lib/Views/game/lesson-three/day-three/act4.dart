@@ -2,72 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/lesson3.dart';
 import 'package:lakbay_game/User/models/user_model.dart';
 
-class LessonThreeDayOneActFour extends StatefulWidget {
+class LessonThreeDayOneActFour extends StatelessWidget {
   final UserModel user;
 
   const LessonThreeDayOneActFour({super.key, required this.user});
-
-  @override
-  State<LessonThreeDayOneActFour> createState() =>
-      _LessonThreeDayOneActFourState();
-}
-
-class _LessonThreeDayOneActFourState extends State<LessonThreeDayOneActFour> {
-  final TextEditingController answer1 = TextEditingController();
-  final TextEditingController answer2 = TextEditingController();
-
-  @override
-  void dispose() {
-    answer1.dispose();
-    answer2.dispose();
-    super.dispose();
-  }
 
   double clampDouble(double value, double min, double max) {
     return value.clamp(min, max).toDouble();
   }
 
-  Widget answerBox({
-    required TextEditingController controller,
-    required double width,
-    required double height,
-  }) {
-    return Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: TextField(
-        controller: controller,
-        maxLines: null,
-        expands: true,
-        textAlignVertical: TextAlignVertical.top,
-        style: const TextStyle(
-          fontSize: 18,
-          color: Colors.black,
-          fontWeight: FontWeight.w500,
-        ),
-        decoration: const InputDecoration(
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.all(14),
-          hintText: 'Ilagay ang sagot dito...',
-          hintStyle: TextStyle(color: Colors.black45, fontSize: 15),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
-    final inputWidth = clampDouble(size.width * 0.78, 250, 650);
-    final inputHeight = clampDouble(size.height * 0.14, 90, 150);
+    final size = MediaQuery.sizeOf(context);
 
     return Scaffold(
-      resizeToAvoidBottomInset: true,
       body: SizedBox.expand(
         child: Stack(
           children: [
@@ -78,28 +26,7 @@ class _LessonThreeDayOneActFourState extends State<LessonThreeDayOneActFour> {
               ),
             ),
 
-            Positioned(
-              top: size.height * 0.31,
-              left: size.width * 0.12,
-              right: size.width * 0.09,
-              child: answerBox(
-                controller: answer1,
-                width: inputWidth,
-                height: inputHeight,
-              ),
-            ),
-
-            Positioned(
-              top: size.height * 0.61,
-              left: size.width * 0.12,
-              right: size.width * 0.09,
-              child: answerBox(
-                controller: answer2,
-                width: inputWidth,
-                height: inputHeight,
-              ),
-            ),
-
+            // Home button
             Positioned(
               top: clampDouble(size.height * 0.025, 14, 22),
               right: clampDouble(size.width * 0.04, 12, 20),
@@ -107,8 +34,8 @@ class _LessonThreeDayOneActFourState extends State<LessonThreeDayOneActFour> {
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(
-                      builder: (_) => Lesson3Screen(user: widget.user),
+                    MaterialPageRoute<void>(
+                      builder: (_) => Lesson3Screen(user: user),
                     ),
                   );
                 },
