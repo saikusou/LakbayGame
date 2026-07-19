@@ -44,6 +44,144 @@ namespace LakbayGameApi.Migrations
                     b.ToTable("DailyRewards");
                 });
 
+            modelBuilder.Entity("LakbayGameApi.Models.LessonActivity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Day")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Lesson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TotalActivities")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LessonActivities");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Day = "Day 1",
+                            Lesson = "Lesson 1",
+                            TotalActivities = 3
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Day = "Day 2",
+                            Lesson = "Lesson 1",
+                            TotalActivities = 3
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Day = "Day 3",
+                            Lesson = "Lesson 1",
+                            TotalActivities = 3
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Day = "Day 4",
+                            Lesson = "Lesson 1",
+                            TotalActivities = 1
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Day = "Day 1",
+                            Lesson = "Lesson 2",
+                            TotalActivities = 3
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Day = "Day 2",
+                            Lesson = "Lesson 2",
+                            TotalActivities = 3
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Day = "Day 3",
+                            Lesson = "Lesson 2",
+                            TotalActivities = 2
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Day = "Day 4",
+                            Lesson = "Lesson 2",
+                            TotalActivities = 1
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Day = "Day 1",
+                            Lesson = "Lesson 3",
+                            TotalActivities = 3
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Day = "Day 2",
+                            Lesson = "Lesson 3",
+                            TotalActivities = 2
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Day = "Day 3",
+                            Lesson = "Lesson 3",
+                            TotalActivities = 3
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Day = "Day 4",
+                            Lesson = "Lesson 3",
+                            TotalActivities = 2
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Day = "Day 1",
+                            Lesson = "Lesson 4",
+                            TotalActivities = 3
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Day = "Day 2",
+                            Lesson = "Lesson 4",
+                            TotalActivities = 3
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Day = "Day 3",
+                            Lesson = "Lesson 4",
+                            TotalActivities = 3
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Day = "Day 4",
+                            Lesson = "Lesson 4",
+                            TotalActivities = 1
+                        });
+                });
+
             modelBuilder.Entity("LakbayGameApi.Models.Points", b =>
                 {
                     b.Property<int>("Id")

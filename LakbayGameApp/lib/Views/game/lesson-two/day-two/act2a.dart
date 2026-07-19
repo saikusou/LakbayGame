@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Views/game/lesson-two/day-two/act21.dart';
-import 'package:lakbay_game/Views/lesson2.dart';
+import 'package:lakbay_game/Views/main_screen/lessons/lesson2.dart';
 import 'package:lakbay_game/User/models/user_model.dart';
 
 void main() {
