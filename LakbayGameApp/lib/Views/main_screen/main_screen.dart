@@ -353,10 +353,10 @@ class _MainScreenState extends State<MainScreen> {
     final Size size = MediaQuery.of(context).size;
 
     final int totalPoints = context.watch<PointsProvider>().totalPoints;
-
-    final bool lessonTwoUnlocked = lesson1Progress >= 100;
-    final bool lessonThreeUnlocked = lesson2Progress >= 100;
-    final bool lessonFourUnlocked = lesson3Progress >= 100;
+    // unlock island if ma 1 star
+    final bool lessonTwoUnlocked = lesson1Progress >= 34;
+    final bool lessonThreeUnlocked = lesson2Progress >= 34;
+    final bool lessonFourUnlocked = lesson3Progress >= 34;
 
     final double levelWidth = clampDouble(size.width * 0.50, 190, 320);
 
