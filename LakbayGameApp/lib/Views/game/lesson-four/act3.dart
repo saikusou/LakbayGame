@@ -1,6 +1,6 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:lakbay_game/Views/game/lesson-four/act3a.dart';
 import 'package:lakbay_game/User/models/user_model.dart';
 import 'package:lakbay_game/services/api_service.dart';
 
@@ -15,27 +15,91 @@ class LessonFourDayOneActThree extends StatefulWidget {
 }
 
 class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
-  final List<String> pieces = [
-    'assets/l3-d1-1.png',
-    'assets/l3-d1-2.png',
-    'assets/l3-d1-3.png',
-    'assets/l3-d1-4.png',
+  static const int pointsPerPuzzle = 20;
+  static const int totalPuzzleCount = 5;
+  static const int maximumScore =
+      pointsPerPuzzle * totalPuzzleCount; // 100 points
+
+  /*
+   * Each puzzle needs:
+   * 1. Four separate puzzle-piece images
+   * 2. One complete/correct image
+   *
+   * Change these asset paths to match your actual filenames.
+   */
+  final List<PuzzleData> puzzles = const [
+    PuzzleData(
+      pieces: [
+        'assets/l3-d1-1.png',
+        'assets/l3-d1-2.png',
+        'assets/l3-d1-3.png',
+        'assets/l3-d1-4.png',
+      ],
+      correctImage: 'assets/l3-d1-complete-1.png',
+    ),
+    PuzzleData(
+      pieces: [
+        'assets/l3-d1-5.png',
+        'assets/l3-d1-6.png',
+        'assets/l3-d1-7.png',
+        'assets/l3-d1-8.png',
+      ],
+      correctImage: 'assets/l3-d1-complete-2.png',
+    ),
+    PuzzleData(
+      pieces: [
+        'assets/l3-d1-9.png',
+        'assets/l3-d1-10.png',
+        'assets/l3-d1-11.png',
+        'assets/l3-d1-12.png',
+      ],
+      correctImage: 'assets/l3-d1-complete-3.png',
+    ),
+    PuzzleData(
+      pieces: [
+        'assets/l3-d1-13.png',
+        'assets/l3-d1-14.png',
+        'assets/l3-d1-15.png',
+        'assets/l3-d1-16.png',
+      ],
+      correctImage: 'assets/l3-d1-complete-4.png',
+    ),
+    PuzzleData(
+      pieces: [
+        'assets/l3-d1-17.png',
+        'assets/l3-d1-18.png',
+        'assets/l3-d1-19.png',
+        'assets/l3-d1-20.png',
+      ],
+      correctImage: 'assets/l3-d1-complete-5.png',
+    ),
   ];
 
-  final List<int?> placed = List.filled(4, null);
-
-  static const int totalPoints = 20;
+  final List<int?> placedPieces = List<int?>.filled(4, null);
 
   Timer? _timer;
+
+  int currentPuzzleIndex = 0;
   int elapsedSeconds = 0;
-  bool timerStopped = false;
+  int completedPuzzleCount = 0;
+
+  bool puzzleSolved = false;
   bool popupShown = false;
-  bool alreadySaved = false;
+  bool isSaving = false;
+  bool scoreSaved = false;
+
+  PuzzleData get currentPuzzle => puzzles[currentPuzzleIndex];
+
+  int get currentPuzzleNumber => currentPuzzleIndex + 1;
+
+  int get currentScore => completedPuzzleCount * pointsPerPuzzle;
+
+  bool get isLastPuzzle => currentPuzzleIndex == puzzles.length - 1;
 
   @override
   void initState() {
     super.initState();
-    startTimer();
+    _startTimer();
   }
 
   @override
@@ -44,34 +108,15 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
     super.dispose();
   }
 
-  double clampDouble(double value, double min, double max) {
-    return value.clamp(min, max).toDouble();
+  double clampDouble(double value, double minimum, double maximum) {
+    return value.clamp(minimum, maximum).toDouble();
   }
 
-  Future<void> handleSavePoints({required int totalScore}) async {
-    if (alreadySaved) return;
-
-    alreadySaved = true;
-
-    try {
-      await ApiService.savePoints(
-        userId: widget.user.id,
-        countedPoints: totalScore,
-        lesson: 'Lesson 4',
-        day: 'Day 1',
-        act: 'Act 3',
-      );
-    } catch (e) {
-      alreadySaved = false;
-      debugPrint('Save points error: $e');
-    }
-  }
-
-  void startTimer() {
+  void _startTimer() {
     _timer?.cancel();
 
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (!mounted || timerStopped) return;
+      if (!mounted || puzzleSolved) return;
 
       setState(() {
         elapsedSeconds++;
@@ -79,94 +124,144 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
     });
   }
 
-  void resetPuzzle() {
-    setState(() {
-      for (int i = 0; i < placed.length; i++) {
-        placed[i] = null;
-      }
-
-      elapsedSeconds = 0;
-      timerStopped = false;
-      popupShown = false;
-      alreadySaved = false;
-    });
-
-    startTimer();
-  }
-
-  bool get isCompleted {
-    for (int i = 0; i < placed.length; i++) {
-      if (placed[i] != i) return false;
-    }
-    return true;
-  }
-
   String get formattedTime {
-    final minutes = elapsedSeconds ~/ 60;
-    final seconds = elapsedSeconds % 60;
+    final int minutes = elapsedSeconds ~/ 60;
+    final int seconds = elapsedSeconds % 60;
+
     return '$minutes:${seconds.toString().padLeft(2, '0')}';
   }
 
-  Future<void> completePuzzle() async {
-    if (popupShown) return;
+  bool get puzzleIsCorrect {
+    for (int position = 0; position < placedPieces.length; position++) {
+      if (placedPieces[position] != position) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  Future<void> _placePiece({
+    required int position,
+    required int pieceIndex,
+  }) async {
+    if (puzzleSolved) return;
+
+    // Do not replace a position that already contains a piece.
+    if (placedPieces[position] != null) return;
+
+    // Only accept the piece in its correct position.
+    if (pieceIndex != position) {
+      _showWrongPositionMessage();
+      return;
+    }
 
     setState(() {
-      timerStopped = true;
-      popupShown = true;
+      placedPieces[position] = pieceIndex;
     });
 
-    await handleSavePoints(totalScore: totalPoints);
+    if (puzzleIsCorrect) {
+      await _completeCurrentPuzzle();
+    }
+  }
+
+  void _showWrongPositionMessage() {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(
+          duration: Duration(milliseconds: 900),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.red,
+          content: Text(
+            'Hindi ito ang tamang puwesto. Subukan muli!',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontWeight: FontWeight.w800, color: Colors.white),
+          ),
+        ),
+      );
+  }
+
+  Future<void> _completeCurrentPuzzle() async {
+    if (puzzleSolved || popupShown) return;
+
+    setState(() {
+      puzzleSolved = true;
+      popupShown = true;
+      completedPuzzleCount++;
+    });
+
+    _timer?.cancel();
+
+    // Save all 100 points after completing puzzle 5.
+    if (isLastPuzzle) {
+      await _saveFinalScore();
+    }
 
     if (!mounted) return;
 
-    Future.delayed(const Duration(milliseconds: 250), () {
-      if (mounted) {
-        showCongratulationsPopup();
-      }
+    await _showCorrectPicturePopup();
+  }
+
+  Future<void> _saveFinalScore() async {
+    if (isSaving || scoreSaved) return;
+
+    setState(() {
+      isSaving = true;
     });
+
+    try {
+      await ApiService.savePoints(
+        userId: widget.user.id,
+        countedPoints: maximumScore,
+        lesson: 'Lesson 4',
+        day: 'Day 1',
+        act: 'Act 3',
+      );
+
+      scoreSaved = true;
+    } catch (error) {
+      /*
+       * This allows the student to continue when the score was
+       * previously saved and the API returns a duplicate error.
+       */
+      debugPrint('Save points response: $error');
+    } finally {
+      if (mounted) {
+        setState(() {
+          isSaving = false;
+        });
+      }
+    }
   }
 
-  void playAgain() {
-    Navigator.pop(context);
-    resetPuzzle();
-  }
+  Future<void> _showCorrectPicturePopup() async {
+    final bool finalPuzzle = isLastPuzzle;
 
-  void goToAnswerPage() {
-    Navigator.pop(context);
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => LessonFourDayOneActThreeA(user: widget.user),
-      ),
-    );
-  }
-
-  void showCongratulationsPopup() {
-    showDialog(
+    await showDialog<void>(
       context: context,
       barrierDismissible: false,
-      builder: (context) {
-        final size = MediaQuery.of(context).size;
-        final width = size.width;
-
-        final popupWidth = clampDouble(width * 0.88, 285, 420);
-        final iconSize = clampDouble(width * 0.16, 50, 70);
+      builder: (dialogContext) {
+        final Size size = MediaQuery.of(dialogContext).size;
+        final double width = size.width;
 
         return Dialog(
           backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.symmetric(horizontal: 16),
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 20,
+          ),
           child: Container(
-            width: popupWidth,
-            padding: EdgeInsets.all(clampDouble(width * 0.045, 14, 22)),
+            width: clampDouble(width * 0.90, 290, 430),
+            padding: EdgeInsets.all(clampDouble(width * 0.045, 14, 20)),
             decoration: BoxDecoration(
               color: const Color(0xFFFFFCF3),
-              borderRadius: BorderRadius.circular(28),
+              borderRadius: BorderRadius.circular(26),
               border: Border.all(color: const Color(0xFF126FC0), width: 5),
               boxShadow: const [
                 BoxShadow(
                   color: Colors.black38,
-                  blurRadius: 8,
+                  blurRadius: 10,
                   offset: Offset(0, 5),
                 ),
               ],
@@ -175,47 +270,68 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.emoji_events,
-                    size: iconSize,
-                    color: const Color(0xFFFFC928),
-                  ),
-                  const SizedBox(height: 8),
+                  const Icon(Icons.check_circle, size: 58, color: Colors.green),
+                  const SizedBox(height: 6),
                   Text(
-                    'Congratulations!',
+                    finalPuzzle ? 'Congratulations!' : 'Tamang Larawan!',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: clampDouble(width * 0.07, 22, 28),
+                      fontSize: clampDouble(width * 0.065, 22, 28),
                       fontWeight: FontWeight.w900,
                       color: const Color(0xFF126FC0),
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   Text(
-                    'Nabuo mo ang puzzle!',
+                    finalPuzzle
+                        ? 'Natapos mo ang lahat ng limang puzzle!'
+                        : 'Nabuo mo ang Puzzle $currentPuzzleNumber.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: clampDouble(width * 0.043, 14, 18),
+                      fontSize: clampDouble(width * 0.039, 14, 17),
                       fontWeight: FontWeight.w800,
                       color: const Color(0xFF123B63),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+
+                  // Correct/complete picture
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(14),
+                    child: Container(
+                      width: double.infinity,
+                      constraints: const BoxConstraints(maxHeight: 230),
+                      color: Colors.white,
+                      child: Image.asset(
+                        currentPuzzle.correctImage,
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, __, ___) {
+                          // Use the completed puzzle board as fallback
+                          // when the complete-image asset is unavailable.
+                          return AspectRatio(
+                            aspectRatio: 3.5,
+                            child: _buildCompletedImage(),
+                          );
+                        },
+                      ),
                     ),
                   ),
                   const SizedBox(height: 14),
                   Row(
                     children: [
                       Expanded(
-                        child: resultBox(
-                          title: 'TIME',
-                          value: formattedTime,
-                          color: Colors.red,
+                        child: _resultBox(
+                          title: 'PUZZLE',
+                          value: '$completedPuzzleCount/5',
+                          color: Colors.orange,
                           width: width,
                         ),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
-                        child: resultBox(
+                        child: _resultBox(
                           title: 'POINTS',
-                          value: '$totalPoints',
+                          value: '$currentScore',
                           color: Colors.green,
                           width: width,
                         ),
@@ -223,20 +339,22 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
                     ],
                   ),
                   const SizedBox(height: 18),
-                  popupButton(
-                    label: 'ANSWER',
-                    icon: Icons.arrow_forward,
-                    color: const Color(0xFF0D63B7),
+                  _popupButton(
+                    label: finalPuzzle ? 'OK' : 'NEXT PUZZLE',
+                    icon: finalPuzzle ? Icons.check : Icons.navigate_next,
                     width: width,
-                    onTap: goToAnswerPage,
-                  ),
-                  const SizedBox(height: 10),
-                  popupButton(
-                    label: 'PLAY AGAIN',
-                    icon: Icons.refresh,
-                    color: Colors.red,
-                    width: width,
-                    onTap: playAgain,
+                    isLoading: finalPuzzle && isSaving,
+                    onTap: () {
+                      if (finalPuzzle && isSaving) return;
+
+                      Navigator.pop(dialogContext);
+
+                      if (finalPuzzle) {
+                        _returnToLessonFour();
+                      } else {
+                        _openNextPuzzle();
+                      }
+                    },
                   ),
                 ],
               ),
@@ -247,20 +365,56 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
     );
   }
 
-  Widget resultBox({
+  Widget _buildCompletedImage() {
+    return GridView.builder(
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
+      itemCount: 4,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 1.75,
+      ),
+      itemBuilder: (context, index) {
+        return Image.asset(currentPuzzle.pieces[index], fit: BoxFit.fill);
+      },
+    );
+  }
+
+  void _openNextPuzzle() {
+    if (isLastPuzzle) return;
+
+    setState(() {
+      currentPuzzleIndex++;
+
+      for (int index = 0; index < placedPieces.length; index++) {
+        placedPieces[index] = null;
+      }
+
+      puzzleSolved = false;
+      popupShown = false;
+    });
+
+    _startTimer();
+  }
+
+  void _returnToLessonFour() {
+    if (!mounted) return;
+
+    // Close this activity and reveal the Lesson 4 page or its modal.
+    Navigator.of(context).pop();
+  }
+
+  Widget _resultBox({
     required String title,
     required String value,
     required Color color,
     required double width,
   }) {
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: clampDouble(width * 0.02, 8, 16),
-        vertical: 12,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: color, width: 3),
       ),
       child: Column(
@@ -268,7 +422,7 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
           Text(
             title,
             style: const TextStyle(
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: FontWeight.w900,
               color: Color(0xFF126FC0),
             ),
@@ -276,7 +430,7 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
           Text(
             value,
             style: TextStyle(
-              fontSize: clampDouble(width * 0.065, 22, 30),
+              fontSize: clampDouble(width * 0.057, 20, 27),
               fontWeight: FontWeight.w900,
               color: color,
             ),
@@ -286,43 +440,54 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
     );
   }
 
-  Widget popupButton({
+  Widget _popupButton({
     required String label,
     required IconData icon,
-    required Color color,
     required double width,
     required VoidCallback onTap,
+    bool isLoading = false,
   }) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: isLoading ? null : onTap,
       child: Container(
-        width: clampDouble(width * 0.58, 210, 270),
+        width: clampDouble(width * 0.60, 210, 280),
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: color,
+          color: isLoading ? Colors.blueGrey : const Color(0xFF0D63B7),
           borderRadius: BorderRadius.circular(28),
           border: Border.all(color: const Color(0xFFFFD84A), width: 4),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: clampDouble(width * 0.043, 15, 18),
-                fontWeight: FontWeight.w900,
-                color: Colors.white,
+            if (isLoading)
+              const SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(
+                  strokeWidth: 3,
+                  color: Colors.white,
+                ),
+              )
+            else ...[
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: clampDouble(width * 0.042, 15, 18),
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Icon(icon, color: Colors.white),
+              const SizedBox(width: 8),
+              Icon(icon, color: Colors.white),
+            ],
           ],
         ),
       ),
     );
   }
 
-  Widget buildPuzzleBoard({
+  Widget _buildPuzzleBoard({
     required double boardWidth,
     required double boardHeight,
   }) {
@@ -343,44 +508,48 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
           crossAxisCount: 2,
           childAspectRatio: 1.75,
         ),
-        itemBuilder: (context, index) {
+        itemBuilder: (context, position) {
           return DragTarget<int>(
+            onWillAcceptWithDetails: (details) {
+              if (puzzleSolved) return false;
+              if (placedPieces[position] != null) return false;
+
+              return details.data == position;
+            },
             onAcceptWithDetails: (details) {
-              if (timerStopped) return;
-
-              setState(() {
-                placed[index] = details.data;
-              });
-
-              if (isCompleted) {
-                completePuzzle();
-              }
+              _placePiece(position: position, pieceIndex: details.data);
             },
             builder: (context, candidateData, rejectedData) {
+              final bool isCandidate = candidateData.isNotEmpty;
+              final int? pieceIndex = placedPieces[position];
+
               return Container(
-                margin: const EdgeInsets.all(4),
+                margin: const EdgeInsets.all(3),
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
+                  color: isCandidate ? Colors.green.shade50 : Colors.white,
+                  borderRadius: BorderRadius.circular(7),
                   border: Border.all(
-                    color: placed[index] == index
+                    color: pieceIndex == position
                         ? Colors.green
                         : const Color(0xFF0B65AE),
                     width: 3,
                   ),
                 ),
-                child: placed[index] == null
-                    ? const Center(
+                child: pieceIndex == null
+                    ? Center(
                         child: Text(
-                          '?',
-                          style: TextStyle(
-                            fontSize: 30,
-                            fontWeight: FontWeight.bold,
+                          '${position + 1}',
+                          style: const TextStyle(
+                            fontSize: 27,
+                            fontWeight: FontWeight.w900,
                             color: Colors.blueGrey,
                           ),
                         ),
                       )
-                    : Image.asset(pieces[placed[index]!], fit: BoxFit.fill),
+                    : Image.asset(
+                        currentPuzzle.pieces[pieceIndex],
+                        fit: BoxFit.fill,
+                      ),
               );
             },
           );
@@ -389,7 +558,7 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
     );
   }
 
-  Widget buildPieces({
+  Widget _buildAvailablePieces({
     required double pieceWidth,
     required double pieceHeight,
     required bool isSmall,
@@ -398,36 +567,44 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
       spacing: isSmall ? 7 : 12,
       runSpacing: isSmall ? 7 : 12,
       alignment: WrapAlignment.center,
-      children: List.generate(4, (index) {
-        final alreadyPlaced = placed.contains(index);
+      children: List<Widget>.generate(4, (pieceIndex) {
+        final bool alreadyPlaced = placedPieces.contains(pieceIndex);
 
         if (alreadyPlaced) {
           return SizedBox(width: pieceWidth, height: pieceHeight);
         }
 
         return Draggable<int>(
-          data: index,
-          maxSimultaneousDrags: timerStopped ? 0 : 1,
+          data: pieceIndex,
+          maxSimultaneousDrags: puzzleSolved ? 0 : 1,
           feedback: Material(
             color: Colors.transparent,
-            child: Image.asset(
-              pieces[index],
-              width: pieceWidth * 1.12,
-              height: pieceHeight * 1.12,
-              fit: BoxFit.fill,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(7),
+                boxShadow: const [
+                  BoxShadow(color: Colors.black38, blurRadius: 7),
+                ],
+              ),
+              child: Image.asset(
+                currentPuzzle.pieces[pieceIndex],
+                width: pieceWidth * 1.10,
+                height: pieceHeight * 1.10,
+                fit: BoxFit.fill,
+              ),
             ),
           ),
           childWhenDragging: Opacity(
             opacity: 0.25,
             child: Image.asset(
-              pieces[index],
+              currentPuzzle.pieces[pieceIndex],
               width: pieceWidth,
               height: pieceHeight,
               fit: BoxFit.fill,
             ),
           ),
           child: Image.asset(
-            pieces[index],
+            currentPuzzle.pieces[pieceIndex],
             width: pieceWidth,
             height: pieceHeight,
             fit: BoxFit.fill,
@@ -437,97 +614,68 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
     );
   }
 
-  Widget buildBottomControls({required double width, required bool isNarrow}) {
-    final timerWidth = clampDouble(width * 0.28, 86, 115);
-    final timerHeight = clampDouble(width * 0.15, 50, 66);
-
-    if (isNarrow) {
-      return Column(
-        children: [
-          buildTimerBox(timerWidth, timerHeight, width),
-          const SizedBox(height: 10),
-          buildResetButton(width),
-        ],
-      );
-    }
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        buildTimerBox(timerWidth, timerHeight, width),
-        const SizedBox(width: 18),
-        buildResetButton(width),
-      ],
-    );
-  }
-
-  Widget buildTimerBox(double timerWidth, double timerHeight, double width) {
+  Widget _buildTimerBox({required double width}) {
     return Container(
-      width: timerWidth,
-      height: timerHeight,
+      width: clampDouble(width * 0.31, 100, 130),
+      height: clampDouble(width * 0.15, 52, 64),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: const Color(0xFF126FC0), width: 4),
       ),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              formattedTime,
-              style: TextStyle(
-                fontSize: clampDouble(width * 0.048, 16, 22),
-                fontWeight: FontWeight.w900,
-                color: Colors.red,
-              ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            formattedTime,
+            style: TextStyle(
+              fontSize: clampDouble(width * 0.048, 17, 22),
+              fontWeight: FontWeight.w900,
+              color: Colors.red,
             ),
-            const Text(
-              'ORAS',
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w900,
-                color: Color(0xFF126FC0),
-              ),
+          ),
+          const Text(
+            'ORAS',
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w900,
+              color: Color(0xFF126FC0),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget buildResetButton(double width) {
-    return GestureDetector(
-      onTap: timerStopped ? null : resetPuzzle,
-      child: Container(
-        height: clampDouble(width * 0.13, 46, 56),
-        padding: EdgeInsets.symmetric(
-          horizontal: clampDouble(width * 0.055, 16, 24),
-        ),
-        decoration: BoxDecoration(
-          color: const Color(0xFF0D63B7),
-          borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: const Color(0xFFFFD84A), width: 5),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'RESET',
-              style: TextStyle(
-                fontSize: clampDouble(width * 0.045, 16, 21),
-                fontWeight: FontWeight.w900,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Icon(
-              Icons.refresh,
+  Widget _buildProgressBox({required double width}) {
+    return Container(
+      height: clampDouble(width * 0.15, 52, 64),
+      padding: const EdgeInsets.symmetric(horizontal: 18),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0D63B7),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFFFD84A), width: 4),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            '$currentPuzzleNumber/$totalPuzzleCount',
+            style: TextStyle(
+              fontSize: clampDouble(width * 0.048, 17, 22),
+              fontWeight: FontWeight.w900,
               color: Colors.white,
-              size: clampDouble(width * 0.055, 21, 27),
             ),
-          ],
-        ),
+          ),
+          const Text(
+            'PUZZLE',
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w900,
+              color: Color(0xFFFFD84A),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -538,32 +686,29 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final width = constraints.maxWidth;
-            final height = constraints.maxHeight;
+            final double width = constraints.maxWidth;
+            final double height = constraints.maxHeight;
 
-            final isNarrow = width < 370;
-            final isSmallHeight = height < 720;
-            final isVerySmallHeight = height < 650;
+            final bool isSmallHeight = height < 720;
+            final bool isVerySmallHeight = height < 650;
 
-            final horizontalPadding = clampDouble(width * 0.035, 10, 18);
+            final double horizontalPadding = clampDouble(width * 0.035, 10, 18);
 
-            final boardWidth = clampDouble(width * 0.92, 285, 470);
-            final boardHeight = clampDouble(
+            final double boardWidth = clampDouble(width * 0.92, 285, 470);
+
+            final double boardHeight = clampDouble(
               boardWidth * 0.62,
               170,
               isVerySmallHeight ? 220 : 285,
             );
 
-            final pieceWidth = clampDouble(
+            final double pieceWidth = clampDouble(
               width * 0.215,
               58,
               isSmallHeight ? 82 : 105,
             );
 
-            final pieceHeight = pieceWidth * 0.72;
-
-            final titleFont = clampDouble(width * 0.062, 20, 30);
-            final instructionFont = clampDouble(width * 0.037, 12, 17);
+            final double pieceHeight = pieceWidth * 0.72;
 
             return Container(
               width: double.infinity,
@@ -572,11 +717,7 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0xFFBDEEFF),
-                    Color(0xFFFFFFFF),
-                    Color(0xFFC9F6B8),
-                  ],
+                  colors: [Color(0xFFBDEEFF), Colors.white, Color(0xFFC9F6B8)],
                 ),
               ),
               child: SingleChildScrollView(
@@ -591,7 +732,6 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
                       18,
                     ),
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Container(
                           padding: EdgeInsets.symmetric(
@@ -629,10 +769,13 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
                                 child: Text(
                                   'I-konek Mo Ako!',
                                   textAlign: TextAlign.center,
-                                  maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
-                                    fontSize: titleFont,
+                                    fontSize: clampDouble(
+                                      width * 0.062,
+                                      20,
+                                      30,
+                                    ),
                                     fontWeight: FontWeight.w900,
                                     color: const Color(0xFFFFD84A),
                                   ),
@@ -655,28 +798,39 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
                             ),
                           ),
                           child: Text(
-                            'Ayusin ang apat na bahagi upang mabuo ang larawan.',
+                            'Puzzle $currentPuzzleNumber of 5\n'
+                            'Ayusin ang apat na bahagi upang '
+                            'mabuo ang larawan.',
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              fontSize: instructionFont,
+                              fontSize: clampDouble(width * 0.037, 12, 17),
                               fontWeight: FontWeight.w800,
                               color: const Color(0xFF123B63),
                             ),
                           ),
                         ),
                         SizedBox(height: isVerySmallHeight ? 7 : 11),
-                        buildPuzzleBoard(
+                        _buildPuzzleBoard(
                           boardWidth: boardWidth,
                           boardHeight: boardHeight,
                         ),
                         SizedBox(height: isVerySmallHeight ? 8 : 13),
-                        buildPieces(
+                        _buildAvailablePieces(
                           pieceWidth: pieceWidth,
                           pieceHeight: pieceHeight,
                           isSmall: isSmallHeight,
                         ),
                         SizedBox(height: isVerySmallHeight ? 10 : 16),
-                        buildBottomControls(width: width, isNarrow: isNarrow),
+
+                        // RESET was removed.
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _buildTimerBox(width: width),
+                            const SizedBox(width: 14),
+                            _buildProgressBox(width: width),
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -688,4 +842,11 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
       ),
     );
   }
+}
+
+class PuzzleData {
+  final List<String> pieces;
+  final String correctImage;
+
+  const PuzzleData({required this.pieces, required this.correctImage});
 }

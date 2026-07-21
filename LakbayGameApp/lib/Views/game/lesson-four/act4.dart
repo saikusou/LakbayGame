@@ -48,7 +48,7 @@ class _LessonFourDayOneActFourState extends State<LessonFourDayOneActFour> {
         children: [
           Positioned.fill(
             child: Image.asset(
-              'assets/lesson-four-day1-act4.jpg',
+              'assets/lesson-four-day1-act4.png',
               fit: BoxFit.fill,
             ),
           ),

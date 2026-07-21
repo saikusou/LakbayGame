@@ -132,7 +132,7 @@ class _Lesson4ScreenState extends State<Lesson4Screen> {
         contents = [
           {"icon": Icons.history_edu, "title": "1. Learning Objectives"},
           {"icon": Icons.public, "title": "2. Hanapin at Buuin"},
-          {"icon": Icons.school, "title": "3. Gwain"},
+          {"icon": Icons.school, "title": "3. Gawain"},
           {"icon": Icons.edit, "title": "4. Pagninilay"},
           {"icon": Icons.assignment, "title": "5. Takdang Aralin"},
         ];

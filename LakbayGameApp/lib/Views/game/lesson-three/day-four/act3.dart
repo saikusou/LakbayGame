@@ -1,7 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:lakbay_game/Views/main_screen/lessons/lesson3.dart';
 import 'package:lakbay_game/User/models/user_model.dart';
+import 'package:lakbay_game/Views/main_screen/lessons/lesson3.dart';
 
 void main() {
   runApp(const MyApp());
@@ -21,119 +20,61 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class LessonThreeDayFourActThree extends StatefulWidget {
+class LessonThreeDayFourActThree extends StatelessWidget {
   final UserModel user;
+
   const LessonThreeDayFourActThree({super.key, required this.user});
 
   @override
-  State<LessonThreeDayFourActThree> createState() =>
-      _LessonThreeDayFourActThreeState();
-}
-
-class _LessonThreeDayFourActThreeState
-    extends State<LessonThreeDayFourActThree> {
-  final TextEditingController _answerController = TextEditingController();
-
-  @override
-  void dispose() {
-    _answerController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    // Get device dimensions
-    final size = MediaQuery.of(context).size;
+    final Size size = MediaQuery.sizeOf(context);
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: SizedBox(
-        width: size.width,
-        height: size.height,
-        child: Stack(
-          children: [
-            // 1. Fully Responsive Background
-            SizedBox(
-              width: size.width,
-              height: size.height,
-              child: Image.asset(
-                'assets/lesson-three-day3-act3act.png',
-                // BoxFit.fill forces the template to match the target device screen dimensions precisely.
-                // Alternatively, use BoxFit.fitWidth if you want to retain exact original asset ratios.
-                fit: BoxFit.fill,
-              ),
-            ),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Full-screen background
+          Image.asset('assets/lesson-three-day3-act3act.png', fit: BoxFit.fill),
 
-            // 2. Responsive Input Field Overlay
-            SafeArea(
-              child: Padding(
-                // Using percentage multipliers based on screen height/width ensures the input
-                // area scales down proportionally on small phones and up on larger displays.
-                padding: EdgeInsets.only(
-                  top:
-                      size.height *
-                      0.35, // Dynamically starts about 35% down the screen
-                  left: size.width * 0.12, // 12% padding left
-                  right: size.width * 0.12, // 12% padding right
-                  bottom: size.height * 0.05,
-                ),
-                child: TextField(
-                  controller: _answerController,
-                  maxLines: null,
-                  keyboardType: TextInputType.multiline,
-                  style: TextStyle(
-                    // Calculates text size dynamically so text scales smoothly across devices
-                    fontSize: clampDouble(size.width * 0.045, 16.0, 22.0),
-                    color: Colors.black87,
-                    height: 1.4,
-                  ),
-                  decoration: const InputDecoration(
-                    hintText: 'Isulat ang iyong sagot dito...',
-                    hintStyle: TextStyle(
-                      color: Colors.grey,
-                      fontStyle: FontStyle.italic,
-                    ),
-                    border: InputBorder.none,
-                  ),
-                ),
-              ),
-            ),
-
-            // 3. Home Button Action Overlay
-            Positioned(
-              top: clampDouble(size.height * 0.025, 14, 22),
-              right: clampDouble(size.width * 0.04, 12, 20),
-              child: circleButton(
+          // Home button
+          Positioned(
+            top: clampDouble(size.height * 0.025, 14, 22),
+            right: clampDouble(size.width * 0.04, 12, 20),
+            child: SafeArea(
+              child: _circleButton(
+                context: context,
                 icon: Icons.home,
                 color: Colors.orange,
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(
-                      builder: (_) => Lesson3Screen(user: widget.user),
+                    MaterialPageRoute<void>(
+                      builder: (_) => Lesson3Screen(user: user),
                     ),
                   );
                 },
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget circleButton({
+  Widget _circleButton({
+    required BuildContext context,
     required IconData icon,
     required VoidCallback onTap,
     required Color color,
   }) {
-    final size = MediaQuery.of(context).size;
+    final Size size = MediaQuery.sizeOf(context);
+    final double buttonSize = clampDouble(size.width * 0.14, 50, 70);
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: clampDouble(size.width * 0.14, 50, 70),
-        height: clampDouble(size.width * 0.14, 50, 70),
+        width: buttonSize,
+        height: buttonSize,
         decoration: BoxDecoration(
           color: color,
           shape: BoxShape.circle,

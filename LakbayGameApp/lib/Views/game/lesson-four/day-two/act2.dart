@@ -20,7 +20,7 @@ class _LessonFourDayTwoActTwoState extends State<LessonFourDayTwoActTwo> {
       'meaning': 'Pinuno ng\nBarangay',
     },
     {
-      'image': 'assets/maharlika.png',
+      'image': 'assets/maharlika1.jpg',
       'role': 'Maharlika',
       'meaning': 'Mandirigma at\ntagapagtanggol',
     },
@@ -30,7 +30,7 @@ class _LessonFourDayTwoActTwoState extends State<LessonFourDayTwoActTwo> {
       'meaning': 'Malayang\nmamamayan',
     },
     {
-      'image': 'assets/alipin.png',
+      'image': 'assets/alipin1.jpg',
       'role': 'Alipin',
       'meaning': 'Nagsisilbi sa\nnakatataas',
     },
