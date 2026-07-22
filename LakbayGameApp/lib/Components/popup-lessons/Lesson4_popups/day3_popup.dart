@@ -28,7 +28,7 @@ class Day3Popup extends StatelessWidget {
       return _KonseptoPopup(user: user);
     }
 
-    if (title.contains('Gwain')) {
+    if (title.contains('Gawain')) {
       Future.microtask(() {
         Navigator.push(
           context,

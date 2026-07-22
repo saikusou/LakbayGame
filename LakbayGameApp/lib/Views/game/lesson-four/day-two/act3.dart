@@ -22,10 +22,10 @@ class _LessonFourDayTwoActThreeState extends State<LessonFourDayTwoActThree> {
   static const double designH = 1034;
 
   final Map<String, String> correctAnswers = {
-    'Maginoo': 'assets/maginoo_card.png',
-    'Maharlika': 'assets/maharlika_card.png',
-    'Timawa': 'assets/timawa_card.png',
-    'Alipin': 'assets/alipin_card.png',
+    'Maginoo': 'assets/MAGINOO.jpg',
+    'Maharlika': 'assets/MAHARLIKA.jpg',
+    'Timawa': 'assets/TIMAWA.jpg',
+    'Alipin': 'assets/ALIPIN.jpg',
   };
 
   final Map<String, String?> placedCards = {
@@ -315,10 +315,10 @@ class _LessonFourDayTwoActThreeState extends State<LessonFourDayTwoActThree> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                draggableCard('assets/maginoo_card.png'),
-                draggableCard('assets/maharlika_card.png'),
-                draggableCard('assets/timawa_card.png'),
-                draggableCard('assets/alipin_card.png'),
+                draggableCard('assets/MAGINOO.jpg'),
+                draggableCard('assets/MAHARLIKA.jpg'),
+                draggableCard('assets/TIMAWA.jpg'),
+                draggableCard('assets/ALIPIN.jpg'),
               ],
             ),
           ),

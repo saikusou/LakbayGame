@@ -26,17 +26,16 @@ class _MainScreenState extends State<MainScreen> {
   bool isClaimingReward = false;
 
   int claimedStreak = 0;
-
   double lesson1Progress = 0;
   double lesson2Progress = 0;
   double lesson3Progress = 0;
   double lesson4Progress = 0;
 
-  int? get userId => widget.user.id;
-
   double clampDouble(double value, double minimum, double maximum) {
     return value.clamp(minimum, maximum).toDouble();
   }
+
+  int? get userId => widget.user.id;
 
   @override
   void initState() {
@@ -47,9 +46,31 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
+  Future<void> loadLesson1Progress() async {
+    final int? id = userId;
+
+    if (id == null) return;
+
+    try {
+      final lesson1 = await ApiService.getLessonProgress(id, "Lesson 1");
+      final lesson2 = await ApiService.getLessonProgress(id, "Lesson 2");
+      final lesson3 = await ApiService.getLessonProgress(id, "Lesson 3");
+      final lesson4 = await ApiService.getLessonProgress(id, "Lesson 4");
+
+      setState(() {
+        lesson1Progress = (lesson1['percentageCompleted'] as num).toDouble();
+        lesson2Progress = (lesson2['percentageCompleted'] as num).toDouble();
+        lesson3Progress = (lesson3['percentageCompleted'] as num).toDouble();
+        lesson4Progress = (lesson4['percentageCompleted'] as num).toDouble();
+      });
+    } catch (e) {
+      debugPrint("Failed to load Lesson 1 progress: $e");
+    }
+  }
+
   Future<void> initializeProfile() async {
     await loadUserPoints();
-    await loadLessonProgress();
+    await loadLesson1Progress();
 
     if (!mounted) return;
 
@@ -68,55 +89,6 @@ class _MainScreenState extends State<MainScreen> {
       await context.read<PointsProvider>().loadPoints(id);
     } catch (error) {
       debugPrint('Unable to load user points: $error');
-    }
-  }
-
-  Future<void> loadLessonProgress() async {
-    final int? id = userId;
-
-    if (id == null) {
-      debugPrint('Unable to load lesson progress because the user ID is null.');
-      return;
-    }
-
-    try {
-      final Map<String, dynamic> lesson1 = await ApiService.getLessonProgress(
-        id,
-        'Lesson 1',
-      );
-
-      final Map<String, dynamic> lesson2 = await ApiService.getLessonProgress(
-        id,
-        'Lesson 2',
-      );
-
-      final Map<String, dynamic> lesson3 = await ApiService.getLessonProgress(
-        id,
-        'Lesson 3',
-      );
-
-      final Map<String, dynamic> lesson4 = await ApiService.getLessonProgress(
-        id,
-        'Lesson 4',
-      );
-
-      if (!mounted) return;
-
-      setState(() {
-        lesson1Progress =
-            (lesson1['percentageCompleted'] as num?)?.toDouble() ?? 0;
-
-        lesson2Progress =
-            (lesson2['percentageCompleted'] as num?)?.toDouble() ?? 0;
-
-        lesson3Progress =
-            (lesson3['percentageCompleted'] as num?)?.toDouble() ?? 0;
-
-        lesson4Progress =
-            (lesson4['percentageCompleted'] as num?)?.toDouble() ?? 0;
-      });
-    } catch (error) {
-      debugPrint('Failed to load lesson progress: $error');
     }
   }
 
@@ -161,12 +133,9 @@ class _MainScreenState extends State<MainScreen> {
     final int? id = userId;
 
     if (id == null) {
-      if (!mounted) return;
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Hindi makita ang user ID.')),
       );
-
       return;
     }
 
@@ -176,9 +145,7 @@ class _MainScreenState extends State<MainScreen> {
       isClaimingReward = true;
     });
 
-    if (dialogContext.mounted) {
-      setDialogState(() {});
-    }
+    setDialogState(() {});
 
     try {
       final Map<String, dynamic> result = await ApiService.claimDailyReward(id);
@@ -237,8 +204,6 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void toggleMenu() {
-    if (!mounted) return;
-
     setState(() {
       showMenu = !showMenu;
     });
@@ -256,7 +221,7 @@ class _MainScreenState extends State<MainScreen> {
       builder: (BuildContext dialogContext) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setDialogState) {
-            final Size size = MediaQuery.sizeOf(context);
+            final Size size = MediaQuery.of(context).size;
 
             final double popupWidth = clampDouble(size.width * 0.92, 300, 470);
 
@@ -293,6 +258,7 @@ class _MainScreenState extends State<MainScreen> {
                         },
                       ),
                     ),
+
                     Positioned(
                       top: popupHeight * 0.015,
                       right: popupWidth * 0.025,
@@ -325,6 +291,7 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                       ),
                     ),
+
                     if (isClaimingReward)
                       Positioned.fill(
                         child: Container(
@@ -357,55 +324,39 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  Future<void> openLessonOne() async {
-    await Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => Lesson1Screen(user: widget.user)),
-    );
-
-    if (!mounted) return;
-
-    await loadLessonProgress();
-    await loadUserPoints();
+  void openLessonOne() {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => Lesson1Screen(user: widget.user)));
   }
 
-  Future<void> openLessonTwo() async {
-    await Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => Lesson2Screen(user: widget.user)),
-    );
-
-    if (!mounted) return;
-
-    await loadLessonProgress();
-    await loadUserPoints();
+  void openLessonTwo() {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => Lesson2Screen(user: widget.user)));
   }
 
-  Future<void> openLessonThree() async {
-    await Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => Lesson3Screen(user: widget.user)),
-    );
-
-    if (!mounted) return;
-
-    await loadLessonProgress();
-    await loadUserPoints();
+  void openLessonThree() {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => Lesson3Screen(user: widget.user)));
   }
 
-  Future<void> openLessonFour() async {
-    await Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => Lesson4Screen(user: widget.user)),
-    );
-
-    if (!mounted) return;
-
-    await loadLessonProgress();
-    await loadUserPoints();
+  void openLessonFour() {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => Lesson4Screen(user: widget.user)));
   }
 
   @override
   Widget build(BuildContext context) {
-    final Size size = MediaQuery.sizeOf(context);
+    final Size size = MediaQuery.of(context).size;
 
     final int totalPoints = context.watch<PointsProvider>().totalPoints;
+    // unlock island if ma 1 star
+    final bool lessonTwoUnlocked = lesson1Progress >= 34;
+    final bool lessonThreeUnlocked = lesson2Progress >= 34;
+    final bool lessonFourUnlocked = lesson3Progress >= 34;
 
     final double levelWidth = clampDouble(size.width * 0.50, 190, 320);
 
@@ -419,6 +370,7 @@ class _MainScreenState extends State<MainScreen> {
           Positioned.fill(
             child: Image.asset('assets/profile.png', fit: BoxFit.cover),
           ),
+
           SafeArea(
             child: LayoutBuilder(
               builder: (BuildContext context, BoxConstraints constraints) {
@@ -508,6 +460,7 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                       ),
                     ),
+
                     Positioned(
                       top: height * 0.02,
                       right: width * 0.04,
@@ -529,7 +482,6 @@ class _MainScreenState extends State<MainScreen> {
                       ),
                     ),
 
-                    // Lesson 1 - Always unlocked
                     Positioned(
                       top: height * 0.10,
                       left: width * 0.02,
@@ -544,7 +496,6 @@ class _MainScreenState extends State<MainScreen> {
                       ),
                     ),
 
-                    // Lesson 2 - Always unlocked
                     Positioned(
                       top: height * 0.28,
                       right: width * 0.02,
@@ -553,13 +504,12 @@ class _MainScreenState extends State<MainScreen> {
                         width: levelWidth,
                         imageHeight: imageHeight,
                         starSize: starSize,
-                        enabled: true,
+                        enabled: lessonTwoUnlocked,
                         progress: lesson2Progress,
                         onTap: openLessonTwo,
                       ),
                     ),
 
-                    // Lesson 3 - Always unlocked
                     Positioned(
                       top: height * 0.48,
                       left: width * 0.02,
@@ -568,13 +518,12 @@ class _MainScreenState extends State<MainScreen> {
                         width: levelWidth,
                         imageHeight: imageHeight,
                         starSize: starSize,
-                        enabled: true,
+                        enabled: lessonThreeUnlocked,
                         progress: lesson3Progress,
                         onTap: openLessonThree,
                       ),
                     ),
 
-                    // Lesson 4 - Always unlocked
                     Positioned(
                       top: height * 0.66,
                       right: width * 0.02,
@@ -583,7 +532,7 @@ class _MainScreenState extends State<MainScreen> {
                         width: levelWidth,
                         imageHeight: imageHeight,
                         starSize: starSize,
-                        enabled: true,
+                        enabled: lessonFourUnlocked,
                         progress: lesson4Progress,
                         onTap: openLessonFour,
                       ),
