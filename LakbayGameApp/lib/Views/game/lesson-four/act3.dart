@@ -244,16 +244,14 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
       builder: (dialogContext) {
         final Size size = MediaQuery.of(dialogContext).size;
         final double width = size.width;
+        final double dialogWidth = clampDouble(width * 0.96, 300, 760);
 
         return Dialog(
           backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 20,
-          ),
+          insetPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
           child: Container(
-            width: clampDouble(width * 0.90, 290, 430),
-            padding: EdgeInsets.all(clampDouble(width * 0.045, 14, 20)),
+            width: dialogWidth,
+            padding: EdgeInsets.all(clampDouble(width * 0.025, 10, 16)),
             decoration: BoxDecoration(
               color: const Color(0xFFFFFCF3),
               borderRadius: BorderRadius.circular(26),
@@ -270,75 +268,44 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.check_circle, size: 58, color: Colors.green),
-                  const SizedBox(height: 6),
-                  Text(
-                    finalPuzzle ? 'Congratulations!' : 'Tamang Larawan!',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: clampDouble(width * 0.065, 22, 28),
-                      fontWeight: FontWeight.w900,
-                      color: const Color(0xFF126FC0),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    finalPuzzle
-                        ? 'Natapos mo ang lahat ng limang puzzle!'
-                        : 'Nabuo mo ang Puzzle $currentPuzzleNumber.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: clampDouble(width * 0.039, 14, 17),
-                      fontWeight: FontWeight.w800,
-                      color: const Color(0xFF123B63),
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-
-                  // Correct/complete picture
+                  // The complete picture is intentionally the largest
+                  // element in the result popup.
                   ClipRRect(
                     borderRadius: BorderRadius.circular(14),
                     child: Container(
                       width: double.infinity,
-                      constraints: const BoxConstraints(maxHeight: 230),
                       color: Colors.white,
-                      child: Image.asset(
-                        currentPuzzle.correctImage,
-                        fit: BoxFit.contain,
-                        errorBuilder: (_, __, ___) {
-                          // Use the completed puzzle board as fallback
-                          // when the complete-image asset is unavailable.
-                          return AspectRatio(
-                            aspectRatio: 3.5,
+                      child: LayoutBuilder(
+                        builder: (context, imageConstraints) {
+                          final double imageWidth = imageConstraints.maxWidth;
+                          final double imageHeight = clampDouble(
+                            imageWidth / 1.75,
+                            170,
+                            MediaQuery.of(dialogContext).size.height * 0.52,
+                          );
+
+                          return SizedBox(
+                            width: imageWidth,
+                            height: imageHeight,
                             child: _buildCompletedImage(),
                           );
                         },
                       ),
                     ),
                   ),
-                  const SizedBox(height: 14),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _resultBox(
-                          title: 'PUZZLE',
-                          value: '$completedPuzzleCount/5',
-                          color: Colors.orange,
-                          width: width,
-                        ),
+                  if (finalPuzzle) ...[
+                    const SizedBox(height: 6),
+                    SizedBox(
+                      width: clampDouble(width * 0.28, 100, 130),
+                      child: _resultBox(
+                        title: 'TOTAL POINTS',
+                        value: '$currentScore',
+                        color: Colors.green,
+                        width: width,
                       ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: _resultBox(
-                          title: 'POINTS',
-                          value: '$currentScore',
-                          color: Colors.green,
-                          width: width,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 18),
+                    ),
+                  ],
+                  const SizedBox(height: 6),
                   _popupButton(
                     label: finalPuzzle ? 'OK' : 'NEXT PUZZLE',
                     icon: finalPuzzle ? Icons.check : Icons.navigate_next,
@@ -375,7 +342,12 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
         childAspectRatio: 1.75,
       ),
       itemBuilder: (context, index) {
-        return Image.asset(currentPuzzle.pieces[index], fit: BoxFit.fill);
+        return Image.asset(
+          currentPuzzle.pieces[index],
+          fit: BoxFit.cover,
+          filterQuality: FilterQuality.high,
+          isAntiAlias: true,
+        );
       },
     );
   }
@@ -411,18 +383,19 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
     required double width,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 4),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color, width: 3),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: color, width: 2),
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             title,
             style: const TextStyle(
-              fontSize: 11,
+              fontSize: 9,
               fontWeight: FontWeight.w900,
               color: Color(0xFF126FC0),
             ),
@@ -430,7 +403,7 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
           Text(
             value,
             style: TextStyle(
-              fontSize: clampDouble(width * 0.057, 20, 27),
+              fontSize: clampDouble(width * 0.038, 15, 19),
               fontWeight: FontWeight.w900,
               color: color,
             ),

@@ -1432,7 +1432,7 @@ class _LessonOneDayOneActThreeBState extends State<LessonOneDayOneActThreeB> {
                                   child: FittedBox(
                                     fit: BoxFit.scaleDown,
                                     child: Text(
-                                      '1-21-19-20-18-15-14-5-19-25-1-14-15',
+                                      '11-1-1-12-1-13-1-14-7-2-1-25-1-14',
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                         color: const Color(0xFF2A2018),

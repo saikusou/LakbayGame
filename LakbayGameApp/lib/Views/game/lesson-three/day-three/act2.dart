@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/Components/button.dart';
-import 'package:lakbay_game/Views/main_screen/lessons/lesson3.dart';
 import 'package:lakbay_game/User/models/user_model.dart';
+import 'package:lakbay_game/Views/main_screen/lessons/lesson3.dart';
 import 'package:lakbay_game/services/api_service.dart';
 
 class LessonThreeDayOneActTwo extends StatefulWidget {
@@ -50,23 +50,15 @@ class _LessonThreeDayOneActTwoState extends State<LessonThreeDayOneActTwo> {
     'assets/lesson-three-day3-act2-c7.png',
   ];
 
-  bool get controlsDisabled {
-    return isSaving || isNavigating || scorePopupOpen;
-  }
+  bool get controlsDisabled => isSaving || isNavigating || scorePopupOpen;
 
   int get currentScenario => currentScenarioIndex + 1;
 
-  String? get currentAnswer {
-    return userAnswers[currentScenarioIndex];
-  }
+  String? get currentAnswer => userAnswers[currentScenarioIndex];
 
-  String get backgroundImage {
-    return backgroundImages[currentScenarioIndex];
-  }
+  String get backgroundImage => backgroundImages[currentScenarioIndex];
 
-  bool get isLastScenario {
-    return currentScenarioIndex == totalScenarios - 1;
-  }
+  bool get isLastScenario => currentScenarioIndex == totalScenarios - 1;
 
   double clampDouble(double value, double minimum, double maximum) {
     return value.clamp(minimum, maximum).toDouble();
@@ -174,8 +166,11 @@ class _LessonThreeDayOneActTwoState extends State<LessonThreeDayOneActTwo> {
     showScorePopup();
   }
 
+  /// Opens LessonThreeScreen when the Home button is pressed.
   Future<void> closeActivity() async {
-    if (!mounted || isSaving || isNavigating) return;
+    if (!mounted || isSaving || isNavigating || scorePopupOpen) {
+      return;
+    }
 
     setState(() {
       isNavigating = true;
@@ -186,12 +181,16 @@ class _LessonThreeDayOneActTwoState extends State<LessonThreeDayOneActTwo> {
       rootNavigator: true,
     );
 
-    // Return to the existing Lesson3Screen.
-    if (rootNavigator.canPop()) {
-      rootNavigator.pop();
-    }
+    await rootNavigator.pushReplacement<void, void>(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) {
+          return Lesson3Screen(user: widget.user);
+        },
+      ),
+    );
   }
 
+  /// Closes the score dialog, then opens LessonThreeScreen.
   Future<void> completeActivity({required BuildContext dialogContext}) async {
     if (isSaving || isNavigating) return;
 
@@ -206,12 +205,13 @@ class _LessonThreeDayOneActTwoState extends State<LessonThreeDayOneActTwo> {
         await savePoints(score: score).timeout(const Duration(seconds: 10));
 
         scoreSaved = true;
-
         debugPrint('Score saved successfully.');
       } on TimeoutException catch (error) {
         debugPrint('Saving score timed out: $error');
 
-        // Allow the player to continue.
+        if (mounted) {
+          showMessage('The server took too long to respond.');
+        }
       } catch (error, stackTrace) {
         if (isDuplicateScoreError(error)) {
           scoreSaved = true;
@@ -221,7 +221,9 @@ class _LessonThreeDayOneActTwoState extends State<LessonThreeDayOneActTwo> {
           debugPrint('Saving score failed: $error');
           debugPrintStack(stackTrace: stackTrace);
 
-          // Allow the player to continue even if saving fails.
+          if (mounted) {
+            showMessage('Unable to save the score, but you can continue.');
+          }
         }
       }
     }
@@ -233,34 +235,34 @@ class _LessonThreeDayOneActTwoState extends State<LessonThreeDayOneActTwo> {
     });
 
     /*
-     * dialogContext belongs to the score popup.
-     * Pop it first so its modal barrier is removed.
+     * Close only the score dialog first.
+     * Using dialogContext prevents the activity from being
+     * accidentally closed before the dialog.
      */
-    final NavigatorState dialogNavigator = Navigator.of(
-      dialogContext,
-      rootNavigator: true,
-    );
+    final NavigatorState dialogNavigator = Navigator.of(dialogContext);
 
     if (dialogNavigator.canPop()) {
       dialogNavigator.pop();
     }
 
-    await Future<void>.delayed(const Duration(milliseconds: 250));
-
     if (!mounted) return;
 
     /*
-     * Now close the activity.
-     * The existing Lesson3Screen underneath will become visible.
+     * Replace the activity page with LessonThreeScreen.
+     * No delay is needed.
      */
     final NavigatorState rootNavigator = Navigator.of(
       context,
       rootNavigator: true,
     );
 
-    if (rootNavigator.canPop()) {
-      rootNavigator.pop();
-    }
+    await rootNavigator.pushReplacement<void, void>(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) {
+          return Lesson3Screen(user: widget.user);
+        },
+      ),
+    );
   }
 
   Future<void> showScorePopup() async {
@@ -626,7 +628,9 @@ class _LessonThreeDayOneActTwoState extends State<LessonThreeDayOneActTwo> {
                     height: choiceHeight,
                     fontSize: choiceFont,
                     iconSize: choiceIcon,
-                    onTap: () => selectAnswer('ILAYA'),
+                    onTap: () {
+                      selectAnswer('ILAYA');
+                    },
                   ),
                   choiceButton(
                     label: 'ILAWUD',
@@ -636,7 +640,9 @@ class _LessonThreeDayOneActTwoState extends State<LessonThreeDayOneActTwo> {
                     height: choiceHeight,
                     fontSize: choiceFont,
                     iconSize: choiceIcon,
-                    onTap: () => selectAnswer('ILAWUD'),
+                    onTap: () {
+                      selectAnswer('ILAWUD');
+                    },
                   ),
                 ],
               ),

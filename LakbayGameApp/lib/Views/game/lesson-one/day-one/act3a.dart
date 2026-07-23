@@ -1280,7 +1280,7 @@ class _LessonOneDayOneActThreeAState extends State<LessonOneDayOneActThreeA> {
                                     horizontal: contentWidth < 390 ? 10 : 35,
                                   ),
                                   child: Text(
-                                    '“Ito ang teoryang nagsasabing '
+                                    '“'
                                     'ang ating mga ninuno ay kabilang '
                                     'sa malaking pangkat ng mga tao '
                                     'na dumating galing sa ibang bansa, '
@@ -1317,7 +1317,7 @@ class _LessonOneDayOneActThreeAState extends State<LessonOneDayOneActThreeA> {
                                   child: FittedBox(
                                     fit: BoxFit.scaleDown,
                                     child: Text(
-                                      '11-1-1-12-1-13-1-14-7 2-1-25-1-14',
+                                      '1-21-19-20-18-15-14-5-19-25-1-14-15',
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                         color: const Color(0xFF2A2018),

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:lakbay_game/Components/side_navigation.dart';
 import 'package:lakbay_game/User/data/points_provider.dart';
 import 'package:lakbay_game/Views/main_screen/main_screen.dart';
-import 'package:lakbay_game/Views/user_profile/profile.dart';
 
 /// POPUPS
 import 'package:lakbay_game/Components/popup-lessons/lesson2_popups/day1_popup.dart';

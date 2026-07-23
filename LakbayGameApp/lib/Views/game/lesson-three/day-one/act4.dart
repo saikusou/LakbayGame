@@ -17,11 +17,11 @@ class _LessonThreeActFourState extends State<LessonThreeActFour> {
   final List<QuestionData> questions = const [
     QuestionData(
       imagePath: 'assets/lesson-three-act4-1.png',
-      correctAnswer: 'TAMA',
+      correctAnswer: 'MALI',
     ),
     QuestionData(
       imagePath: 'assets/lesson-three-act4-2.png',
-      correctAnswer: 'MALI',
+      correctAnswer: 'TAMA',
     ),
     QuestionData(
       imagePath: 'assets/lesson-three-act4-3.png',
