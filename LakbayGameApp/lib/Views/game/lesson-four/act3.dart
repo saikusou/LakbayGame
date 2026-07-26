@@ -35,7 +35,7 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
         'assets/l3-d1-3.png',
         'assets/l3-d1-4.png',
       ],
-      correctImage: 'assets/l3-d1-complete-1.png',
+      correctImage: 'assets/l3-d1-complete-2.png',
     ),
     PuzzleData(
       pieces: [
@@ -44,7 +44,7 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
         'assets/l3-d1-7.png',
         'assets/l3-d1-8.png',
       ],
-      correctImage: 'assets/l3-d1-complete-2.png',
+      correctImage: 'assets/l3-d1-complete-1.png',
     ),
     PuzzleData(
       pieces: [
@@ -235,6 +235,43 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
     }
   }
 
+  // New method for full screen image viewing with zoom
+  void _showFullScreenImage(BuildContext parentContext) {
+    showDialog(
+      context: parentContext,
+      barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.85),
+      builder: (context) => GestureDetector(
+        onTap: () => Navigator.pop(context),
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          color: Colors.black.withOpacity(0.85),
+          child: Center(
+            child: InteractiveViewer(
+              minScale: 0.8,
+              maxScale: 4.0,
+              panEnabled: true,
+              scaleEnabled: true,
+              child: Image.asset(
+                currentPuzzle.correctImage,
+                fit: BoxFit.contain,
+                width: double.infinity,
+                height: double.infinity,
+                errorBuilder: (_, __, ___) {
+                  return Container(
+                    color: Colors.white,
+                    child: _buildCompletedImage(),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _showCorrectPicturePopup() async {
     final bool finalPuzzle = isLastPuzzle;
 
@@ -244,7 +281,11 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
       builder: (dialogContext) {
         final Size size = MediaQuery.of(dialogContext).size;
         final double width = size.width;
+        final double height = size.height;
         final double dialogWidth = clampDouble(width * 0.96, 300, 760);
+
+        // Check if this is a small screen
+        final bool isSmallScreen = width < 400 || height < 700;
 
         return Dialog(
           backgroundColor: Colors.transparent,
@@ -264,67 +305,133 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
                 ),
               ],
             ),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // The complete picture is intentionally the largest
-                  // element in the result popup.
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(14),
-                    child: Container(
-                      width: double.infinity,
-                      color: Colors.white,
-                      child: LayoutBuilder(
-                        builder: (context, imageConstraints) {
-                          final double imageWidth = imageConstraints.maxWidth;
-                          final double imageHeight = clampDouble(
-                            imageWidth / 1.75,
-                            170,
-                            MediaQuery.of(dialogContext).size.height * 0.52,
-                          );
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.check_circle, size: 42, color: Colors.green),
+                const SizedBox(height: 3),
+                Text(
+                  finalPuzzle ? 'Congratulations!' : 'Tamang Larawan!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: clampDouble(width * 0.052, 19, 25),
+                    fontWeight: FontWeight.w900,
+                    color: const Color(0xFF126FC0),
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  finalPuzzle
+                      ? 'Natapos mo ang lahat ng limang puzzle!'
+                      : 'Nabuo mo ang Puzzle ${currentPuzzleNumber.toString()}.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: clampDouble(width * 0.034, 12, 15),
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF123B63),
+                  ),
+                ),
 
-                          return SizedBox(
-                            width: imageWidth,
-                            height: imageHeight,
-                            child: _buildCompletedImage(),
-                          );
+                // Show score only on the last puzzle
+                if (finalPuzzle) ...[
+                  const SizedBox(height: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.green, width: 2),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.star, color: Colors.amber, size: 20),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Score: $maximumScore points',
+                          style: TextStyle(
+                            fontSize: clampDouble(width * 0.038, 14, 18),
+                            fontWeight: FontWeight.w900,
+                            color: Colors.green.shade700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+
+                const SizedBox(height: 8),
+
+                // FULL SIZE IMAGE - Takes up most of the space
+                GestureDetector(
+                  onTap: () => _showFullScreenImage(dialogContext),
+                  child: Container(
+                    width: double.infinity,
+                    constraints: BoxConstraints(
+                      maxHeight: height * 0.6,
+                      minHeight: height * 0.35,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: const Color(0xFF126FC0),
+                        width: 3,
+                      ),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(14),
+                      child: Image.asset(
+                        currentPuzzle.correctImage,
+                        width: double.infinity,
+                        height: double.infinity,
+                        fit: BoxFit.contain, // Maintains aspect ratio
+                        errorBuilder: (_, __, ___) {
+                          // Use the completed puzzle board as fallback
+                          return _buildCompletedImage();
                         },
                       ),
                     ),
                   ),
-                  if (finalPuzzle) ...[
-                    const SizedBox(height: 6),
-                    SizedBox(
-                      width: clampDouble(width * 0.28, 100, 130),
-                      child: _resultBox(
-                        title: 'TOTAL POINTS',
-                        value: '$currentScore',
-                        color: Colors.green,
-                        width: width,
+                ),
+
+                // Add hint text for tapping
+                if (!isSmallScreen)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Text(
+                      '👆 Tap the image to view full screen with zoom',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: clampDouble(width * 0.025, 10, 13),
+                        color: Colors.grey[600],
+                        fontStyle: FontStyle.italic,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
-                  ],
-                  const SizedBox(height: 6),
-                  _popupButton(
-                    label: finalPuzzle ? 'OK' : 'NEXT PUZZLE',
-                    icon: finalPuzzle ? Icons.check : Icons.navigate_next,
-                    width: width,
-                    isLoading: finalPuzzle && isSaving,
-                    onTap: () {
-                      if (finalPuzzle && isSaving) return;
-
-                      Navigator.pop(dialogContext);
-
-                      if (finalPuzzle) {
-                        _returnToLessonFour();
-                      } else {
-                        _openNextPuzzle();
-                      }
-                    },
                   ),
-                ],
-              ),
+
+                const SizedBox(height: 10),
+                _popupButton(
+                  label: finalPuzzle ? 'OK' : 'NEXT PUZZLE',
+                  icon: finalPuzzle ? Icons.check : Icons.navigate_next,
+                  width: width,
+                  isLoading: finalPuzzle && isSaving,
+                  onTap: () {
+                    if (finalPuzzle && isSaving) return;
+
+                    Navigator.pop(dialogContext);
+
+                    if (finalPuzzle) {
+                      _returnToLessonFour();
+                    } else {
+                      _openNextPuzzle();
+                    }
+                  },
+                ),
+              ],
             ),
           ),
         );
@@ -342,12 +449,7 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
         childAspectRatio: 1.75,
       ),
       itemBuilder: (context, index) {
-        return Image.asset(
-          currentPuzzle.pieces[index],
-          fit: BoxFit.cover,
-          filterQuality: FilterQuality.high,
-          isAntiAlias: true,
-        );
+        return Image.asset(currentPuzzle.pieces[index], fit: BoxFit.fill);
       },
     );
   }
@@ -374,43 +476,6 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
 
     // Close this activity and reveal the Lesson 4 page or its modal.
     Navigator.of(context).pop();
-  }
-
-  Widget _resultBox({
-    required String title,
-    required String value,
-    required Color color,
-    required double width,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 4),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color, width: 2),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 9,
-              fontWeight: FontWeight.w900,
-              color: Color(0xFF126FC0),
-            ),
-          ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: clampDouble(width * 0.038, 15, 19),
-              fontWeight: FontWeight.w900,
-              color: color,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   Widget _popupButton({
