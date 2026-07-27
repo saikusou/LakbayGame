@@ -16,9 +16,9 @@ class LessonFourDayOneActThree extends StatefulWidget {
 
 class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
   static const int pointsPerPuzzle = 20;
-  static const int totalPuzzleCount = 5;
+  static const int totalPuzzleCount = 6; // Changed from 5 to 6
   static const int maximumScore =
-      pointsPerPuzzle * totalPuzzleCount; // 100 points
+      pointsPerPuzzle * totalPuzzleCount; // 120 points (was 100)
 
   /*
    * Each puzzle needs:
@@ -72,6 +72,16 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
         'assets/l3-d1-20.png',
       ],
       correctImage: 'assets/l3-d1-complete-5.png',
+    ),
+    // Added 6th puzzle
+    PuzzleData(
+      pieces: [
+        'assets/l3-d1-21.png',
+        'assets/l3-d1-22.png',
+        'assets/l3-d1-24.png',
+        'assets/l3-d1-23.png',
+      ],
+      correctImage: 'assets/l3-d1-complete-6.png',
     ),
   ];
 
@@ -193,7 +203,7 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
 
     _timer?.cancel();
 
-    // Save all 100 points after completing puzzle 5.
+    // Save all 120 points after completing puzzle 6.
     if (isLastPuzzle) {
       await _saveFinalScore();
     }
@@ -322,7 +332,7 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
                 const SizedBox(height: 3),
                 Text(
                   finalPuzzle
-                      ? 'Natapos mo ang lahat ng limang puzzle!'
+                      ? 'Natapos mo ang lahat ng anim na puzzle!' // Updated text
                       : 'Nabuo mo ang Puzzle ${currentPuzzleNumber.toString()}.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
@@ -836,7 +846,7 @@ class _LessonFourDayOneActThreeState extends State<LessonFourDayOneActThree> {
                             ),
                           ),
                           child: Text(
-                            'Puzzle $currentPuzzleNumber of 5\n'
+                            'Puzzle $currentPuzzleNumber of 6\n' // Updated to 6
                             'Ayusin ang apat na bahagi upang '
                             'mabuo ang larawan.',
                             textAlign: TextAlign.center,
