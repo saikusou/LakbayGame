@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:lakbay_game/User/models/user_model.dart';
 import 'package:lakbay_game/Views/game/lesson-two/day-two/act23c.dart';
+import 'package:lakbay_game/Views/game/lesson-two/day-two/act24.dart';
 import 'package:lakbay_game/services/api_service.dart';
 
 class LessonTwoDayTwoActTwo3 extends StatefulWidget {
@@ -16,10 +17,10 @@ class LessonTwoDayTwoActTwo3 extends StatefulWidget {
 
 class _LessonTwoDayTwoActTwo3State extends State<LessonTwoDayTwoActTwo3> {
   final List<String> pieces = [
-    'assets/l2-d1c-1.png',
-    'assets/l2-d1c-2.png',
-    'assets/l2-d1c-3.png',
-    'assets/l2-d1c-4.png',
+    'assets/l2-d1a-1.png',
+    'assets/l2-d1a-2.png',
+    'assets/l2-d1a-3.png',
+    'assets/l2-d1a-4.png',
   ];
 
   final List<int?> placed = List<int?>.filled(4, null);
@@ -216,7 +217,7 @@ class _LessonTwoDayTwoActTwo3State extends State<LessonTwoDayTwoActTwo3> {
 
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (_) => LessonTwoDayTwoActTwoD(user: widget.user),
+        builder: (_) => LessonTwoDayTwoActTwo4(user: widget.user),
       ),
     );
   }

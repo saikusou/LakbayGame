@@ -288,15 +288,28 @@ class _LessonOneDayOneActThreeBState extends State<LessonOneDayOneActThreeB> {
     }
   }
 
+  // FIXED: Navigation method with proper error handling and debugging
   void goToNextPage() {
     if (!mounted) {
       return;
     }
 
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => Lesson1Screen(user: widget.user)),
-      (Route<dynamic> route) => false,
-    );
+    try {
+      // Use pushReplacement for cleaner navigation
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (BuildContext context) => Lesson1Screen(user: widget.user),
+        ),
+      );
+    } catch (e) {
+      // Fallback navigation if pushReplacement fails
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (BuildContext context) => Lesson1Screen(user: widget.user),
+        ),
+        (Route<dynamic> route) => false,
+      );
+    }
   }
 
   Future<void> checkAnswer() async {
@@ -696,8 +709,9 @@ class _LessonOneDayOneActThreeBState extends State<LessonOneDayOneActThreeB> {
                       height: isSmallPhone ? 50 : 56,
                       child: ElevatedButton.icon(
                         onPressed: () {
+                          // Close the dialog
                           Navigator.of(finishedDialogContext).pop();
-
+                          // Navigate to Lesson 1
                           if (mounted) {
                             goToNextPage();
                           }
