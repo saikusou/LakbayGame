@@ -38,7 +38,7 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
         'Mga ninuno ng Pilipino',
         'Uri ng pagkain noon',
       ],
-      'correct': 2,
+      'correct': 1,
       'imageIndex': 0,
     },
     {
@@ -57,7 +57,7 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
       'number': 3,
       'question': 'Anong ebidensya ang ginagamit sa gawaing ito?',
       'choices': ['Timeline', 'Larawan', 'Mapa', 'Awit'],
-      'correct': 1,
+      'correct': 2,
       'imageIndex': 0,
     },
     // Round 2 - Image 2 (Questions 4-6)
@@ -65,7 +65,7 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
       'number': 4,
       'question': 'Ano ang dapat mauna sa timeline?',
       'choices': ['24,000 taon', '67,000 taon', '709,000 taon', '2025 taon'],
-      'correct': 0,
+      'correct': 2,
       'imageIndex': 1,
     },
     {
@@ -115,14 +115,14 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
         'Dahil modernong imbensyon ito',
         'Dahil gawa it ng ibang bansa',
       ],
-      'correct': 2,
+      'correct': 0,
       'imageIndex': 2,
     },
     {
       'number': 9,
       'question': 'Anong ebidensya ang ginamit sa gawaing ito?',
       'choices': ['Mapa', 'Timeline', 'Larawan at simbulo', 'Numero'],
-      'correct': 0,
+      'correct': 2,
       'imageIndex': 2,
     },
   ];
