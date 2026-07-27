@@ -82,6 +82,14 @@ class _LessonTwoDayOneActTwoState extends State<LessonTwoDayOneActTwo> {
     );
   }
 
+  void navigateToLesson2() {
+    if (mounted) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => Lesson2Screen(user: widget.user)),
+      );
+    }
+  }
+
   Future<void> saveScoreAndReturn() async {
     if (isSaving) return;
 
@@ -94,11 +102,8 @@ class _LessonTwoDayOneActTwoState extends State<LessonTwoDayOneActTwo> {
 
       if (!mounted) return;
 
-      Navigator.of(context, rootNavigator: true).pop();
-
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => Lesson2Screen(user: widget.user)),
-      );
+      // Navigate immediately after saving
+      navigateToLesson2();
     } catch (error) {
       if (!mounted) return;
 
@@ -106,8 +111,6 @@ class _LessonTwoDayOneActTwoState extends State<LessonTwoDayOneActTwo> {
         isSaving = false;
         dialogIsOpen = false;
       });
-
-      Navigator.of(context, rootNavigator: true).pop();
 
       showDialog(
         context: context,
@@ -301,13 +304,14 @@ class _LessonTwoDayOneActTwoState extends State<LessonTwoDayOneActTwo> {
                       ? null
                       : () async {
                           if (isLastQuestion) {
-                            setState(() {
-                              isSaving = true;
+                            // Close the dialog first
+                            Navigator.pop(dialogContext);
+
+                            // Navigate immediately after dialog closes
+                            // Use a microtask to ensure dialog is fully dismissed
+                            Future.microtask(() {
+                              saveScoreAndReturn();
                             });
-
-                            setDialogState(() {});
-
-                            await saveScoreAndReturn();
                           } else {
                             Navigator.pop(dialogContext);
                             goToNextQuestion();
@@ -652,11 +656,8 @@ class _LessonTwoDayOneActTwoState extends State<LessonTwoDayOneActTwo> {
               },
             ),
           ),
-
           numberIndicator(size),
-
           homeButton(context, size),
-
           Positioned(
             left: clampDouble(size.width * 0.025, 8, 15),
             right: clampDouble(size.width * 0.025, 8, 15),
@@ -686,9 +687,7 @@ class _LessonTwoDayOneActTwoState extends State<LessonTwoDayOneActTwo> {
                         return answerBox(index, boxWidth, boxHeight);
                       }),
                     ),
-
                     SizedBox(height: clampDouble(size.height * 0.012, 5, 10)),
-
                     ConstrainedBox(
                       constraints: BoxConstraints(
                         minHeight: tileSize + 8,
@@ -715,9 +714,7 @@ class _LessonTwoDayOneActTwoState extends State<LessonTwoDayOneActTwo> {
                         }),
                       ),
                     ),
-
                     SizedBox(height: clampDouble(size.height * 0.008, 4, 8)),
-
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
