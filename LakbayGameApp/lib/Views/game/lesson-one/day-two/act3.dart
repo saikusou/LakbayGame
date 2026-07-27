@@ -99,61 +99,95 @@ class _LessonOneDayTwoActThreeState extends State<LessonOneDayTwoActThree> {
             horizontal: clampDouble(size.width * 0.04, 12, 24),
             vertical: clampDouble(size.height * 0.04, 12, 24),
           ),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Image.asset(
-                'assets/lesson-two-day2-act3-c2.png',
-                fit: BoxFit.fill,
-              ),
-
-              Positioned(
-                top: clampDouble(size.height * 0.015, 8, 16),
-                right: clampDouble(size.width * 0.025, 8, 16),
-                child: GestureDetector(
-                  onTap: () => Navigator.pop(dialogContext),
-                  child: Container(
-                    width: clampDouble(size.width * 0.11, 34, 45),
-                    height: clampDouble(size.width * 0.11, 34, 45),
-                    decoration: const BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
+          child: Container(
+            width: size.width * 0.85,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Image container
+                Container(
+                  width: double.infinity,
+                  height: size.height * 0.5,
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
                     ),
-                    child: Icon(
-                      Icons.close,
-                      color: Colors.white,
-                      size: clampDouble(size.width * 0.07, 22, 30),
+                    image: const DecorationImage(
+                      image: AssetImage('assets/lesson-two-day2-act3-c2.png'),
+                      fit: BoxFit.fill,
+                    ),
+                  ),
+                  child: Stack(
+                    children: [
+                      // Close button
+                      Positioned(
+                        top: clampDouble(size.height * 0.015, 8, 16),
+                        right: clampDouble(size.width * 0.025, 8, 16),
+                        child: GestureDetector(
+                          onTap: () => Navigator.pop(dialogContext),
+                          child: Container(
+                            width: clampDouble(size.width * 0.11, 34, 45),
+                            height: clampDouble(size.width * 0.11, 34, 45),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.close,
+                              color: Colors.white,
+                              size: clampDouble(size.width * 0.07, 22, 30),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // OK Button - outside the image
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    vertical: clampDouble(size.height * 0.02, 12, 20),
+                  ),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(20),
+                      bottomRight: Radius.circular(20),
+                    ),
+                  ),
+                  child: Center(
+                    child: ElevatedButton(
+                      onPressed: goToNextPage,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: clampDouble(size.width * 0.08, 24, 42),
+                          vertical: clampDouble(size.height * 0.015, 9, 14),
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        side: const BorderSide(color: Colors.white, width: 3),
+                      ),
+                      child: Text(
+                        'OK',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: clampDouble(size.width * 0.04, 14, 18),
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-
-              Positioned(
-                bottom: clampDouble(size.height * 0.035, 18, 32),
-                child: ElevatedButton(
-                  onPressed: goToNextPage,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: clampDouble(size.width * 0.08, 24, 42),
-                      vertical: clampDouble(size.height * 0.015, 9, 14),
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    side: const BorderSide(color: Colors.white, width: 3),
-                  ),
-                  child: Text(
-                    'OK',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: clampDouble(size.width * 0.04, 14, 18),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },

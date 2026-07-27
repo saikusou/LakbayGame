@@ -14,11 +14,10 @@ class LessonOneDayThreeActThree extends StatefulWidget {
 }
 
 class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
-  int currentRound = 1;
+  int currentImageIndex = 0;
 
-  int? answer1;
-  int? answer2;
-  int? answer3;
+  // Answers for all 9 questions
+  List<int?> answers = List.filled(9, null);
 
   bool isSaving = false;
 
@@ -28,31 +27,122 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
     'assets/lesson-one-day3-act3c.png',
   ];
 
+  final List<Map<String, dynamic>> allQuestions = [
+    // Round 1 - Image 1 (Questions 1-3)
+    {
+      'number': 1,
+      'question': 'Ano ang ipinapakita ng mapa?',
+      'choices': [
+        'Mga hayop sa Pilipinas',
+        'Ruta ng paglalakbay',
+        'Mga ninuno ng Pilipino',
+        'Uri ng pagkain noon',
+      ],
+      'correct': 2,
+      'imageIndex': 0,
+    },
+    {
+      'number': 2,
+      'question': 'Bakit naging posible ang paglalakbay noon?',
+      'choices': [
+        'Dahil may eroplano',
+        'Dahil magkakalapit ang mga pulo',
+        'Dahil may tulay',
+        'Dahil may kotse',
+      ],
+      'correct': 1,
+      'imageIndex': 0,
+    },
+    {
+      'number': 3,
+      'question': 'Anong ebidensya ang ginagamit sa gawaing ito?',
+      'choices': ['Timeline', 'Larawan', 'Mapa', 'Awit'],
+      'correct': 1,
+      'imageIndex': 0,
+    },
+    // Round 2 - Image 2 (Questions 4-6)
+    {
+      'number': 4,
+      'question': 'Ano ang dapat mauna sa timeline?',
+      'choices': ['24,000 taon', '67,000 taon', '709,000 taon', '2025 taon'],
+      'correct': 0,
+      'imageIndex': 1,
+    },
+    {
+      'number': 5,
+      'question': 'Ano ang ipinapakita ng timeline?',
+      'choices': [
+        'Ayos ng pangyayari ayon sa panahon',
+        'Uri ng hayop',
+        'Lokasyon ng dagat',
+        'Mga pagkain noon',
+      ],
+      'correct': 0,
+      'imageIndex': 1,
+    },
+    {
+      'number': 6,
+      'question': 'Ano ang pinapatutunayan ng mga ebidensya?',
+      'choices': [
+        'Walang tao noon',
+        'Matagal nang may tao sa Pilipinas',
+        'Bagong bansa ang pilipinas',
+        'Walang sinaunang kultura',
+      ],
+      'correct': 1,
+      'imageIndex': 1,
+    },
+
+    // Round 3 - Image 3 (Questions 7-9)
+    {
+      'number': 7,
+      'question': 'Ano ang ipinapakita ng mga simbolong ito?',
+      'choices': [
+        'Kulturang Pilipino',
+        'Modernong teknolohiya',
+        'Mga sasakyan',
+        'Mga gusali',
+      ],
+      'correct': 0,
+      'imageIndex': 2,
+    },
+    {
+      'number': 8,
+      'question': 'Bakit mahalaga ang kaalamang bayan?',
+      'choices': [
+        'Dahil nagpapakita ito ng tradisyon at paniniwala',
+        'Dahil ginagamit sa laro',
+        'Dahil modernong imbensyon ito',
+        'Dahil gawa it ng ibang bansa',
+      ],
+      'correct': 2,
+      'imageIndex': 2,
+    },
+    {
+      'number': 9,
+      'question': 'Anong ebidensya ang ginamit sa gawaing ito?',
+      'choices': ['Mapa', 'Timeline', 'Larawan at simbulo', 'Numero'],
+      'correct': 0,
+      'imageIndex': 2,
+    },
+  ];
+
   double clampDouble(double value, double min, double max) {
     final double low = min < max ? min : max;
     final double high = min < max ? max : min;
     return value.clamp(low, high).toDouble();
   }
 
-  String get currentImage => images[currentRound - 1];
+  String get currentImage => images[currentImageIndex];
 
-  int? get currentAnswer {
-    if (currentRound == 1) return answer1;
-    if (currentRound == 2) return answer2;
-    return answer3;
+  List<Map<String, dynamic>> get currentQuestions {
+    return allQuestions
+        .where((q) => q['imageIndex'] == currentImageIndex)
+        .toList();
   }
 
-  void setCurrentAnswer(int value) {
-    setState(() {
-      if (currentRound == 1) {
-        answer1 = value;
-      } else if (currentRound == 2) {
-        answer2 = value;
-      } else {
-        answer3 = value;
-      }
-    });
-  }
+  int get startIndex => currentImageIndex * 3;
+  int get endIndex => startIndex + 3;
 
   Future<void> handleSavePoints({required int totalScore}) async {
     await ApiService.savePoints(
@@ -64,33 +154,6 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
     );
   }
 
-  void nextRound() {
-    if (currentAnswer == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Pumili muna ng sagot bago magpatuloy.'),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 2),
-        ),
-      );
-      return;
-    }
-
-    if (currentRound < 3) {
-      setState(() => currentRound++);
-    } else {
-      showResultPopup();
-    }
-  }
-
-  void backRound() {
-    if (currentRound > 1) {
-      setState(() => currentRound--);
-    } else {
-      Navigator.pop(context);
-    }
-  }
-
   void goHome() {
     Navigator.pushReplacement(
       context,
@@ -98,18 +161,55 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
     );
   }
 
-  int getScore() {
+  bool isRoundComplete() {
+    for (int i = startIndex; i < endIndex; i++) {
+      if (answers[i] == null) return false;
+    }
+    return true;
+  }
+
+  bool isAllQuestionsAnswered() {
+    return answers.every((answer) => answer != null);
+  }
+
+  int getTotalScore() {
     int score = 0;
-
-    if (answer1 == 1) score += 5;
-    if (answer2 == 0) score += 5;
-    if (answer3 == 0) score += 5;
-
+    for (int i = 0; i < allQuestions.length; i++) {
+      if (answers[i] == allQuestions[i]['correct']) {
+        score += 5;
+      }
+    }
     return score;
   }
 
+  void nextRound() {
+    if (!isRoundComplete()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Sagutin muna ang lahat ng tanong bago magpatuloy.'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    if (currentImageIndex < 2) {
+      setState(() => currentImageIndex++);
+    } else {
+      showResultPopup();
+    }
+  }
+
+  void previousRound() {
+    if (currentImageIndex > 0) {
+      setState(() => currentImageIndex--);
+    }
+  }
+
   void showResultPopup() {
-    final int score = getScore();
+    final int score = getTotalScore();
+    final int maxScore = 45;
 
     showDialog(
       context: context,
@@ -146,7 +246,7 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'Iskor: $score / 15',
+                      'Kabuuang Iskor: $score / $maxScore',
                       style: TextStyle(
                         fontSize: clampDouble(size.width * 0.048, 17, 22),
                         fontWeight: FontWeight.bold,
@@ -231,31 +331,32 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
 
     return InkWell(
       onTap: () => onChanged(index),
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(6),
       child: Container(
         width: compact ? double.infinity : null,
         margin: EdgeInsets.symmetric(
-          horizontal: compact ? 0 : 4,
-          vertical: compact ? 3 : 0,
+          horizontal: compact ? 0 : 2,
+          vertical: compact ? 1 : 0,
         ),
         padding: EdgeInsets.symmetric(
-          vertical: clampDouble(fontSize * 0.75, 7, 11),
-          horizontal: 6,
+          vertical: clampDouble(fontSize * 0.35, 3, 6),
+          horizontal: 4,
         ),
         decoration: BoxDecoration(
           color: selected ? const Color(0xffffdf7e) : const Color(0xfffff6cf),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: const Color(0xffc28a2c), width: 1.5),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: const Color(0xffc28a2c), width: 1.2),
         ),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               selected ? Icons.radio_button_checked : Icons.radio_button_off,
-              size: fontSize + 5,
+              size: fontSize + 1,
               color: const Color(0xff7a4b10),
             ),
-            const SizedBox(width: 5),
-            Expanded(
+            const SizedBox(width: 3),
+            Flexible(
               child: Text(
                 text.replaceAll('\n', ' '),
                 textAlign: TextAlign.center,
@@ -282,22 +383,23 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
     required double width,
   }) {
     final bool compact = width < 390;
-    final double questionFont = clampDouble(width * 0.042, 14, 20);
-    final double choiceFont = clampDouble(width * 0.032, 11, 15);
+    final double questionFont = clampDouble(width * 0.026, 10, 14);
+    final double choiceFont = clampDouble(width * 0.022, 9, 12);
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(clampDouble(width * 0.03, 10, 18)),
+      padding: EdgeInsets.all(clampDouble(width * 0.018, 6, 10)),
       decoration: BoxDecoration(
-        color: const Color(0xffffeaa5),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xffa96c19), width: 2.5),
+        color: const Color(0xffffeaa5).withOpacity(0.92),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xffa96c19), width: 1.5),
         boxShadow: const [
-          BoxShadow(color: Colors.black26, blurRadius: 3, offset: Offset(1, 3)),
+          BoxShadow(color: Colors.black26, blurRadius: 2, offset: Offset(1, 2)),
         ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -316,14 +418,14 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
                   softWrap: true,
                   style: TextStyle(
                     fontSize: questionFont,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w700,
                     color: const Color(0xff3d2408),
                   ),
                 ),
               ),
             ],
           ),
-          SizedBox(height: clampDouble(width * 0.022, 8, 13)),
+          SizedBox(height: clampDouble(width * 0.01, 3, 6)),
           compact
               ? Column(
                   children: List.generate(
@@ -338,18 +440,18 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
                     ),
                   ),
                 )
-              : Row(
+              : Wrap(
+                  spacing: 3,
+                  runSpacing: 3,
                   children: List.generate(
                     choices.length,
-                    (index) => Expanded(
-                      child: choiceButton(
-                        text: choices[index],
-                        index: index,
-                        groupValue: groupValue,
-                        onChanged: onChanged,
-                        fontSize: choiceFont,
-                        compact: false,
-                      ),
+                    (index) => choiceButton(
+                      text: choices[index],
+                      index: index,
+                      groupValue: groupValue,
+                      onChanged: onChanged,
+                      fontSize: choiceFont,
+                      compact: false,
                     ),
                   ),
                 ),
@@ -358,60 +460,18 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
     );
   }
 
-  Widget currentQuestionCard(double screenW) {
-    if (currentRound == 1) {
-      return questionCard(
-        number: 1,
-        question: 'Ano ang ipinapakita ng mapa?',
-        choices: const [
-          'Mga hayop sa Pilipinas',
-          'Ruta ng paglalakbay',
-          'Mga ninuno ng Pilipino',
-          'Uri ng pagkain noon',
-        ],
-        groupValue: answer1,
-        onChanged: setCurrentAnswer,
-        width: screenW,
-      );
-    }
-
-    if (currentRound == 2) {
-      return questionCard(
-        number: 2,
-        question: 'Ano ang ginamit sa paglalakbay?',
-        choices: const ['Bangka', 'Kotse', 'Tren', 'Bisikleta'],
-        groupValue: answer2,
-        onChanged: setCurrentAnswer,
-        width: screenW,
-      );
-    }
-
-    return questionCard(
-      number: 3,
-      question: 'Sino ang tinutukoy sa aralin?',
-      choices: const [
-        'Mga ninuno',
-        'Mga turista',
-        'Mga sundalo',
-        'Mga mangangalakal',
-      ],
-      groupValue: answer3,
-      onChanged: setCurrentAnswer,
-      width: screenW,
-    );
-  }
-
   Widget bottomButton(String text, double fontSize, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(8),
       child: Container(
-        height: clampDouble(fontSize * 3.6, 40, 50),
+        height: clampDouble(fontSize * 2.8, 30, 38),
         alignment: Alignment.center,
+        padding: EdgeInsets.symmetric(horizontal: 6),
         decoration: BoxDecoration(
           color: const Color(0xff8b4b12),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xffffb33b), width: 2),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: const Color(0xffffb33b), width: 1.5),
         ),
         child: FittedBox(
           fit: BoxFit.scaleDown,
@@ -438,13 +498,16 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
           final double screenH = constraints.maxHeight;
 
           final bool smallHeight = screenH < 700;
+          final bool smallWidth = screenW < 400;
 
-          final double horizontalPadding = clampDouble(screenW * 0.035, 10, 18);
-          final double topButtonSize = clampDouble(screenW * 0.095, 34, 46);
-          final double bottomFont = clampDouble(screenW * 0.033, 11, 15);
+          final double horizontalPadding = clampDouble(screenW * 0.025, 6, 14);
+          final double topButtonSize = clampDouble(screenW * 0.07, 28, 38);
+          final double bottomFont = clampDouble(screenW * 0.024, 9, 12);
 
-          final double bottomCardPadding = smallHeight ? 10 : 20;
-          final double maxCardHeight = screenH * (smallHeight ? 0.40 : 0.36);
+          final double bottomCardPadding = smallHeight ? 4 : 8;
+          final double maxCardHeight = screenH * (smallHeight ? 0.35 : 0.38);
+
+          final questions = currentQuestions;
 
           return Stack(
             children: [
@@ -455,21 +518,47 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
                 child: Stack(
                   children: [
                     Positioned(
-                      top: clampDouble(screenH * 0.015, 8, 16),
+                      top: clampDouble(screenH * 0.008, 4, 10),
                       left: horizontalPadding,
                       child: circleButton(
                         icon: Icons.arrow_back,
                         size: topButtonSize,
-                        onTap: backRound,
+                        onTap: currentImageIndex > 0 ? previousRound : goHome,
                       ),
                     ),
                     Positioned(
-                      top: clampDouble(screenH * 0.015, 8, 16),
+                      top: clampDouble(screenH * 0.008, 4, 10),
                       right: horizontalPadding,
                       child: circleButton(
                         icon: Icons.home,
                         size: topButtonSize,
                         onTap: goHome,
+                      ),
+                    ),
+                    // Round indicator
+                    Positioned(
+                      top: clampDouble(screenH * 0.008, 4, 10),
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.6),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Text(
+                            'Round ${currentImageIndex + 1} of 3',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: clampDouble(screenW * 0.03, 10, 14),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                     Positioned(
@@ -483,37 +572,123 @@ class _LessonOneDayThreeActThreeState extends State<LessonOneDayThreeActThree> {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              currentQuestionCard(screenW),
+                              // Display 3 questions for current image
+                              for (int i = 0; i < questions.length; i++)
+                                Column(
+                                  children: [
+                                    questionCard(
+                                      number: questions[i]['number'],
+                                      question: questions[i]['question'],
+                                      choices: List<String>.from(
+                                        questions[i]['choices'],
+                                      ),
+                                      groupValue: answers[startIndex + i],
+                                      onChanged: (value) {
+                                        setState(() {
+                                          answers[startIndex + i] = value;
+                                        });
+                                      },
+                                      width: screenW,
+                                    ),
+                                    if (i < questions.length - 1)
+                                      SizedBox(
+                                        height: clampDouble(
+                                          screenH * 0.006,
+                                          3,
+                                          6,
+                                        ),
+                                      ),
+                                  ],
+                                ),
                               SizedBox(
-                                height: clampDouble(screenH * 0.014, 7, 14),
+                                height: clampDouble(screenH * 0.006, 3, 6),
                               ),
                               Row(
                                 children: [
                                   Expanded(
                                     child: bottomButton(
-                                      'BABALIK',
+                                      currentImageIndex == 0 ? 'BACK' : 'PREV',
                                       bottomFont,
-                                      backRound,
+                                      currentImageIndex > 0
+                                          ? previousRound
+                                          : goHome,
                                     ),
                                   ),
-                                  const SizedBox(width: 8),
+                                  const SizedBox(width: 4),
                                   Expanded(
                                     flex: 2,
                                     child: bottomButton(
-                                      'Round $currentRound / 3',
-                                      bottomFont,
-                                      () {},
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: bottomButton(
-                                      currentRound == 3 ? 'SUBMIT' : 'SUSUNOD',
+                                      currentImageIndex == 2
+                                          ? 'FINISH'
+                                          : 'NEXT →',
                                       bottomFont,
                                       nextRound,
                                     ),
                                   ),
                                 ],
+                              ),
+                              // Progress indicator
+                              SizedBox(
+                                height: clampDouble(screenH * 0.004, 2, 4),
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: List.generate(3, (index) {
+                                  bool isCompleted = true;
+                                  for (
+                                    int i = index * 3;
+                                    i < (index * 3) + 3;
+                                    i++
+                                  ) {
+                                    if (answers[i] == null) {
+                                      isCompleted = false;
+                                      break;
+                                    }
+                                  }
+                                  return Row(
+                                    children: [
+                                      Container(
+                                        width: clampDouble(
+                                          screenW * 0.04,
+                                          14,
+                                          20,
+                                        ),
+                                        height: 3,
+                                        decoration: BoxDecoration(
+                                          color: currentImageIndex == index
+                                              ? Colors.orange
+                                              : isCompleted
+                                              ? Colors.green
+                                              : Colors.grey,
+                                          borderRadius: BorderRadius.circular(
+                                            2,
+                                          ),
+                                        ),
+                                      ),
+                                      if (index < 2) SizedBox(width: 5),
+                                    ],
+                                  );
+                                }),
+                              ),
+                              SizedBox(
+                                height: clampDouble(screenH * 0.003, 1, 3),
+                              ),
+                              Text(
+                                '${answers.where((a) => a != null).length} of 9 answered',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: clampDouble(screenW * 0.02, 8, 11),
+                                  fontWeight: FontWeight.bold,
+                                  shadows: [
+                                    Shadow(
+                                      color: Colors.black.withOpacity(0.8),
+                                      blurRadius: 3,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                height: clampDouble(screenH * 0.003, 1, 3),
                               ),
                             ],
                           ),

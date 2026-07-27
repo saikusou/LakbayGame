@@ -75,50 +75,123 @@ class _LessonOneDayTwoActThreeAState extends State<LessonOneDayTwoActThreeA> {
     );
   }
 
-  Future<void> saveAndGoNext(BuildContext dialogContext) async {
-    if (isSaving) return;
+  void showImagePopup() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        final size = MediaQuery.of(dialogContext).size;
 
-    setState(() {
-      isSaving = true;
-    });
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: EdgeInsets.symmetric(
+            horizontal: clampDouble(size.width * 0.04, 12, 24),
+            vertical: clampDouble(size.height * 0.04, 12, 24),
+          ),
+          child: Container(
+            width: size.width * 0.85,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Image container
+                Container(
+                  width: double.infinity,
+                  height: size.height * 0.5,
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                    ),
+                    image: const DecorationImage(
+                      image: AssetImage('assets/lesson-two-day2-act3-c3.png'),
+                      fit: BoxFit.fill,
+                    ),
+                  ),
+                  child: Stack(
+                    children: [
+                      // Close button
+                      Positioned(
+                        top: clampDouble(size.height * 0.015, 8, 16),
+                        right: clampDouble(size.width * 0.025, 8, 16),
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pop(dialogContext);
+                            // Show congratulations after closing image popup
+                            showCongratulationsDialog();
+                          },
+                          child: Container(
+                            width: clampDouble(size.width * 0.11, 34, 45),
+                            height: clampDouble(size.width * 0.11, 34, 45),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.close,
+                              color: Colors.white,
+                              size: clampDouble(size.width * 0.07, 22, 30),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
 
-    try {
-      await handleSavePoints(totalScore: score);
-
-      if (!mounted) return;
-
-      Navigator.pop(dialogContext);
-      goToNextPage();
-    } catch (e) {
-      if (!mounted) return;
-
-      setState(() {
-        isSaving = false;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Hindi na-save ang score: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+                // NEXT Button - outside the image
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    vertical: clampDouble(size.height * 0.02, 12, 20),
+                  ),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(20),
+                      bottomRight: Radius.circular(20),
+                    ),
+                  ),
+                  child: Center(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(dialogContext);
+                        // Show congratulations after closing image popup
+                        showCongratulationsDialog();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: clampDouble(size.width * 0.08, 24, 42),
+                          vertical: clampDouble(size.height * 0.015, 9, 14),
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        side: const BorderSide(color: Colors.white, width: 3),
+                      ),
+                      child: Text(
+                        'NEXT',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: clampDouble(size.width * 0.04, 14, 18),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
-  void submitAnswers() {
-    if (userAnswer != correctAnswer) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Maling sagot! Subukan muli.',
-            textAlign: TextAlign.center,
-          ),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
+  void showCongratulationsDialog() {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -248,6 +321,24 @@ class _LessonOneDayTwoActThreeAState extends State<LessonOneDayTwoActThreeA> {
         );
       },
     );
+  }
+
+  void submitAnswers() {
+    if (userAnswer != correctAnswer) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Maling sagot! Subukan muli.',
+            textAlign: TextAlign.center,
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Show image popup first
+    showImagePopup();
   }
 
   Widget inputBox(int index, double boxSize) {
